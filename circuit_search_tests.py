@@ -4,6 +4,19 @@ from circuit_search import find_circuit, CircuitFinder
 import unittest
 
 
+def verify_sum_circuit(circuit):
+    truth_tables = circuit.get_truth_tables()
+    n = len(circuit.input_labels)
+
+    for x in product(range(2), repeat=n):
+        i = sum((2 ** (n - 1 - j)) * x[j] for j in range(n))
+        s = sum(truth_tables[circuit.outputs[d]][i] * (2 ** d) for d in range(len(circuit.outputs)))
+        if s != sum(x):
+            return False
+
+    return True
+
+
 class TestCircuitSearch(unittest.TestCase):
     def check_exact_circuit_size(self, n, size, truth_tables):
         self.assertIsInstance(find_circuit(n, None, None, size, truth_tables), Circuit)
@@ -103,34 +116,22 @@ class TestCircuitSearch(unittest.TestCase):
             find_circuit(5, ['g5', 'g8', 'g9', 'g11', 'g12'], [tt[5], tt[8], tt[9], tt[11], tt[12]], 5,
                          [tt[14], tt[16], tt[17]]), Circuit)
 
-    def test_sum4_with_precomputed_xor(self):
-        n = 4
-        tt = [
-            ''.join(str(sum(x) & 1) for x in product(range(2), repeat=n)),
-            ''.join(str((sum(x) >> 1) & 1) for x in product(range(2), repeat=n)),
-            ''.join(str((sum(x) >> 2) & 1) for x in product(range(2), repeat=n))
-        ]
+    def test_sum_with_precomputed_xor(self):
+        for n, size in ((4, 9), (5, 11)):
+            tt = [
+                ''.join(str(sum(x) & 1) for x in product(range(2), repeat=n)),
+                ''.join(str((sum(x) >> 1) & 1) for x in product(range(2), repeat=n)),
+                ''.join(str((sum(x) >> 2) & 1) for x in product(range(2), repeat=n))
+            ]
 
-        circuit_finder = CircuitFinder(4, None, None, 9, tt)
-        circuit_finder.fix_gate(4, 0, 1, '0110')
-        circuit_finder.fix_gate(5, 2, 4, '0110')
-        circuit_finder.fix_gate(6, 3, 5, '0110')
-        self.assertIsInstance(circuit_finder.solve_cnf_formula(verbose=0), Circuit)
+            circuit_finder = CircuitFinder(n, None, None, size, tt)
+            circuit_finder.fix_gate(n, 0, 1, '0110')
+            for k in range(n - 2):
+                circuit_finder.fix_gate(n + k + 1, k + 2, n + k, '0110')
+            circuit = circuit_finder.solve_cnf_formula(verbose=0)
+            self.assertIsInstance(circuit, Circuit)
+            self.assertTrue(verify_sum_circuit(circuit))
 
-    def test_sum5_with_precomputed_xor(self):
-        n = 5
-        tt = [
-            ''.join(str(sum(x) & 1) for x in product(range(2), repeat=n)),
-            ''.join(str((sum(x) >> 1) & 1) for x in product(range(2), repeat=n)),
-            ''.join(str((sum(x) >> 2) & 1) for x in product(range(2), repeat=n))
-        ]
-
-        circuit_finder = CircuitFinder(5, None, None, 11, tt)
-        circuit_finder.fix_gate(5, 0, 1, '0110')
-        circuit_finder.fix_gate(6, 2, 5, '0110')
-        circuit_finder.fix_gate(7, 3, 6, '0110')
-        circuit_finder.fix_gate(8, 4, 7, '0110')
-        self.assertIsInstance(circuit_finder.solve_cnf_formula(verbose=0), Circuit)
 
 if __name__ == '__main__':
     unittest.main()
