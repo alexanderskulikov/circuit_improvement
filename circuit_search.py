@@ -195,6 +195,33 @@ class CircuitFinder:
 
         return Circuit(self.input_labels, gate_descriptions, output_gates)
 
+    # The following method allow to further restrict the internal structure of a circuit.
+    # Only use the following method if you know what you are doing.
+    # The parameters gate, first_predecessor, second_predecessor are gate indices (rather than labels).
+    # Make sure that the gate type is normal, if you function is normal.
+    def fix_gate(self, gate, first_predecessor=None, second_predecessor=None, gate_type=None):
+        assert gate in self.internal_gates
+
+        if first_predecessor is not None and second_predecessor is not None:
+            assert first_predecessor in self.gates
+            assert second_predecessor in self.gates
+            self.clauses += [[self.predecessors_variable(gate, first_predecessor, second_predecessor)]]
+        else:
+            if first_predecessor is not None:
+                assert first_predecessor in self.gates
+                assert not second_predecessor
+                for a, b in combinations(gate, 2):
+                    if a != first_predecessor and b != first_predecessor:
+                        self.clauses += [[-self.predecessors_variable(gate, a, b)]]
+
+        if gate_type:
+            assert isinstance(gate_type, str) and len(gate_type) == 4
+
+            for a, b in product(range(2), repeat=2):
+                bit = int(gate_type[2 * a + b])
+                assert bit in range(2)
+                self.clauses += [[(1 if bit else -1) * self.gate_type_variable(gate, a, b)]]
+
 
 def find_circuit(dimension, input_labels, input_truth_tables, number_of_gates, output_truth_tables):
     circuit_finder = CircuitFinder(dimension, input_labels, input_truth_tables, number_of_gates, output_truth_tables)
