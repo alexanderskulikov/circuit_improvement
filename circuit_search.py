@@ -125,6 +125,23 @@ class CircuitFinder:
                         (1 if self.output_truth_tables[h][t] == '1' else -1) * self.gate_value_variable(gate, t)
                     ]]
 
+        # if a function to be computed is normal (i.e., 0-preserving),
+        # we may assume that all the gates are normal, too
+        if all((table[0] == '0' or table[0] == '*') for table in self.output_truth_tables):
+            for gate in self.internal_gates:
+                self.clauses += [[-self.gate_type_variable(gate, 0, 0)]]
+
+                # the gate computes non-degenerate function
+                self.clauses += [[self.gate_type_variable(gate, 0, 1), self.gate_type_variable(gate, 1, 0), self.gate_type_variable(gate, 1, 1)]]
+                self.clauses += [[self.gate_type_variable(gate, 0, 1), -self.gate_type_variable(gate, 1, 0), -self.gate_type_variable(gate, 1, 1)]]
+                self.clauses += [[-self.gate_type_variable(gate, 0, 1), self.gate_type_variable(gate, 1, 0), -self.gate_type_variable(gate, 1, 1)]]
+        else:
+            for gate in self.internal_gates:
+                # the gate computes non-degenerate function
+                self.clauses += [[self.gate_type_variable(gate, 0, 0), self.gate_type_variable(gate, 0, 1), self.gate_type_variable(gate, 1, 0), self.gate_type_variable(gate, 1, 1)]]
+                self.clauses += [[self.gate_type_variable(gate, 0, 0), self.gate_type_variable(gate, 0, 1), -self.gate_type_variable(gate, 1, 0), -self.gate_type_variable(gate, 1, 1)]]
+                self.clauses += [[self.gate_type_variable(gate, 0, 0), -self.gate_type_variable(gate, 0, 1), self.gate_type_variable(gate, 1, 0), -self.gate_type_variable(gate, 1, 1)]]
+
         return self.clauses
 
     def save_cnf_formula_to_file(self, file_name):
