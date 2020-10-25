@@ -19,7 +19,11 @@ def verify_sum_circuit(circuit):
 
 class TestCircuitSearch(unittest.TestCase):
     def check_exact_circuit_size(self, n, size, truth_tables):
-        self.assertIsInstance(find_circuit(n, None, None, size, truth_tables), Circuit)
+        circuit = find_circuit(n, None, None, size, truth_tables)
+        self.assertIsInstance(circuit, Circuit)
+        circuit_truth_tables = circuit.get_truth_tables()
+        self.assertTrue(all(truth_tables[i] == ''.join(map(str, circuit_truth_tables[circuit.outputs[i]]))
+                            for i in range(len(truth_tables))))
         self.assertEqual(find_circuit(n, None, None, size - 1, truth_tables), False)
 
     def test_small_xors(self):
@@ -71,15 +75,6 @@ class TestCircuitSearch(unittest.TestCase):
             ]),
             Circuit
         )
-        # # this already takes too long
-        # self.assertEqual(
-        #     find_circuit(4, None, None, 8, [
-        #         ''.join(str(sum(x) & 1) for x in product(range(2), repeat=4)),
-        #         ''.join(str((sum(x) >> 1) & 1) for x in product(range(2), repeat=4)),
-        #         ''.join(str((sum(x) >> 2) & 1) for x in product(range(2), repeat=4))
-        #     ]),
-        #     Circuit
-        # )
 
     def test_sum5_local_improvement(self):
         tt = [[] for _ in range(18)]
