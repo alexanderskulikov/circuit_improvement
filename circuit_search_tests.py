@@ -59,22 +59,12 @@ class TestCircuitSearch(unittest.TestCase):
             self.check_exact_circuit_size(n, 2 * n - 3, tt)
 
     def test_sum_circuits(self):
-        # full adder
-        tt = [
-            ''.join(str(sum(x) & 1) for x in product(range(2), repeat=3)),
-            ''.join(str((sum(x) >> 1) & 1) for x in product(range(2), repeat=3))
-        ]
-        self.check_exact_circuit_size(3, 5, tt)
-
-        # SUM_4
-        self.assertIsInstance(
-            find_circuit(4, None, None, 9, [
-                ''.join(str(sum(x) & 1) for x in product(range(2), repeat=4)),
-                ''.join(str((sum(x) >> 1) & 1) for x in product(range(2), repeat=4)),
-                ''.join(str((sum(x) >> 2) & 1) for x in product(range(2), repeat=4))
-            ]),
-            Circuit
-        )
+        for n, l, size in ((2, 2, 2), (3, 2, 5), (4, 3, 9)):
+            tt = [''.join(str((sum(x) >> i) & 1) for x in product(range(2), repeat=n))
+                  for i in range(l)]
+            circuit = find_circuit(n, None, None, size, tt)
+            self.assertIsInstance(circuit, Circuit)
+            self.assertTrue(verify_sum_circuit(circuit))
 
     def test_sum5_local_improvement(self):
         tt = [[] for _ in range(18)]
@@ -104,12 +94,11 @@ class TestCircuitSearch(unittest.TestCase):
         for i in range(18):
             tt[i] = ''.join(map(str, tt[i]))
 
-        self.assertIsInstance(
-            find_circuit(5, ['g5', 'g8', 'g9', 'g11', 'g12'], [tt[5], tt[8], tt[9], tt[11], tt[12]], 6,
-                         [tt[14], tt[16], tt[17]]), Circuit)
-        self.assertIsInstance(
-            find_circuit(5, ['g5', 'g8', 'g9', 'g11', 'g12'], [tt[5], tt[8], tt[9], tt[11], tt[12]], 5,
-                         [tt[14], tt[16], tt[17]]), Circuit)
+        circuit = find_circuit(5, ['g5', 'g8', 'g9', 'g11', 'g12'], [tt[5], tt[8], tt[9], tt[11], tt[12]], 6, [tt[14], tt[16], tt[17]])
+        self.assertIsInstance(circuit, Circuit)
+
+        circuit = find_circuit(5, ['g5', 'g8', 'g9', 'g11', 'g12'], [tt[5], tt[8], tt[9], tt[11], tt[12]], 5, [tt[14], tt[16], tt[17]])
+        self.assertIsInstance(circuit, Circuit)
 
     def test_sum_with_precomputed_xor(self):
         for n, size in ((4, 9), (5, 11)):
