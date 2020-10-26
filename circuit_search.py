@@ -127,20 +127,21 @@ class CircuitFinder:
 
         # if a function to be computed is normal (i.e., 0-preserving),
         # we may assume that all the gates are normal, too
-        if all((table[0] == '0' or table[0] == '*') for table in self.output_truth_tables):
-            for gate in self.internal_gates:
-                self.clauses += [[-self.gate_type_variable(gate, 0, 0)]]
+        # TODO: this conflicts with fix_gate
+        # if all((table[0] == '0' or table[0] == '*') for table in self.output_truth_tables):
+        #     for gate in self.internal_gates:
+        #         self.clauses += [[-self.gate_type_variable(gate, 0, 0)]]
 
-                # the gate computes non-degenerate function
-                self.clauses += [[self.gate_type_variable(gate, 0, 1), self.gate_type_variable(gate, 1, 0), self.gate_type_variable(gate, 1, 1)]]
-                self.clauses += [[self.gate_type_variable(gate, 0, 1), -self.gate_type_variable(gate, 1, 0), -self.gate_type_variable(gate, 1, 1)]]
-                self.clauses += [[-self.gate_type_variable(gate, 0, 1), self.gate_type_variable(gate, 1, 0), -self.gate_type_variable(gate, 1, 1)]]
-        else:
-            for gate in self.internal_gates:
-                # the gate computes non-degenerate function
-                self.clauses += [[self.gate_type_variable(gate, 0, 0), self.gate_type_variable(gate, 0, 1), self.gate_type_variable(gate, 1, 0), self.gate_type_variable(gate, 1, 1)]]
-                self.clauses += [[self.gate_type_variable(gate, 0, 0), self.gate_type_variable(gate, 0, 1), -self.gate_type_variable(gate, 1, 0), -self.gate_type_variable(gate, 1, 1)]]
-                self.clauses += [[self.gate_type_variable(gate, 0, 0), -self.gate_type_variable(gate, 0, 1), self.gate_type_variable(gate, 1, 0), -self.gate_type_variable(gate, 1, 1)]]
+        # each gate computes a non-degenerate function (0, 1, x, -x, y, -y)
+        for gate in self.internal_gates:
+            self.clauses += [[self.gate_type_variable(gate, 0, 0), self.gate_type_variable(gate, 0, 1), self.gate_type_variable(gate, 1, 0), self.gate_type_variable(gate, 1, 1)]]
+            self.clauses += [[-self.gate_type_variable(gate, 0, 0), -self.gate_type_variable(gate, 0, 1), -self.gate_type_variable(gate, 1, 0), -self.gate_type_variable(gate, 1, 1)]]
+
+            self.clauses += [[self.gate_type_variable(gate, 0, 0), self.gate_type_variable(gate, 0, 1), -self.gate_type_variable(gate, 1, 0), -self.gate_type_variable(gate, 1, 1)]]
+            self.clauses += [[-self.gate_type_variable(gate, 0, 0), -self.gate_type_variable(gate, 0, 1), self.gate_type_variable(gate, 1, 0), self.gate_type_variable(gate, 1, 1)]]
+
+            self.clauses += [[self.gate_type_variable(gate, 0, 0), -self.gate_type_variable(gate, 0, 1), self.gate_type_variable(gate, 1, 0), -self.gate_type_variable(gate, 1, 1)]]
+            self.clauses += [[-self.gate_type_variable(gate, 0, 0), self.gate_type_variable(gate, 0, 1), -self.gate_type_variable(gate, 1, 0), self.gate_type_variable(gate, 1, 1)]]
 
         return self.clauses
 
