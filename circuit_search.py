@@ -21,7 +21,7 @@ class CircuitFinder:
             input_truth_tables = [[] for _ in range(dimension)]
             for t in range(1 << dimension):
                 for i in range(dimension):
-                    input_truth_tables[i].append((t >> i) & 1)
+                    input_truth_tables[i].append((t >> (dimension - 1 - i)) & 1)
             input_truth_tables = [''.join(map(str, t)) for t in input_truth_tables]
 
         self.input_labels = input_labels
