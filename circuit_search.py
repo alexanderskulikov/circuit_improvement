@@ -223,6 +223,14 @@ class CircuitFinder:
                 assert bit in range(2)
                 self.clauses += [[(1 if bit else -1) * self.gate_type_variable(gate, a, b)]]
 
+    def forbid_wire(self, from_gate, to_gate):
+        assert from_gate in self.gates
+        assert to_gate in self.internal_gates
+        assert from_gate < to_gate
+
+        for other in self.gates:
+            if other < to_gate and other != from_gate:
+                self.clauses += [[-self.predecessors_variable(to_gate, min(other, from_gate), max(other, from_gate))]]
 
 def find_circuit(dimension, input_labels, input_truth_tables, number_of_gates, output_truth_tables):
     circuit_finder = CircuitFinder(dimension, input_labels, input_truth_tables, number_of_gates, output_truth_tables)

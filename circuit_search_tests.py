@@ -27,7 +27,7 @@ class TestCircuitSearch(unittest.TestCase):
         self.assertEqual(find_circuit(n, None, None, size - 1, truth_tables), False)
 
     def test_small_xors(self):
-        for n in range(2, 8):
+        for n in range(2, 7):
             tt = [''.join(str(sum(x) % 2) for x in product(range(2), repeat=n))]
             self.check_exact_circuit_size(n, n - 1, tt)
 
@@ -44,6 +44,12 @@ class TestCircuitSearch(unittest.TestCase):
             circuit_finder.fix_gate(n, 0, 1, '0001')
             c = circuit_finder.solve_cnf_formula(verbose=0)
             self.assertEqual(c, False)
+
+            circuit_finder = CircuitFinder(n, None, None, n - 1, tt)
+            for i in range(n - 2):
+                circuit_finder.forbid_wire(i, n)
+            c = circuit_finder.solve_cnf_formula(verbose=0)
+            self.assertIsInstance(c, Circuit)
 
     def test_and_ors(self):
         for n in range(2, 5):
