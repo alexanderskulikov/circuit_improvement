@@ -28,6 +28,7 @@ class CircuitFinder:
         self.input_truth_tables = input_truth_tables
         self.number_of_gates = number_of_gates
         self.output_truth_tables = output_truth_tables
+        self.is_normal = all(table[0] != '1' for table in output_truth_tables)
 
         assert all(len(table) == 1 << dimension for table in output_truth_tables)
         assert all(all(symbol in "01*" for symbol in table) for table in output_truth_tables)
@@ -125,13 +126,6 @@ class CircuitFinder:
                         (1 if self.output_truth_tables[h][t] == '1' else -1) * self.gate_value_variable(gate, t)
                     ]]
 
-        # if a function to be computed is normal (i.e., 0-preserving),
-        # we may assume that all the gates are normal, too
-        # TODO: this conflicts with fix_gate
-        # if all((table[0] == '0' or table[0] == '*') for table in self.output_truth_tables):
-        #     for gate in self.internal_gates:
-        #         self.clauses += [[-self.gate_type_variable(gate, 0, 0)]]
-
         # each gate computes a non-degenerate function (0, 1, x, -x, y, -y)
         for gate in self.internal_gates:
             self.clauses += [[self.gate_type_variable(gate, 0, 0), self.gate_type_variable(gate, 0, 1), self.gate_type_variable(gate, 1, 0), self.gate_type_variable(gate, 1, 1)]]
@@ -146,6 +140,8 @@ class CircuitFinder:
         return self.clauses
 
     def save_cnf_formula_to_file(self, file_name):
+        self.finalize_cnf_formula()
+
         with open(file_name, 'w') as file:
             file.write(f'p cnf {len(self.variables)} {len(self.clauses)}\n')
             for clause in self.clauses:
@@ -154,6 +150,8 @@ class CircuitFinder:
                 file.write(f'c {v} {self.variables[v]}\n')
 
     def solve_cnf_formula(self, solver=None, verbose=1):
+        self.finalize_cnf_formula()
+
         if solver == None:
             result = pycosat.solve(self.clauses, verbose=verbose)
         elif solver == 'minisat':
@@ -196,10 +194,15 @@ class CircuitFinder:
 
         return Circuit(self.input_labels, gate_descriptions, output_gates)
 
-    # The following method allow to further restrict the internal structure of a circuit.
-    # Only use the following method if you know what you are doing.
-    # The parameters gate, first_predecessor, second_predecessor are gate indices (rather than labels).
-    # Make sure that the gate type is normal, if you function is normal.
+    def finalize_cnf_formula(self):
+        if self.is_normal:
+            for gate in self.internal_gates:
+                self.clauses += [[-self.gate_type_variable(gate, 0, 0)]]
+
+    # The following method allows to further restrict the internal structure of a circuit.
+    # Only use it if you know what you are doing.
+    # The parameters gate, first_predecessor, second_predecessor are gate indices
+    # (rather than labels).
     def fix_gate(self, gate, first_predecessor=None, second_predecessor=None, gate_type=None):
         assert gate in self.internal_gates
 
@@ -218,6 +221,9 @@ class CircuitFinder:
         if gate_type:
             assert isinstance(gate_type, str) and len(gate_type) == 4
 
+            if gate_type[0] != '0':
+                self.is_normal = False
+
             for a, b in product(range(2), repeat=2):
                 bit = int(gate_type[2 * a + b])
                 assert bit in range(2)
@@ -231,6 +237,7 @@ class CircuitFinder:
         for other in self.gates:
             if other < to_gate and other != from_gate:
                 self.clauses += [[-self.predecessors_variable(to_gate, min(other, from_gate), max(other, from_gate))]]
+
 
 def find_circuit(dimension, input_labels, input_truth_tables, number_of_gates, output_truth_tables):
     circuit_finder = CircuitFinder(dimension, input_labels, input_truth_tables, number_of_gates, output_truth_tables)
