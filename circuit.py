@@ -60,6 +60,33 @@ class Circuit:
         with open(file_name) as circuit_file:
             self.load_from_string(circuit_file.read())
 
+    def save_to_file_verilog(self, file_name):
+        with open(file_name, 'w') as circuit_file:
+            gate_list = ', '.join(list(self.gates))
+            input_labels_list = ', '.join(self.input_labels)
+            output_labels_list = ', '.join(self.outputs)
+
+            circuit_file.write(f'module circuit('
+                               f'{input_labels_list}, '
+                               f'{output_labels_list});\n')
+            circuit_file.write(f'  input {input_labels_list};\n')
+            circuit_file.write(f'  output {output_labels_list};\n')
+            circuit_file.write(f'  wire {gate_list};\n')
+
+            for gate in self.gates:
+                circuit_file.write(f'\n  assign {gate} = ')
+                first, second, gate_type = self.gates[gate]
+                if gate_type == '0001':
+                    circuit_file.write(f'{first} & {second}')
+                elif gate_type == '0111':
+                    circuit_file.write(f'{first} | {second}')
+                elif gate_type == '0110':
+                    circuit_file.write(f'{first} ^ {second}')
+                else:
+                    assert False, 'not yet implemented'
+
+            circuit_file.write('\nendmodule')
+
     def save_to_file(self, file_name):
         with open(file_name, 'w') as circuit_file:
             circuit_file.write(f'{len(self.input_labels)} {len(self.gates)} {len(self.outputs)}\n')
@@ -75,11 +102,11 @@ class Circuit:
             circuit_graph.add_node(input_label)
 
         for gate in self.gates:
-            circuit_graph.add_node(gate, label=f'{self.gate_types[self.gates[gate][2]]}')
+            circuit_graph.add_node(gate, label=f'{gate}: {self.gate_types[self.gates[gate][2]]}')
             circuit_graph.add_edge(self.gates[gate][0], gate)
             circuit_graph.add_edge(self.gates[gate][1], gate)
 
-        # assert nx.is_directed_acyclic_graph(circuit_graph)
+        # assert nx.is_directed_acyclic_graph(circuit_graph) # in some case we have to work with cyclic circuits
 
         return circuit_graph
 
