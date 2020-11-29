@@ -16,7 +16,7 @@ if __name__ == '__main__':
     circuit_finder.fix_gate(6, 2, 5, '0110')
     circuit_finder.fix_gate(7, 3, 6, '0110')
     circuit_finder.fix_gate(8, 4, 7, '0110')
-    c = circuit_finder.solve_cnf_formula()
+    c = circuit_finder.solve_cnf_formula(solver='minisat', verbose=0)
 
     if c:
         print(c)

@@ -2,6 +2,7 @@ from itertools import product
 from circuit import Circuit
 from circuit_search import find_circuit, CircuitFinder
 import unittest
+import sys
 
 
 def verify_sum_circuit(circuit):
@@ -18,13 +19,15 @@ def verify_sum_circuit(circuit):
 
 
 class TestCircuitSearch(unittest.TestCase):
+    SOLVER = None
+
     def check_exact_circuit_size(self, n, size, truth_tables):
-        circuit = find_circuit(n, None, None, size, truth_tables)
+        circuit = find_circuit(n, None, None, size, truth_tables, self.SOLVER)
         self.assertIsInstance(circuit, Circuit)
         circuit_truth_tables = circuit.get_truth_tables()
         self.assertTrue(all(truth_tables[i] == ''.join(map(str, circuit_truth_tables[circuit.outputs[i]]))
                             for i in range(len(truth_tables))))
-        self.assertEqual(find_circuit(n, None, None, size - 1, truth_tables), False)
+        self.assertEqual(find_circuit(n, None, None, size - 1, truth_tables), False, self.SOLVER)
 
     def test_small_xors(self):
         for n in range(2, 7):
@@ -37,18 +40,18 @@ class TestCircuitSearch(unittest.TestCase):
 
             circuit_finder = CircuitFinder(n, None, None, n - 1, tt)
             circuit_finder.fix_gate(n, 0, 1, '0110')
-            c = circuit_finder.solve_cnf_formula(verbose=0)
+            c = circuit_finder.solve_cnf_formula(verbose=0, solver=self.SOLVER)
             self.assertIsInstance(c, Circuit)
 
             circuit_finder = CircuitFinder(n, None, None, n - 1, tt)
             circuit_finder.fix_gate(n, 0, 1, '0001')
-            c = circuit_finder.solve_cnf_formula(verbose=0)
+            c = circuit_finder.solve_cnf_formula(verbose=0, solver=self.SOLVER)
             self.assertEqual(c, False)
 
             circuit_finder = CircuitFinder(n, None, None, n - 1, tt)
             for i in range(n - 2):
                 circuit_finder.forbid_wire(i, n)
-            c = circuit_finder.solve_cnf_formula(verbose=0)
+            c = circuit_finder.solve_cnf_formula(verbose=0, solver=self.SOLVER)
             self.assertIsInstance(c, Circuit)
 
     def test_and_ors(self):
@@ -68,7 +71,7 @@ class TestCircuitSearch(unittest.TestCase):
         for n, l, size in ((2, 2, 2), (3, 2, 5), (4, 3, 9)):
             tt = [''.join(str((sum(x) >> i) & 1) for x in product(range(2), repeat=n))
                   for i in range(l)]
-            circuit = find_circuit(n, None, None, size, tt)
+            circuit = find_circuit(n, None, None, size, tt, self.SOLVER)
             self.assertIsInstance(circuit, Circuit)
             self.assertTrue(verify_sum_circuit(circuit))
 
@@ -100,10 +103,10 @@ class TestCircuitSearch(unittest.TestCase):
         for i in range(18):
             tt[i] = ''.join(map(str, tt[i]))
 
-        circuit = find_circuit(5, ['g5', 'g8', 'g9', 'g11', 'g12'], [tt[5], tt[8], tt[9], tt[11], tt[12]], 6, [tt[14], tt[16], tt[17]])
+        circuit = find_circuit(5, ['g5', 'g8', 'g9', 'g11', 'g12'], [tt[5], tt[8], tt[9], tt[11], tt[12]], 6, [tt[14], tt[16], tt[17]], self.SOLVER)
         self.assertIsInstance(circuit, Circuit)
 
-        circuit = find_circuit(5, ['g5', 'g8', 'g9', 'g11', 'g12'], [tt[5], tt[8], tt[9], tt[11], tt[12]], 5, [tt[14], tt[16], tt[17]])
+        circuit = find_circuit(5, ['g5', 'g8', 'g9', 'g11', 'g12'], [tt[5], tt[8], tt[9], tt[11], tt[12]], 5, [tt[14], tt[16], tt[17]], self.SOLVER)
         self.assertIsInstance(circuit, Circuit)
 
     def test_sum_with_precomputed_xor(self):
@@ -115,10 +118,12 @@ class TestCircuitSearch(unittest.TestCase):
             circuit_finder.fix_gate(n, 0, 1, '0110')
             for k in range(n - 2):
                 circuit_finder.fix_gate(n + k + 1, k + 2, n + k, '0110')
-            circuit = circuit_finder.solve_cnf_formula(verbose=0)
+            circuit = circuit_finder.solve_cnf_formula(verbose=0, solver=self.SOLVER)
             self.assertIsInstance(circuit, Circuit)
             self.assertTrue(verify_sum_circuit(circuit))
 
 
 if __name__ == '__main__':
+    if len(sys.argv) > 1:
+        TestCircuitSearch.SOLVER = sys.argv.pop()
     unittest.main()

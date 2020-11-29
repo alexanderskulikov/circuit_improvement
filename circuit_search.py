@@ -1,8 +1,7 @@
 from circuit import Circuit
 from itertools import combinations, product
-import os
 import pycosat
-import sys
+import os
 from timeit import default_timer as timer
 
 
@@ -152,13 +151,19 @@ class CircuitFinder:
     def solve_cnf_formula(self, solver=None, verbose=1):
         self.finalize_cnf_formula()
 
-        if solver == None:
+        if solver is None:
             result = pycosat.solve(self.clauses, verbose=verbose)
         elif solver == 'minisat':
             cnf_file_name = 'tmp.cnf'
             self.save_cnf_formula_to_file(cnf_file_name)
-            # TODO: complete
-            assert False
+            os.system(f'./minisat_static -verb={int(verbose)} tmp.cnf tmp.sat')
+
+            with open('tmp.sat') as satfile:
+                for line in satfile:
+                    if line.split()[0] == 'UNSAT':
+                        result = 'UNSAT'
+                    elif line.split()[0] != "SAT":
+                        result = [int(x) for x in line.split()]
         else:
             assert False
 
@@ -239,9 +244,9 @@ class CircuitFinder:
                 self.clauses += [[-self.predecessors_variable(to_gate, min(other, from_gate), max(other, from_gate))]]
 
 
-def find_circuit(dimension, input_labels, input_truth_tables, number_of_gates, output_truth_tables):
+def find_circuit(dimension, input_labels, input_truth_tables, number_of_gates, output_truth_tables, solver=None):
     circuit_finder = CircuitFinder(dimension, input_labels, input_truth_tables, number_of_gates, output_truth_tables)
-    return circuit_finder.solve_cnf_formula(solver=None, verbose=0)
+    return circuit_finder.solve_cnf_formula(solver=solver, verbose=0)
 
 
 if __name__ == '__main__':
