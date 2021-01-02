@@ -1,0 +1,14 @@
+[x1, x2, x3, x4, x5] = input_labels
+z1 = circuit.add_gate(x4, x5, '0110')
+z2 = circuit.add_gate(x2, x3, '1001')
+z4 = circuit.add_gate(z1, z2, '1011')
+z7 = circuit.add_gate(x5, x3, '1101')
+z8 = circuit.add_gate(x5, x4, '1000')
+z10 = circuit.add_gate(x2, b6, '0111')
+z11 = circuit.add_gate(x1, z10, '1000')
+a9 = circuit.add_gate(z11, b8, '1000')
+b6 = circuit.add_gate(z7, z8, '0010')
+b7 = circuit.add_gate(x1, b6, '1110')
+b8 = circuit.add_gate(z4, b7, '0100')
+
+return a9
