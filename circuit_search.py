@@ -152,7 +152,7 @@ class CircuitFinder:
     def solve_cnf_formula(self, solver=None, verbose=1):
         self.finalize_cnf_formula()
 
-        if solver == None:
+        if solver is None:
             result = pycosat.solve(self.clauses, verbose=verbose)
         elif solver == 'minisat':
             cnf_file_name = 'tmp.cnf'
@@ -241,21 +241,26 @@ class CircuitFinder:
 
 def find_circuit(dimension, input_labels, input_truth_tables, number_of_gates, output_truth_tables):
     circuit_finder = CircuitFinder(dimension, input_labels, input_truth_tables, number_of_gates, output_truth_tables)
-    return circuit_finder.solve_cnf_formula(solver=None, verbose=0)
+    return circuit_finder.solve_cnf_formula(verbose=0)
 
 
 if __name__ == '__main__':
-    if len(sys.argv) <= 1:
-        print('Usage:', sys.argv[0], 'n r truthtable1 ... truthtablem')
-        print('(n is the number of inputs, r is the number of gates, m is the number of outputs)')
-        sys.exit(0)
-
-    number_of_inputs = int(sys.argv[1])
-    number_of_gates = int(sys.argv[2])
-    output_truth_tables = sys.argv[3:]
+    # if len(sys.argv) <= 1:
+    #     print('Usage:', sys.argv[0], 'n r truthtable1 ... truthtablem')
+    #     print('(n is the number of inputs, r is the number of gates, m is the number of outputs)')
+    #     sys.exit(0)
+    #
+    # number_of_inputs = int(sys.argv[1])
+    # number_of_gates = int(sys.argv[2])
+    # output_truth_tables = sys.argv[3:]
+    number_of_inputs = 4
+    number_of_gates = 8
+    output_truth_tables = ["0111111111111111",
+                           "0000000000000001",
+                           "0110100110010110"]
 
     start = timer()
-    circuit = find_circuit(number_of_inputs, None, None, number_of_gates, output_truth_tables, 1)
+    circuit = find_circuit(number_of_inputs, None, None, number_of_gates, output_truth_tables)
     end = timer()
 
     if not circuit:
@@ -263,7 +268,4 @@ if __name__ == '__main__':
     else:
         print('Circuit found!\n')
         print(circuit)
-    print('Time (sec):', end-start)
-
-
-
+    print('Time (sec):', end - start)
