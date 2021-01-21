@@ -27,9 +27,9 @@ class Circuit:
     }
 
     def __init__(self, input_labels=None, gates=None, outputs=None):
-        self.input_labels = input_labels
-        self.gates = gates
-        self.outputs = outputs
+        self.input_labels = input_labels or []
+        self.gates = gates or {}
+        self.outputs = outputs or []
 
     def __str__(self):
         s = ''
@@ -62,7 +62,9 @@ class Circuit:
 
     def save_to_file_verilog(self, file_name):
         with open(file_name, 'w') as circuit_file:
-            gate_list = ', '.join(list(self.gates))
+            gate_list = ', '.join([
+                gate for gate in self.gates if gate not in self.outputs
+            ])
             input_labels_list = ', '.join(self.input_labels)
             output_labels_list = ', '.join(self.outputs)
 
@@ -84,6 +86,7 @@ class Circuit:
                     circuit_file.write(f'{first} ^ {second}')
                 else:
                     assert False, 'not yet implemented'
+                circuit_file.write(';')
 
             circuit_file.write('\nendmodule')
 
@@ -102,7 +105,8 @@ class Circuit:
             circuit_graph.add_node(input_label)
 
         for gate in self.gates:
-            circuit_graph.add_node(gate, label=f'{gate}: {self.gate_types[self.gates[gate][2]]}')
+            # circuit_graph.add_node(gate, label=f'{gate}: {self.gate_types[self.gates[gate][2]]}')
+            circuit_graph.add_node(gate, label=f'{self.gate_types[self.gates[gate][2]]}')
             circuit_graph.add_edge(self.gates[gate][0], gate)
             circuit_graph.add_edge(self.gates[gate][1], gate)
 
