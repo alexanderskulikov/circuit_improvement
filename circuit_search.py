@@ -277,7 +277,9 @@ if __name__ == '__main__':
     start = timer()
     circuit = find_circuit(dimension=number_of_inputs,
                            number_of_gates=number_of_gates,
-                           output_truth_tables=output_truth_tables)
+                           output_truth_tables=output_truth_tables,
+                           input_labels=None,
+                           input_truth_tables=None)
     end = timer()
 
     if not circuit:
@@ -285,7 +287,7 @@ if __name__ == '__main__':
     else:
         print('Circuit found!\n')
         print(circuit)
-    print('Time (sec):', end-start)
+    print(f'Time: {end-start:.2f} seconds')
 
 
 
