@@ -168,7 +168,7 @@ class CircuitFinder:
     def solve_cnf_formula(self, solver=None, verbose=0):
         self.finalize_cnf_formula()
 
-        if solver == None:
+        if solver is None:
             result = pycosat.solve(self.clauses, verbose=verbose)
         elif solver == 'minisat':
             cnf_file_name = 'tmp.cnf'
@@ -255,8 +255,12 @@ class CircuitFinder:
                 self.clauses += [[-self.predecessors_variable(to_gate, min(other, from_gate), max(other, from_gate))]]
 
 
-def find_circuit(dimension, input_labels, input_truth_tables, number_of_gates, output_truth_tables):
-    circuit_finder = CircuitFinder(dimension, input_labels, input_truth_tables, number_of_gates, output_truth_tables)
+def find_circuit(dimension, number_of_gates, input_labels, input_truth_tables, output_truth_tables):
+    circuit_finder = CircuitFinder(dimension=dimension,
+                                   number_of_gates=number_of_gates,
+                                   input_labels=input_labels,
+                                   input_truth_tables=input_truth_tables,
+                                   output_truth_tables=output_truth_tables)
     return circuit_finder.solve_cnf_formula(solver=None, verbose=0)
 
 
@@ -271,7 +275,9 @@ if __name__ == '__main__':
     output_truth_tables = sys.argv[3:]
 
     start = timer()
-    circuit = find_circuit(number_of_inputs, None, None, number_of_gates, output_truth_tables, 1)
+    circuit = find_circuit(dimension=number_of_inputs,
+                           number_of_gates=number_of_gates,
+                           output_truth_tables=output_truth_tables)
     end = timer()
 
     if not circuit:
