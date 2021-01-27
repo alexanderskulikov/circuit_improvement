@@ -1,7 +1,8 @@
 from itertools import product
 import networkx as nx
+import os
 
-project_directory = '/home/nikita/Projects/PycharmProjects/circuit_synthesis/'
+project_directory = os.path.dirname(os.path.abspath("path"))
 
 
 class Circuit:
@@ -61,7 +62,7 @@ class Circuit:
         assert len(self.outputs) == number_of_outputs
 
     def load_from_file(self, file_name):
-        with open(project_directory + 'circuits/' + file_name + '.ckt') as circuit_file:
+        with open(project_directory + '/circuits/' + file_name + '.ckt') as circuit_file:
             self.load_from_string(circuit_file.read())
 
     def save_to_file_verilog(self, file_name):
@@ -92,7 +93,7 @@ class Circuit:
             circuit_file.write('\nendmodule')
 
     def save_to_file(self, file_name):
-        with open(project_directory + 'circuits/' + file_name + '.ckt', 'w') as circuit_file:
+        with open(project_directory + '/circuits/' + file_name + '.ckt', 'w') as circuit_file:
             circuit_file.write(f'{len(self.input_labels)} {len(self.gates)} {len(self.outputs)}\n')
             circuit_file.write(' '.join(self.input_labels))
             for gate in self.gates:
@@ -127,7 +128,7 @@ class Circuit:
     @staticmethod
     def make_code(filename_in, filename_out):
         result = ''
-        with open(project_directory + 'circuits/' + filename_in + '.ckt') as circuit_file:
+        with open(project_directory + '/circuits/' + filename_in + '.ckt') as circuit_file:
             number_of_inputs, number_of_gates, number_of_outputs = \
                 list(map(int, circuit_file.readline().strip().split()))
 
@@ -150,8 +151,48 @@ class Circuit:
                     result += ', '
             result += '\n'
 
-        with open(project_directory + 'circuits/' + filename_out + '.ckt', 'w') as file:
+        with open(project_directory + '/circuits/' + filename_out + '.ckt', 'w') as file:
             file.write(result)
+
+    @staticmethod
+    def replace_subgraph(circuit, improved_circuit, subcircuit, subcircuit_outputs):
+        circuit_graph = circuit.construct_graph()
+        replaced_graph = circuit.construct_graph()
+        subcircuit_inputs = improved_circuit.input_labels
+        improved_circuit_graph = improved_circuit.construct_graph()
+
+        def make_label(label_now, gate_before, gate_after):
+            gate_before = str(gate_before)
+            gate_after = str(gate_after)
+            ss = label_now.split(' ')
+            if ss[1] == gate_before:
+                ss[1] = gate_after
+            if ss[3] == gate_before:
+                ss[3] = gate_after
+
+            return ss[0] + ' ' + ss[1] + ' ' + ss[2] + ' ' + ss[3]
+
+        for gate in subcircuit:
+            if gate not in subcircuit_inputs:
+                replaced_graph.remove_node(gate)
+        for gate in improved_circuit.gates:
+            assert gate not in subcircuit_inputs
+            labels = []
+            for p in improved_circuit_graph.predecessors(gate):
+                labels.append(str(p))
+            replaced_graph.add_node(gate,
+                                    label=f'{gate}: {labels[0]} {improved_circuit.gate_types[improved_circuit.gates[gate][2]]} {labels[1]}')
+            for p in improved_circuit_graph.predecessors(gate):
+                replaced_graph.add_edge(p, gate)
+
+        for i in range(len(subcircuit_outputs)):
+            for s in circuit_graph.successors(subcircuit_outputs[i]):
+                if s in replaced_graph.nodes:
+                    replaced_graph.add_edge(improved_circuit.outputs[i], s)
+                    replaced_graph.nodes[s]['label'] = make_label(replaced_graph.nodes[s]['label'],
+                                                                  subcircuit_outputs[i],
+                                                                  improved_circuit.outputs[i])
+        return replaced_graph
 
     def draw(self, file_name='circuit'):
         a = nx.nx_agraph.to_agraph(self.construct_graph())
@@ -162,7 +203,7 @@ class Circuit:
         for output in self.outputs:
             a.get_node(output).attr['shape'] = 'box'
         a.layout(prog='dot')
-        a.draw(project_directory + 'circuits/.images/' + file_name + '.png')
+        a.draw(project_directory + '/circuits/.images/' + file_name + '.png')
 
     def get_truth_tables(self):
         truth_tables = {}
