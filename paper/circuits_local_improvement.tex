@@ -15,6 +15,10 @@
 \usepackage{booktabs}
 \usepackage[color=red!5]{todonotes}
 \usepackage{url}
+\usepackage{booktabs}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
 
 \usepackage{minted}
 \setminted{bgcolor=gray!10}
@@ -23,6 +27,9 @@
 \DeclareMathOperator{\MOD}{MOD}
 \DeclareMathOperator{\size}{size}
 \DeclareMathOperator{\gates}{gates}
+\DeclareMathOperator{\IN}{IN}
+\DeclareMathOperator{\MID}{MID}
+\DeclareMathOperator{\OUT}{OUT}
 
 \tikzstyle{input}=[draw=none, inner sep=.2mm]
 \tikzstyle{gate}=[draw, circle, inner sep=.2mm, minimum size=5mm]
@@ -96,7 +103,7 @@ This function transforms $n$~bits
 of weight~0 into $l$~bits 
 of~weights $(0,1,\dotsc,l-1)$.
 %
-\begin{figure}[ht]
+\begin{figure}[t]
 \begin{minipage}{.28\textwidth}
 \begin{minted}{python}
 def sum2(x1, x2):
@@ -157,10 +164,8 @@ from itertools import product
 
 for x1, x2, x3 in product(range(2), repeat=3):
     w0, w1 = sum3(x1, x2, x3)    
-    assert x1 + x2 + x3 = w0 + 2 * w1
+    assert x1 + x2 + x3 == w0 + 2 * w1
 \end{minted}
-
-\todo[inline]{Nikita, please ensure that this code works}
 
 Determining $\size(f)$ requires
 proving lower bounds:
@@ -176,7 +181,8 @@ A~natural approach is to~translate a~statement ``there exists a~circuit of size~
 to a~SAT-solver. The state-of-the-art SAT-solvers are surprisingly efficient and allow to~handle
 various practically important problems (with millions
 of~variables) and even help to~resolve some open
-problems~\cite{}. Such SAT-based circuit synthesis approach was proposed by~Kojevnikov et al.~\cite{}
+problems~\cite{}. Such SAT-based circuit synthesis approach was proposed 
+by~Kojevnikov et al.~\cite{DBLP:conf/sat/KojevnikovKY09}
 and, since then, has been used in various circuit synthesis programs~\cite{}. We demonstrate the limits
 of this approach on \emph{counting} functions:
 \[\MOD_n^{m,r}=[x_1+\dotsb+x_n \equiv r \bmod m]\]
@@ -198,7 +204,8 @@ be~done in a~few days;
 \item for $s \ge 13$, this is out of~reach.
 \end{itemize}
 
-In this paper, we explore the limits of the following natural idea: given a~circuit, try to~reduce its size by~reducing (using SAT, for example) the size of its subcircuit of size seven. This is a~kind of a~local search approach: we have no possibility to go through the whole space of all circuits, but we can at least
+In this paper, we explore the limits of the following natural idea: given a~circuit, try to~reduce its size by~reducing (using SAT-solvers, for example) the size 
+of~its subcircuit of size seven. This is a~kind of a~local search approach: we~have no~possibility to~go through the whole space of all circuits, but we can at~least
 search in a~neighborhood of a~given circuit. 
 This allows~us to~work with circuits consisting
 of many gates. 
@@ -217,8 +224,13 @@ optimal locally, but not globally: our program is not able to find a~(known) sma
 
 \section{Program Overview}
 The program is~implemented in~\texttt{Python}.
-We give a~high-level overview of its main features.
-\todo[inline]{create a notebook and state that all the code here can be run in the cloud?}
+We give a~high-level overview of its main features below.
+All the code shown below can be~found in~the 
+file \texttt{tutorial.py} at~\cite{git-improvement}.
+One may run~it after installing a~few \texttt{Python} modules. Alternatively, one may run the Jupyter notebook
+\texttt{tutorial.ipynb} in~the cloud without installing 
+anything. To~do this, press the badge ``Colab'' 
+at~\cite{git-improvement}.
 
 \subsection{Manipulating Circuits}
 This is done through the \mintinline{python}{Circuit}
@@ -246,7 +258,7 @@ check_sum_circuit(circuit)
 circuit.draw('sum5.png')
 \end{minted}
 
-\begin{figure}[ht]
+\begin{figure}[t]
 \begin{mypic}
 %\draw[help lines] (0,-5) grid (16,6);
 \begin{scope}[yshift=-10mm]
@@ -334,17 +346,14 @@ checks whether there exists a~circuit of the required
 size for a~given Boolean function. For example, 
 one may discover the full adder as follows.
 
-\todo[inline]{Nikita, Sasha: think about an interface where one only needs to specify a function instead of cooking a~truth table}
-
 \begin{minted}{python}
-truth_tables = [[], []]
-for x in product(range(2), repeat=3):
-    truth_tables[0].append(str((sum(x) >> 0) & 1))
-    truth_tables[1].append(str((sum(x) >> 1) & 1))
-truth_tables[0] = ''.join(truth_tables[0])
-truth_tables[1] = ''.join(truth_tables[1])
+def sum_n(x):
+    assert all(a in (0, 1) for a in x)
+    s, l = sum(x), ceil(log2(len(x) + 1))
+    return [(s >> i) & 1 for i in range(l)]
 
-circuit = find_circuit(3, None, None, 5, truth_tables)
+circuit = find_circuit(dimension=3, number_of_gates=5,
+                       function=sum_n)
 print(circuit)
 \end{minted}
 
@@ -372,7 +381,7 @@ of~them can be~replaced by a~smaller subcircuit
 (computing the same function) via \mintinline{python}{find_circuit}. For example, applying this method 
 to~the circuit from Figure~\ref{figure:sumfive}(b)
 gives the circuit from Figure~\ref{figure:sumfive}(c)
-in ???~seconds.\todo{Nikita, find this value.} This circuit can~be also found via \mintinline{python}{find_circuit} directly, but it takes ??? seconds.\todo{Nikita, find this value}
+in~nine~seconds. This circuit can~be also found via \mintinline{python}{find_circuit} directly, but it takes about seven hours.
 
 \todo[inline]{fix gates, forbid wires}
 
@@ -380,22 +389,122 @@ in ???~seconds.\todo{Nikita, find this value.} This circuit can~be also found vi
 
 
 \section{Experimental Evaluation}
-
-\todo[inline]{mention that we focus on symmetric functions}
+In~this section, we~report the results of~experiments
+with various symmetric functions. A~function $f(x_1,\dotsc,x_n)$ is called \emph{symmetric} if~its value depends on~$\sum_{i=1}^nx_i$ only. These are among the most basic Boolean functions:
+\begin{itemize}
+\item to~specify an~arbitrary Boolean function, one needs
+to~write down its truth table of length~$2^n$; symmetric functions allow for much compact representation: it is enough to specify $n+1$ bits (for each of $n+1$ values 
+of~$\sum_{i=1}^nx_i$);
+\item circuit complexity of almost all functions 
+of~$n$ variables is exponential, whereas any symmetric function can~be computed by a~linear circuit. 
+\end{itemize}
+Despite simplicity of~symmetric functions, we still do~not
+know how optimal circuits look like for most of~them. Below, we~present new circuits for some of these functions.
 
 \subsection{Sum Function}
 
 \subsection{Modulo-3 Function}
-%Here
+In~\cite{DBLP:conf/sat/KojevnikovKY09}, Kojevnikov et al. 
+presented circuits of size $3n+O(1)$ for $\MOD_n^{3,r}$ (for any~$r$). Later, 
+Knuth~\cite[solution to exercise~$480$]{Knuth:2015:ACP:2898950} analyzed their construction and proved an~upper 
+bound $3n-4$. Also, by~finding the exact values 
+for $\size(\MOD_n^{3,r})$ for all $3 \le n \le 5$ and all $0 \le r \le 2$, he~made the conjecture~\eqref{conjecture}.
+Using our program, we~found the corresponding circuits for all~$n$.
+
+\begin{theorem}\label{theorem:mod3upper}
+For all $n \ge 3$ and all $r \in \{0,1,2\}$,
+\[\size(\MOD_n^{3,r}) \le 3n-5-[(n+r) \equiv r\bmod 3] \, \]
+\end{theorem}
+
+To~prove Knuth's conjecture, one also needs to~prove a~lower bound on $\size(\MOD_n^{3,r})$. The currently strongest known lower bound for $\size(\MOD_n^{3,r})$ 
+is~$2.5n-O(1)$ due to~Stockmeyer~\cite{DBLP:journals/mst/Stockmeyer77} 
+(and no~stronger lower bound is known for any other symmetric function).
+
+\begin{proof}
+As~in~\cite{DBLP:conf/sat/KojevnikovKY09}, 
+we~construct the required circuit out of~constant size blocks. Schematically, the circuit looks as~follows.
+
+\begin{center}
+\begin{tikzpicture}[scale=.9]
+%\draw[help lines] (0,0) grid (16,6);
+
+\foreach \x in {0, 4, 9, 13}
+  \draw (\x,0) rectangle (\x+3,2);
+  
+\foreach \x in {0.5, 2.5, 4.5, 5.5, 6.5, 9.5, 10.5, 11.5, 13.5, 15.5}
+  \draw[->] (\x,2.5) -- (\x,2);
+  
+\foreach \x/\y in {1.5/2.25, 14.5/2.25, 8/1}
+  \node at (\x,\y) {$\dotsb$};
+
+\foreach \a/\b in {3/4, 12/13, 7/7.5, 8.5/9} {
+  \draw[->] (\a,1.5) -- (\b,1.5);
+  \draw[->] (\a,0.5) -- (\b,0.5);
+}
+
+\draw[->] (16,1) -- (16.5,1);
+\node at (1.5, 1) {$\IN_k$};
+\node at (5.5, 1) {$\MID_3$};
+\node at (10.5, 1) {$\MID_3$};
+\node at (14.5, 1) {$\OUT_l^r$};
+\end{tikzpicture}
+\end{center}
+%
+Here, the $n$~input bits are passed from above.
+What is passed from block to block (from left to~right)
+is the pair of bits $(r_0, r_1)$ encoding the current remainder~$r$ modulo~$3$ as~follows: if $r=0$, then $(r_0,r_1)=(0,0)$; if $r=1$, then $(r_0,r_1)=(0,1)$; if $r=2$, then $r_0=1$. The first block $\IN_k$ takes the first $k$~input bits and computes the remainder of their sum modulo~$3$. It is followed by a~number of~$\MID_3$ blocks each of which takes the current remainder and three new input bits and computes the new remainder. Finally, the block~$\OUT_l^r$ takes the remainder and the last~$l$ input bits and outputs $\MOD_n^{3,r}$. The integers $k,l$ take values in~$\{2,3,4\}$ and $\{1,2,3\}$, respectively. Their exact values depend on~$r$ and $n \mod 3$ as~described below.
+
+The theorem follows from the following upper bounds 
+on~the circuit size of the just introduced functions:
+$\size(\IN_2) \le ?$, 
+$\size(\IN_3) \le ?$, 
+$\size(\IN_4) \le ?$,
+$\size(\MID_3) \le ?$,
+$\size(\OUT_2^0) \le ?$,
+$\size(\OUT_1^1) \le ?$,
+$\size(\OUT_3^2) \le ?$.
+The corresponding circuits are presented in the Appendix 
+by a~straightforward \texttt{Python} code that verifies their correctness.
+
+The following table shows how to~combine the blocks
+to~get a~circuit computing~$\MOD_n^{3,r}$ of the required size. (Technically, it requires $n$~to~be at~least~$4$. For $n=3$, the corresponding circuits are easy to~construct.)
+
+\begin{center}
+\begin{tabular}{cccc}
+\toprule
+& $n=3s+4$ & $n=3s+5$ & $n=3s+6$ \\ 
+\hline
+\strut $r=0$ & 
+$\IN_2 + s \times \MID_3+\OUT_2^0$ &
+$\IN_3 + s \times \MID_3+\OUT_2^0$ &
+$\IN_4 + s \times \MID_3+\OUT_2^0$ \\
+& $2+9s/3+5=3n-5$ & $\dotsb$\\
+\midrule
+\strut $r=1$ &\\
+\midrule
+\strut $r=2$ &\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\todo[inline]{Nikita, fix and complete the table}
+
+\end{proof}
 
 \subsection{Threshold-2 Function}
 
-\subsection{What Else?..}
 
 \section{Further Directions}
 
+
 \bibliographystyle{plain}
 \bibliography{circuits}
+
+\appendix
+\section{Blocks for $\MOD_n^{3,r}$}
+The following code justifies the existence of circuits needed in the proof of Theorem~\ref{theorem:mod3upper}.
+\inputminted{python}{../sandbox.py}
+\todo[inline]{Nikita, add the corresponding file to the repo and cite it here}
 
 \end{document}
 
