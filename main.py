@@ -19,6 +19,8 @@ def run(fun, input_size, subcircuit_size=5, connected=True):
     print(f'Run {fun.__name__}...')
     circuit = Circuit(input_labels=[f'x{i}' for i in range(1, input_size + 1)], gates={})
     circuit.outputs = fun(circuit, circuit.input_labels)
+    if isinstance(circuit.outputs, str):
+        circuit.outputs = [circuit.outputs]
     improve_circuit(circuit, subcircuit_size, connected)
 
 

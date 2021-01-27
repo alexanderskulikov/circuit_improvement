@@ -154,10 +154,9 @@ class Circuit:
         with open(project_directory + '/circuits/' + filename_out + '.ckt', 'w') as file:
             file.write(result)
 
-    @staticmethod
-    def replace_subgraph(circuit, improved_circuit, subcircuit, subcircuit_outputs):
-        circuit_graph = circuit.construct_graph()
-        replaced_graph = circuit.construct_graph()
+    def replace_subgraph(self, improved_circuit, subcircuit, subcircuit_outputs):
+        circuit_graph = self.construct_graph()
+        replaced_graph = self.construct_graph()
         subcircuit_inputs = improved_circuit.input_labels
         improved_circuit_graph = improved_circuit.construct_graph()
 

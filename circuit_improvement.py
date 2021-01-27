@@ -7,11 +7,11 @@ import random
 
 
 def correct_subcircuit_count(circuit, subcircuit_size=7, connected=True):
-    circuit_graph, count = circuit.construct_graph().to_undirected(), 0
+    circuit_graph, count = circuit.construct_graph(), 0
 
     for graph in (circuit_graph.subgraph(selected_nodes) for selected_nodes in
                   combinations(circuit.gates, subcircuit_size)):
-        if (not connected) or (connected and nx.is_connected(graph)):
+        if (not connected) or (connected and nx.is_weakly_connected(graph)):
             count += 1
     return count
 
@@ -64,14 +64,12 @@ def get_inputs_and_outputs(circuit, circuit_graph, subcircuit):
 
 def improve_circuit(circuit, subcircuit_size=5, connected=True):
     print('Trying to improve a circuit of size', len(circuit.gates), flush=True)
-    if isinstance(circuit.outputs, str):
-        circuit.outputs = [circuit.outputs]
     circuit_graph = circuit.construct_graph()
     total, current, time = correct_subcircuit_count(circuit, subcircuit_size, connected=connected), 0, 0
     print(f'\nEnumerating subcircuits of size {subcircuit_size} (total={total})...')
-    for graph in (circuit_graph.to_undirected().subgraph(selected_nodes) for selected_nodes in
+    for graph in (circuit_graph.subgraph(selected_nodes) for selected_nodes in
                   combinations(circuit.gates, subcircuit_size)):
-        if connected and not nx.is_connected(graph):
+        if connected and not nx.is_weakly_connected(graph):
             continue
         subcircuit = tuple(graph.nodes)
         start = timer()
@@ -83,11 +81,10 @@ def improve_circuit(circuit, subcircuit_size=5, connected=True):
 
         random.shuffle(subcircuit_inputs)
         sub_in_tt, sub_out_tt = make_truth_tables(circuit, subcircuit_inputs, subcircuit_outputs)
-        assert find_circuit(subcircuit_inputs, subcircuit_size, sub_in_tt, sub_out_tt)
         improved_circuit = find_circuit(subcircuit_inputs, subcircuit_size - 1, sub_in_tt, sub_out_tt)
 
         if isinstance(improved_circuit, Circuit):
-            replaced_graph = Circuit.replace_subgraph(circuit, improved_circuit, subcircuit, subcircuit_outputs)
+            replaced_graph = circuit.replace_subgraph(improved_circuit, subcircuit, subcircuit_outputs)
             if nx.is_directed_acyclic_graph(replaced_graph):
                 print('\nCircuit Improved!\n', end='', flush=True)
                 improved_full_circuit = Circuit.make_circuit(replaced_graph, circuit.input_labels,
@@ -96,7 +93,7 @@ def improve_circuit(circuit, subcircuit_size=5, connected=True):
                                                                                            improved_circuit.outputs))
                 print(improved_full_circuit)
                 improved_full_circuit.save_to_file('circuit_improved')
-                exit()
+                return
 
         stop = timer()
         time += stop - start
