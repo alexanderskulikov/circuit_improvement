@@ -7,8 +7,25 @@ from timeit import default_timer as timer
 
 
 class CircuitFinder:
-    def __init__(self, dimension, input_labels, input_truth_tables, number_of_gates, output_truth_tables):
+    def __init__(self, dimension, number_of_gates, input_labels=None, input_truth_tables=None, output_truth_tables=None, function=None):
         self.dimension = dimension
+
+        if function is not None:
+            assert input_truth_tables is None
+            assert output_truth_tables is None
+
+            output_num = len(function([0] * self.dimension))
+            self.output_truth_tables = [[] for _ in range(output_num)]
+            for x in product(range(2), repeat=self.dimension):
+                x_output = function(x)
+                assert len(x_output) == output_num
+                for i in range(output_num):
+                    self.output_truth_tables[i].append(x_output[i])
+
+            self.output_truth_tables = [''.join(map(str, t)) for t in self.output_truth_tables]
+        else:
+            assert output_truth_tables is not None
+            self.output_truth_tables = output_truth_tables
 
         if input_truth_tables is not None:
             assert input_labels is not None
@@ -27,11 +44,10 @@ class CircuitFinder:
         self.input_labels = input_labels
         self.input_truth_tables = input_truth_tables
         self.number_of_gates = number_of_gates
-        self.output_truth_tables = output_truth_tables
-        self.is_normal = all(table[0] != '1' for table in output_truth_tables)
+        self.is_normal = all(table[0] != '1' for table in self.output_truth_tables)
 
-        assert all(len(table) == 1 << dimension for table in output_truth_tables)
-        assert all(all(symbol in "01*" for symbol in table) for table in output_truth_tables)
+        assert all(len(table) == 1 << dimension for table in self.output_truth_tables)
+        assert all(all(symbol in "01*" for symbol in table) for table in self.output_truth_tables)
 
         number_of_input_gates = len(self.input_truth_tables)
         number_of_outputs = len(self.output_truth_tables)
@@ -149,7 +165,7 @@ class CircuitFinder:
             for v in self.variables:
                 file.write(f'c {v} {self.variables[v]}\n')
 
-    def solve_cnf_formula(self, solver=None, verbose=1):
+    def solve_cnf_formula(self, solver=None, verbose=0):
         self.finalize_cnf_formula()
 
         if solver is None:
@@ -239,8 +255,12 @@ class CircuitFinder:
                 self.clauses += [[-self.predecessors_variable(to_gate, min(other, from_gate), max(other, from_gate))]]
 
 
-def find_circuit(dimension, input_labels, input_truth_tables, number_of_gates, output_truth_tables):
-    circuit_finder = CircuitFinder(dimension, input_labels, input_truth_tables, number_of_gates, output_truth_tables)
+def find_circuit(dimension, number_of_gates, input_labels, input_truth_tables, output_truth_tables):
+    circuit_finder = CircuitFinder(dimension=dimension,
+                                   number_of_gates=number_of_gates,
+                                   input_labels=input_labels,
+                                   input_truth_tables=input_truth_tables,
+                                   output_truth_tables=output_truth_tables)
     return circuit_finder.solve_cnf_formula(solver=None, verbose=0)
 
 
@@ -255,7 +275,11 @@ if __name__ == '__main__':
     output_truth_tables = sys.argv[3:]
 
     start = timer()
-    circuit = find_circuit(number_of_inputs, None, None, number_of_gates, output_truth_tables)
+    circuit = find_circuit(dimension=number_of_inputs,
+                           number_of_gates=number_of_gates,
+                           output_truth_tables=output_truth_tables,
+                           input_labels=None,
+                           input_truth_tables=None)
     end = timer()
 
     if not circuit:
@@ -263,4 +287,4 @@ if __name__ == '__main__':
     else:
         print('Circuit found!\n')
         print(circuit)
-    print('Time (sec):', end - start)
+    print(f'Time: {end-start:.2f} seconds')

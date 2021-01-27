@@ -19,12 +19,14 @@ def verify_sum_circuit(circuit):
 
 class TestCircuitSearch(unittest.TestCase):
     def check_exact_circuit_size(self, n, size, truth_tables):
-        circuit = find_circuit(n, None, None, size, truth_tables)
+        circuit = find_circuit(dimension=n, number_of_gates=size, input_labels=None,
+                               input_truth_tables=None, output_truth_tables=truth_tables)
         self.assertIsInstance(circuit, Circuit)
         circuit_truth_tables = circuit.get_truth_tables()
         self.assertTrue(all(truth_tables[i] == ''.join(map(str, circuit_truth_tables[circuit.outputs[i]]))
                             for i in range(len(truth_tables))))
-        self.assertEqual(find_circuit(n, None, None, size - 1, truth_tables), False)
+        self.assertEqual(find_circuit(dimension=n, number_of_gates=size - 1, input_labels=None, input_truth_tables=None,
+                                      output_truth_tables=truth_tables), False)
 
     def test_small_xors(self):
         for n in range(2, 7):
@@ -35,17 +37,17 @@ class TestCircuitSearch(unittest.TestCase):
         for n in range(2, 7):
             tt = [''.join(str(sum(x) % 2) for x in product(range(2), repeat=n))]
 
-            circuit_finder = CircuitFinder(n, None, None, n - 1, tt)
+            circuit_finder = CircuitFinder(dimension=n, number_of_gates=n - 1, output_truth_tables=tt)
             circuit_finder.fix_gate(n, 0, 1, '0110')
             c = circuit_finder.solve_cnf_formula(verbose=0)
             self.assertIsInstance(c, Circuit)
 
-            circuit_finder = CircuitFinder(n, None, None, n - 1, tt)
+            circuit_finder = CircuitFinder(dimension=n, number_of_gates=n - 1, output_truth_tables=tt)
             circuit_finder.fix_gate(n, 0, 1, '0001')
             c = circuit_finder.solve_cnf_formula(verbose=0)
             self.assertEqual(c, False)
 
-            circuit_finder = CircuitFinder(n, None, None, n - 1, tt)
+            circuit_finder = CircuitFinder(dimension=n, number_of_gates=n - 1, output_truth_tables=tt)
             for i in range(n - 2):
                 circuit_finder.forbid_wire(i, n)
             c = circuit_finder.solve_cnf_formula(verbose=0)
@@ -61,14 +63,15 @@ class TestCircuitSearch(unittest.TestCase):
 
     def test_all_equal(self):
         for n in range(2, 5):
-            tt = [''.join('1' if all(x[i] == x[i + 1] for i in range(n - 1)) else '0' for x in product(range(2), repeat=n))]
+            tt = [''.join('1' if all(x[i] == x[i + 1] for i in range(n - 1))
+                          else '0' for x in product(range(2), repeat=n))]
             self.check_exact_circuit_size(n, 2 * n - 3, tt)
 
     def test_sum_circuits(self):
         for n, l, size in ((2, 2, 2), (3, 2, 5), (4, 3, 9)):
             tt = [''.join(str((sum(x) >> i) & 1) for x in product(range(2), repeat=n))
                   for i in range(l)]
-            circuit = find_circuit(n, None, None, size, tt)
+            circuit = find_circuit(dimension=n, number_of_gates=size, input_labels=None, input_truth_tables=None, output_truth_tables=tt)
             self.assertIsInstance(circuit, Circuit)
             self.assertTrue(verify_sum_circuit(circuit))
 
@@ -100,10 +103,10 @@ class TestCircuitSearch(unittest.TestCase):
         for i in range(18):
             tt[i] = ''.join(map(str, tt[i]))
 
-        circuit = find_circuit(5, ['g5', 'g8', 'g9', 'g11', 'g12'], [tt[5], tt[8], tt[9], tt[11], tt[12]], 6, [tt[14], tt[16], tt[17]])
+        circuit = find_circuit(dimension=5, number_of_gates=6, input_labels=['g5', 'g8', 'g9', 'g11', 'g12'], input_truth_tables=[tt[5], tt[8], tt[9], tt[11], tt[12]], output_truth_tables=[tt[14], tt[16], tt[17]])
         self.assertIsInstance(circuit, Circuit)
 
-        circuit = find_circuit(5, ['g5', 'g8', 'g9', 'g11', 'g12'], [tt[5], tt[8], tt[9], tt[11], tt[12]], 5, [tt[14], tt[16], tt[17]])
+        circuit = find_circuit(dimension=5, number_of_gates=5, input_labels=['g5', 'g8', 'g9', 'g11', 'g12'], input_truth_tables=[tt[5], tt[8], tt[9], tt[11], tt[12]], output_truth_tables=[tt[14], tt[16], tt[17]])
         self.assertIsInstance(circuit, Circuit)
 
     def test_sum_with_precomputed_xor(self):
@@ -111,7 +114,7 @@ class TestCircuitSearch(unittest.TestCase):
             tt = [''.join(str((sum(x) >> i) & 1) for x in product(range(2), repeat=n))
                   for i in range(l)]
 
-            circuit_finder = CircuitFinder(n, None, None, size, tt)
+            circuit_finder = CircuitFinder(dimension=n, number_of_gates=size, output_truth_tables=tt)
             circuit_finder.fix_gate(n, 0, 1, '0110')
             for k in range(n - 2):
                 circuit_finder.fix_gate(n + k + 1, k + 2, n + k, '0110')
