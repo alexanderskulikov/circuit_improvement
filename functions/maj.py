@@ -68,6 +68,7 @@ def add_maj5(circuit, input_labels):
 
     return a10
 
+
 def add_maj5_new(circuit, input_labels):
     assert len(input_labels) == 5
     for input_label in input_labels:
@@ -79,9 +80,6 @@ def add_maj5_new(circuit, input_labels):
     a2 = circuit.add_gate(a1, x3, '0110')
     a3 = circuit.add_gate(a2, x4, '0110')
     a4 = circuit.add_gate(a3, x5, '0110')
-
-
-
 
     a5 = circuit.add_gate(a2, a4, '0110')
     a6 = circuit.add_gate(x1, a2, '0110')
@@ -174,7 +172,6 @@ def add_op36(circuit, input_labels):
     return z4, y4, t4
 
 
-
 def check_maj_circuit(circuit):
     truth_tables = circuit.get_truth_tables()
     n = len(circuit.input_labels)
@@ -200,7 +197,7 @@ def run(fun, size):
     c = Circuit(input_labels=[f'x{i}' for i in range(1, size + 1)], gates={})
     c.outputs = fun(c, c.input_labels)
     check_maj_circuit(c)
-    #c.save_to_file(f'maj/maj{len(c.input_labels)}_size{len(c.gates)}')
+    # c.save_to_file(f'maj/maj{len(c.input_labels)}_size{len(c.gates)}')
 
 
 def check_various_maj_circuits():
@@ -213,5 +210,5 @@ def check_various_maj_circuits():
     run(add_maj5_new, 5)
 
 
-
-check_various_maj_circuits()
+if __name__ == '__main__':
+    check_various_maj_circuits()

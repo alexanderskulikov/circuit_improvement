@@ -1,6 +1,5 @@
 from circuit import Circuit
-from itertools import product
-from itertools import permutations
+from itertools import product, permutations
 
 
 def add_ex3_3(circuit, input_labels):
@@ -36,7 +35,6 @@ def add_ex3_4(circuit, input_labels):
     return c0
 
 
-# сумма двух спешассых сумм и входного бита, результат уже ex3
 def add_ex3_221(circuit, input_labels):
     assert len(input_labels) == 5
     for input_label in input_labels:
@@ -56,7 +54,6 @@ def add_ex3_221(circuit, input_labels):
     return m11
 
 
-# получение смешанной суммы для трех гейтов
 def add_ex32_sum(circuit, input_labels):
     assert len(input_labels) == 3
     for input_label in input_labels:
@@ -84,7 +81,6 @@ def add_ex3_7_sum(circuit, input_labels):
     return c1
 
 
-# сложение двух смешанных сумм, плюс индикатор переполнения
 def add_ex3_over(circuit, input_labels):
     assert len(input_labels) == 4
     for input_label in input_labels:
@@ -103,7 +99,6 @@ def add_ex3_over(circuit, input_labels):
     return z11, z4, z7
 
 
-# сложение двух смешанных сумм и еще одного входного бита, плюс индикатор переполнения
 def add_ex3_over1(circuit, input_labels):
     assert len(input_labels) == 5
     for input_label in input_labels:
@@ -175,6 +170,7 @@ def add_ex3_3megrg3(circuit, input_labels):
 
     return ans3, ans2, ans1
 
+
 def add_ex3_9(circuit, input_labels):
     assert len(input_labels) == 9
     for input_label in input_labels:
@@ -239,9 +235,10 @@ def check_various_ex_circuits():
     run(add_ex3_9, 9, 3)
     run(add_ex3_15, 15, 3)
 
-    #c = Circuit()
-    #c.load_from_file('ex/ex2_5_size14')
-    #check_ex_circuit(c, 2)
+    # c = Circuit()
+    # c.load_from_file('ex/ex2_5_size14')
+    # check_ex_circuit(c, 2)
 
 
-check_various_ex_circuits()
+if __name__ == '__main__':
+    check_various_ex_circuits()

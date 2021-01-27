@@ -127,4 +127,5 @@ def check_various_maj_circuits():
     run(add_ib_6, 8)
 
 
-check_various_maj_circuits()
+if __name__ == '__main__':
+    check_various_maj_circuits()

@@ -260,54 +260,55 @@ def add_mid_sum15(circuit, input_labels):
 
     return w0, w1, w2, w3
 
+
 def add_norm_mdfa(circuit, input_labels):
     assert len(input_labels) == 5
-    for input in input_labels:
-        assert input in circuit.input_labels or input in circuit.gates
+    for input_label in input_labels:
+        assert input_label in circuit.input_labels or input_label in circuit.gates
 
     [x1_xor_x2, x2, x3, x4, x4_xor_x5] = input_labels
 
-    #g1 = circuit.add_gate(x1, x2, '0110')
+    # g1 = circuit.add_gate(x1, x2, '0110')
     g2 = circuit.add_gate(x2, x3, '0110')
     g3 = circuit.add_gate(x1_xor_x2, g2, '0111')
     g4 = circuit.add_gate(x1_xor_x2, x3, '0110')
     g5 = circuit.add_gate(g3, g4, '0110')
     g6 = circuit.add_gate(x4, g4, '0110')
-    #g7 = circuit.add_gate(x4, x5, '0110')
+    # g7 = circuit.add_gate(x4, x5, '0110')
     g8 = circuit.add_gate(g6, x4_xor_x5, '0010')
     g9 = circuit.add_gate(g4, x4_xor_x5, '0110')
     g10 = circuit.add_gate(g3, g8, '0110')
-    #g11 = circuit.add_gate(g5, g10, '0010')
+    # g11 = circuit.add_gate(g5, g10, '0010')
 
     return g9, g5, g10
 
 
 def add_mdfa(circuit, input_labels):
     assert len(input_labels) == 5
-    for input in input_labels:
-        assert input in circuit.input_labels or input in circuit.gates
+    for input_label in input_labels:
+        assert input_label in circuit.input_labels or input_label in circuit.gates
 
     [x1_xor_x2, x2, x3, x4, x4_xor_x5] = input_labels
 
-    #g1 = circuit.add_gate(x1, x2, '0110')
+    # g1 = circuit.add_gate(x1, x2, '0110')
     g2 = circuit.add_gate(x2, x3, '0110')
     g3 = circuit.add_gate(x1_xor_x2, g2, '0111')
     g4 = circuit.add_gate(x1_xor_x2, x3, '0110')
     g5 = circuit.add_gate(g3, g4, '0110')
     g6 = circuit.add_gate(x4, g4, '0110')
-    #g7 = circuit.add_gate(x4, x5, '0110')
+    # g7 = circuit.add_gate(x4, x5, '0110')
     g8 = circuit.add_gate(g6, x4_xor_x5, '0010')
     g9 = circuit.add_gate(g4, x4_xor_x5, '0110')
     g10 = circuit.add_gate(g3, g8, '0110')
-    #g11 = circuit.add_gate(g5, g10, '0010')
+    # g11 = circuit.add_gate(g5, g10, '0010')
 
     return g9, g5, g10
 
 
 def add_sum15_using_mdfa(circuit, input_labels):
     assert len(input_labels) == 15
-    for input in input_labels:
-        assert input in circuit.input_labels or input in circuit.gates
+    for input_label in input_labels:
+        assert input_label in circuit.input_labels or input_label in circuit.gates
 
     [x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15] = input_labels
 
@@ -330,8 +331,8 @@ def add_sum15_using_mdfa(circuit, input_labels):
 
 def add_sum15_51(circuit, input_labels):
     assert len(input_labels) == 15
-    for input in input_labels:
-        assert input in circuit.input_labels or input in circuit.gates
+    for input_label in input_labels:
+        assert input_label in circuit.input_labels or input_label in circuit.gates
 
     [x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15] = input_labels
 
@@ -354,8 +355,8 @@ def add_sum15_51(circuit, input_labels):
 
 def add_sum15_using_mdfa2(circuit, input_labels):
     assert len(input_labels) == 15
-    for input in input_labels:
-        assert input in circuit.input_labels or input in circuit.gates
+    for input_label in input_labels:
+        assert input_label in circuit.input_labels or input_label in circuit.gates
 
     [x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15] = input_labels
 
@@ -364,8 +365,6 @@ def add_sum15_using_mdfa2(circuit, input_labels):
     x6_xor_x7 = circuit.add_gate(x6, x7, '0110')
     x8_xor_x9 = circuit.add_gate(x8, x9, '0110')
     x10_xor_x11 = circuit.add_gate(x10, x11, '0110')
-
-    #c0, n1, k2, k2_xor_l2 = add_3mdfa_new(circuit, [])
 
     b0, e1, e1_xor_f1 = add_mdfa(circuit, [x4_xor_x5, x4, a0, x6, x6_xor_x7])
     c0, g1, g1_xor_h1 = add_mdfa(circuit, [x8_xor_x9, x8, b0, x10, x10_xor_x11])
@@ -382,8 +381,8 @@ def add_sum15_using_mdfa2(circuit, input_labels):
 
 def add_3mdfa_new(circuit, input_labels):
     assert len(input_labels) == 10
-    for input in input_labels:
-        assert input in circuit.input_labels or input in circuit.gates
+    for input_label in input_labels:
+        assert input_label in circuit.input_labels or input_label in circuit.gates
 
     [x1, x2, x3, x4, x5, x6, x7, x8, x9, x10] = input_labels
     a5 = circuit.add_gate(x3, x1, '0110')
@@ -410,14 +409,13 @@ def add_3mdfa_new(circuit, input_labels):
     z22 = circuit.add_gate(z18, z15, '0110')
     z23 = circuit.add_gate(z17, z21, '0110')
 
-
     return z14, z22, z19, z23
 
 
 def add_3mdfa(circuit, input_labels):
     assert len(input_labels) == 10
-    for input in input_labels:
-        assert input in circuit.input_labels or input in circuit.gates
+    for input_label in input_labels:
+        assert input_label in circuit.input_labels or input_label in circuit.gates
 
     [i0, i1, x1ry1, y1, x2ry2, y2, x3ry3, y3, x4ry4, y4] = input_labels
     a0, b1, b2rb1 = add_mdfa(circuit, [x1ry1, y1, i0, x2ry2, y2])
@@ -426,10 +424,11 @@ def add_3mdfa(circuit, input_labels):
 
     return w0, w1, d1, d2rd1
 
+
 def add_mdfasbsb(circuit, input_labels):
     assert len(input_labels) == 7
-    for input in input_labels:
-        assert input in circuit.input_labels or input in circuit.gates
+    for input_label in input_labels:
+        assert input_label in circuit.input_labels or input_label in circuit.gates
 
     [e1_xor_f1, e1, a1, g1, g1_xor_h1, i1_xor_j1, i1] = input_labels
     n1, k2, k2_xor_l2 = add_mdfa(circuit, [e1_xor_f1, e1, a1, g1, g1_xor_h1])
@@ -441,8 +440,8 @@ def add_mdfasbsb(circuit, input_labels):
 
 def add_mdfasb(circuit, input_labels):
     assert len(input_labels) == 7
-    for input in input_labels:
-        assert input in circuit.input_labels or input in circuit.gates
+    for input_label in input_labels:
+        assert input_label in circuit.input_labels or input_label in circuit.gates
 
     [x0, x1, x2, x3, x4, x5, x6] = input_labels
     a0, b1, b2 = add_mdfa(circuit, [x0, x1, x2, x3, x4])
@@ -453,8 +452,8 @@ def add_mdfasb(circuit, input_labels):
 
 def add_sb_mdfa(circuit, input_labels):
     assert len(input_labels) == 10
-    for input in input_labels:
-        assert input in circuit.input_labels or input in circuit.gates
+    for input_label in input_labels:
+        assert input_label in circuit.input_labels or input_label in circuit.gates
 
     [x0, x1, x2, x3, x4, x5, x6, x7, x8, in1] = input_labels
     a0, b1, b2 = add_mdfa(circuit, [x0, x1, x2, x3, x4])
@@ -463,10 +462,11 @@ def add_sb_mdfa(circuit, input_labels):
 
     return w0, w1, out1, out2
 
+
 def add_stockmeyers_block(circuit, input_labels):
     assert len(input_labels) == 3
-    for input in input_labels:
-        assert input in circuit.input_labels or input in circuit.gates
+    for input_label in input_labels:
+        assert input_label in circuit.input_labels or input_label in circuit.gates
 
     [x1_xor_x2, x2, x3] = input_labels
     g2 = circuit.add_gate(x2, x3, '0110')
@@ -475,6 +475,7 @@ def add_stockmeyers_block(circuit, input_labels):
     g5 = circuit.add_gate(g3, g4, '0110')
 
     return g4, g5
+
 
 def add_sum31(circuit, input_labels):
     assert len(input_labels) == 31
@@ -635,9 +636,10 @@ def add_sum6new(circuit, input_labels):
 
     a0, a1 = add_sum3(circuit, [x1, x2, x3])
     b0, b1 = add_sum3(circuit, [x4, x5, x6])
-    c0, c1, c2 = add_summ22(circuit,[a1, a0, b1, b0])
+    c0, c1, c2 = add_summ22(circuit, [a1, a0, b1, b0])
 
     return c0, c1, c2
+
 
 def add_sum7new(circuit, input_labels):
     assert len(input_labels) == 7
@@ -693,6 +695,7 @@ def add_sum7ad(circuit, input_labels):
 
     return a17, a19
 
+
 def add_sum7ad2(circuit, input_labels):
     assert len(input_labels) == 7
     for input_label in input_labels:
@@ -738,6 +741,7 @@ def add_sum6ad2(circuit, input_labels):
 
     return a15, a16
 
+
 def add_aox4(circuit, input_labels):
     assert len(input_labels) == 5
     for input_label in input_labels:
@@ -781,37 +785,21 @@ def run(fun, size):
 
 
 def check_various_sum_circuits():
-    a=5
-    #run(add_sum2, 2)
-    #run(add_sum3, 3)
-    #run(add_sum4, 4)
-    #run(add_sum5, 5)
-    #run(add_sum5_suboptimal, 5)
-    #run(add_sum6, 6)
-    # run(add_sum7, 7)
-    #run(add_sum7_suboptimal, 7)
-    #run(add_sum8_1, 8)
-    #run(add_sum8_2, 8)
-    #run(add_sum9, 9)
-    #run(add_sum10, 10)
-    #run(add_sum10_suboptimal, 10)
-    #run(add_sum15, 15)
-#    run(add_sum6ad2, 6)
-    #run(add_sum15_using_mdfa2, 15)
-    #run(add_sum6new, 6)
 
-    # run(add_sum31, 31)
+    run(add_sum2, 2)
+    run(add_sum3, 3)
+    run(add_sum4, 4)
+    run(add_sum5, 5)
+    run(add_sum5_suboptimal, 5)
+    run(add_sum6, 6)
+    run(add_sum7, 7)
+    run(add_sum7_suboptimal, 7)
+    run(add_sum8_1, 8)
+    run(add_sum8_2, 8)
+    run(add_sum9, 9)
+    run(add_sum10, 10)
+    run(add_sum10_suboptimal, 10)
 
 
-    #c = Circuit(input_labels=[f'x{i}' for i in range(1, 7 + 1)], gates={})
-    #c.outputs = add_sum7new(c, c.input_labels)
-    #c.draw('newsum7')
-    #check_sum_circuit(c)
-    #c.save_to_file(f'sum/sum7_sub')
-
-    c = Circuit()
-    c.load_from_file('lolkshn')
-    check_sum_circuit(c)
-
-
-check_various_sum_circuits()
+if __name__ == '__main__':
+    check_various_sum_circuits()

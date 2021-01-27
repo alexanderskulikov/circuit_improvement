@@ -1,6 +1,5 @@
 from circuit import Circuit
-from itertools import product
-from itertools import permutations
+from itertools import product, permutations
 
 
 def add_ex2_2(circuit, input_labels):
@@ -29,6 +28,7 @@ def add_ex2_3(circuit, input_labels):
 
     return a6
 
+
 def add_ex32_sum(circuit, input_labels):
     assert len(input_labels) == 3
     for input_label in input_labels:
@@ -42,19 +42,12 @@ def add_ex32_sum(circuit, input_labels):
 
     return z4, z3
 
+
 def add_ex2_over1(circuit, input_labels):
     assert len(input_labels) == 5
     for input_label in input_labels:
         assert input_label in circuit.input_labels or input_label in circuit.gates
 
-    """perm = permutations(input_labels)
-    last = []
-    ind = 0
-    for i in list(perm):
-       if ind == lol:
-           last = list(i)
-       ind += 1
-    """
     [x1, x0, x3, x2, x4] = input_labels
 
     z5 = circuit.add_gate(x1, x4, '0110')
@@ -71,6 +64,7 @@ def add_ex2_over1(circuit, input_labels):
 
     return z16, z11, z12
 
+
 def add_ex2_7_withover(circuit, input_labels):
     assert len(input_labels) == 7
     for input_label in input_labels:
@@ -84,6 +78,7 @@ def add_ex2_7_withover(circuit, input_labels):
     d2 = circuit.add_gate(over, d1, '0001')
 
     return d2
+
 
 def add_sq2(circuit, input_labels):
     assert len(input_labels) == 8
@@ -180,9 +175,7 @@ def add_sq3(circuit, input_labels):
     return y11, y12, y13, y21, y22, y23, y31, y32, y33
 
 
-
 def check_ex_circuit(circuit, k):
-    f = True
     truth_tables = circuit.get_truth_tables()
     n = len(circuit.input_labels)
     if isinstance(circuit.outputs, str):
@@ -191,12 +184,6 @@ def check_ex_circuit(circuit, k):
         i = sum((2 ** (n - 1 - j)) * x[j] for j in range(n))
         s = truth_tables[circuit.outputs[0]][i]
         assert (sum(x) == k) == s, f'{x}'
-        """if (sum(x) == k) != s:
-            f = False
-            print('no')
-            break
-    if f == True:
-        print('yeees')"""
 
 
 def run(fun, size, k):
@@ -208,16 +195,8 @@ def run(fun, size, k):
 
 def check_various_ex_circuits():
     run(add_ex2_2, 2, 2)
-    #run(add_ex2_3, 3, 2)
-    #for lol in range(0,120):
-    #run(add_ex2_7_withover, 7, 2)
-    #run(add_ex2_7_withover, 7, 2, 86)
-    #c = Circuit()
-    #c.load_from_file('ex/ex2_5_size14')
-    #check_ex_circuit(c, 1)
-    #c = Circuit(input_labels=[f'x{i}' for i in range(1, 8 + 1)], gates={})
-    #c.outputs = add_sq2(c, c.input_labels)
-    #c.draw('mul2')
+    run(add_ex2_3, 3, 2)
 
 
-check_various_ex_circuits()
+if __name__ == '__main__':
+    check_various_ex_circuits()

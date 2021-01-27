@@ -1,4 +1,4 @@
-from generate_circuit.generate_ib_circuit import *
+from functions.ib import *
 
 
 def add_in2(circuit, input_labels):
@@ -114,9 +114,6 @@ def add_out3_mod2(circuit, input_labels):
     g8 = circuit.add_gate(g6, g7, '1000')
 
     return g8
-
-
-#-------------------------------------------------------
 
 
 def add_out1_mod0(circuit, input_labels):
@@ -364,7 +361,7 @@ def run_out(fun, size, modd):
     c = Circuit(input_labels=[f'x{i}' for i in range(1, size + 1)], gates={})
     c.outputs = fun(c, c.input_labels)
     check_out_circuit(c, modd)
-    #c.save_to_file(f'mod3/out/out_{len(c.input_labels)-2}_{modd}_size{len(c.gates)}')
+    # c.save_to_file(f'mod3/out/out_{len(c.input_labels)-2}_{modd}_size{len(c.gates)}')
 
 
 def check_various_maj_circuits():
@@ -389,4 +386,5 @@ def check_various_maj_circuits():
     run(add_mod3_6_0, 6, 0)
 
 
-check_various_maj_circuits()
+if __name__ == '__main__':
+    check_various_maj_circuits()

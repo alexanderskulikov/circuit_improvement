@@ -1,6 +1,6 @@
 from circuit import Circuit
 from itertools import product
-from generate_circuit.generate_sum_circuit import add_sum4, add_sum5, add_sum6, add_sum7
+from functions.sum import add_sum4, add_sum5, add_sum6, add_sum7
 
 
 def add_th2_2(circuit, input_labels):
@@ -26,19 +26,6 @@ def add_2th2_2(circuit, input_labels):
     a1 = circuit.add_gate(x1, x2, '0111')
 
     return a0, a1
-
-def add_2th2_3(circuit, input_labels):
-    assert len(input_labels) == 3
-    for input_label in input_labels:
-        assert input_label in circuit.input_labels or input_label in circuit.gates
-
-    [x1, x2, x3] = input_labels
-
-    z1 = circuit.add_gate(x1, x2, '0111')
-    z2 = circuit.add_gate(x1, x2, '0001')
-    z3 = circuit.add_gate(z2, x3, '0001')
-    z4 = circuit.add_gate(z1, z3, '0111')
-    return b2, c
 
 
 def add_th2_3(circuit, input_labels):
@@ -90,6 +77,7 @@ def add_th32_sum(circuit, input_labels):
 
     return z3, z4
 
+
 def add_th3_6_sum(circuit, input_labels):
     assert len(input_labels) == 6
     for input_label in input_labels:
@@ -130,6 +118,7 @@ def add_th3_4(circuit, input_labels):
     b2 = circuit.add_gate(b1, a2, '0111')
 
     return b2
+
 
 def add_th3_5(circuit, input_labels):
     assert len(input_labels) == 5
@@ -234,49 +223,31 @@ def check_2th_circuit(circuit, k):
         assert ((sum(x) >= k) == s) and ((sum(x) != 0) == t)
 
 
-def proof_th_circuit(size, k):
-    n = size
-    ans = []
-    maj = n//2 if n % 2 == 0 else n//2+1
-    for x in product(range(2), repeat=n):
-        ans.append(1 if sum(x) >= maj else 0)
-    print(ans)
-
-
 def run(fun, size, k):
     c = Circuit(input_labels=[f'x{i}' for i in range(1, size + 1)], gates={})
     c.outputs = fun(c, c.input_labels)
     check_th_circuit(c, k)
-    #c.save_to_file(f'th/ans29')
+    # c.save_to_file(f'th/ans29')
+
 
 def run2(fun, size, k):
     c = Circuit(input_labels=[f'x{i}' for i in range(1, size + 1)], gates={})
     c.outputs = fun(c, c.input_labels)
     check_2th_circuit(c, k)
-    #c.save_to_file(f'maj/maj{len(c.input_labels)}_size{len(c.gates)}')
+    # c.save_to_file(f'maj/maj{len(c.input_labels)}_size{len(c.gates)}')
 
 
 def check_various_th_circuits():
-    #run(add_th2_2, 2, 2)
-    #run(add_th2_3, 3, 2)
-    #run(add_th2_4, 4, 2)
-    #run(add_th3_4, 4, 3)
-    #run(add_th3_5, 5, 3)
-    #run(add_th3_6, 6, 3)
-    #run(add_th3_7, 7, 3)
-    #run(add_th3_6_sum, 6, 3)
-
-    #run(add_th2_3, 3, 2)
-    #run(add_th2_4, 4, 2)
+    run(add_th2_2, 2, 2)
+    run(add_th2_3, 3, 2)
+    run(add_th2_4, 4, 2)
+    run(add_th3_4, 4, 3)
+    run(add_th3_5, 5, 3)
+    run(add_th3_6, 6, 3)
+    run(add_th3_7, 7, 3)
+    run(add_th3_6_sum, 6, 3)
     run(add_th2_12, 12, 2)
-    #run2(add_2th2_2, 2, 2)
-    #run2(add_2th2_3, 3, 2)
-    #c = Circuit()
-    #c.load_from_file('th/2th2_3_size5')
-    #check_2th_circuit(c, 2)
 
-    c = Circuit()
-    c.load_from_file('ans29')
-    check_th_circuit(c, 2)
 
-check_various_th_circuits()
+if __name__ == '__main__':
+    check_various_th_circuits()
