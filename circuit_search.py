@@ -288,6 +288,3 @@ if __name__ == '__main__':
         print('Circuit found!\n')
         print(circuit)
     print(f'Time: {end-start:.2f} seconds')
-
-
-

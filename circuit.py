@@ -1,5 +1,8 @@
 from itertools import product
 import networkx as nx
+import os
+
+project_directory = os.path.dirname(os.path.abspath("path"))
 
 
 class Circuit:
@@ -26,10 +29,12 @@ class Circuit:
         '1101': '<=',
     }
 
-    def __init__(self, input_labels=None, gates=None, outputs=None):
+    def __init__(self, input_labels=None, gates=None, outputs=None, fn=None):
         self.input_labels = input_labels or []
         self.gates = gates or {}
         self.outputs = outputs or []
+        if fn is not None:
+            self.load_from_file(fn)
 
     def __str__(self):
         s = ''
@@ -49,15 +54,15 @@ class Circuit:
         self.gates = {}
         for i in range(number_of_gates):
             gate, first, second, gate_type = lines[i + 2].strip().split()
-            assert first in self.gates or first in self.input_labels
-            assert second in self.gates or second in self.input_labels
+            # assert first in self.gates or first in self.input_labels
+            # assert second in self.gates or second in self.input_labels
             self.gates[gate] = (first, second, gate_type)
 
         self.outputs = lines[number_of_gates + 2].strip().split()
         assert len(self.outputs) == number_of_outputs
 
     def load_from_file(self, file_name):
-        with open(file_name) as circuit_file:
+        with open(project_directory + '/circuits/' + file_name + '.ckt') as circuit_file:
             self.load_from_string(circuit_file.read())
 
     def save_to_file_verilog(self, file_name):
@@ -91,7 +96,7 @@ class Circuit:
             circuit_file.write('\nendmodule')
 
     def save_to_file(self, file_name):
-        with open(file_name, 'w') as circuit_file:
+        with open(project_directory + '/circuits/' + file_name + '.ckt', 'w') as circuit_file:
             circuit_file.write(f'{len(self.input_labels)} {len(self.gates)} {len(self.outputs)}\n')
             circuit_file.write(' '.join(self.input_labels))
             for gate in self.gates:
@@ -105,25 +110,102 @@ class Circuit:
             circuit_graph.add_node(input_label)
 
         for gate in self.gates:
-            # circuit_graph.add_node(gate, label=f'{gate}: {self.gate_types[self.gates[gate][2]]}')
-            circuit_graph.add_node(gate, label=f'{self.gate_types[self.gates[gate][2]]}')
+            circuit_graph.add_node(gate, label=f'{gate}: {self.gates[gate][0]} {self.gate_types[self.gates[gate][2]]} {self.gates[gate][1]}')
             circuit_graph.add_edge(self.gates[gate][0], gate)
             circuit_graph.add_edge(self.gates[gate][1], gate)
 
-        # assert nx.is_directed_acyclic_graph(circuit_graph) # in some case we have to work with cyclic circuits
-
         return circuit_graph
 
-    def draw(self, file_name='circuit.png'):
+    @staticmethod
+    def make_circuit(graph, input_gates, output_gates):
+        circuit = Circuit(input_labels=input_gates, gates={}, outputs=list(output_gates))
+        for gate in graph.pred:
+            if gate in input_gates:
+                continue
+            operation = (graph.nodes[gate]['label']).split()[2]
+            bit_operation = list(circuit.gate_types.keys())[list(circuit.gate_types.values()).index(operation)]
+            circuit.gates[gate] = ((graph.nodes[gate]['label']).split()[1], (graph.nodes[gate]['label']).split()[3], bit_operation)
+
+        return circuit
+
+    @staticmethod
+    def make_code(filename_in, filename_out):
+        result = ''
+        with open(project_directory + '/circuits/' + filename_in + '.ckt') as circuit_file:
+            number_of_inputs, number_of_gates, number_of_outputs = \
+                list(map(int, circuit_file.readline().strip().split()))
+
+            input_labels = circuit_file.readline().strip().split()
+            result += f'['
+            for i in range(number_of_inputs):
+                result += f'{input_labels[i]}'
+                if i != number_of_inputs - 1:
+                    result += ', '
+            result += '] = input_labels\n'
+            for _ in range(number_of_gates):
+                gate, first, second, gate_type = circuit_file.readline().strip().split()
+                result += f"{gate} = circuit.add_gate({first}, {second}, '{gate_type}')\n"
+
+            outputs = circuit_file.readline().strip().split()
+            result += f'\nreturn '
+            for i in range(number_of_outputs):
+                result += f'{outputs[i]}'
+                if i != number_of_outputs - 1:
+                    result += ', '
+            result += '\n'
+
+        with open(project_directory + '/circuits/' + filename_out + '.ckt', 'w') as file:
+            file.write(result)
+
+    def replace_subgraph(self, improved_circuit, subcircuit, subcircuit_outputs):
+        circuit_graph = self.construct_graph()
+        replaced_graph = self.construct_graph()
+        subcircuit_inputs = improved_circuit.input_labels
+        improved_circuit_graph = improved_circuit.construct_graph()
+
+        def make_label(label_now, gate_before, gate_after):
+            gate_before = str(gate_before)
+            gate_after = str(gate_after)
+            ss = label_now.split(' ')
+            if ss[1] == gate_before:
+                ss[1] = gate_after
+            if ss[3] == gate_before:
+                ss[3] = gate_after
+
+            return ss[0] + ' ' + ss[1] + ' ' + ss[2] + ' ' + ss[3]
+
+        for gate in subcircuit:
+            if gate not in subcircuit_inputs:
+                replaced_graph.remove_node(gate)
+        for gate in improved_circuit.gates:
+            assert gate not in subcircuit_inputs
+            labels = []
+            for p in improved_circuit_graph.predecessors(gate):
+                labels.append(str(p))
+            replaced_graph.add_node(gate,
+                                    label=f'{gate}: {labels[0]} {improved_circuit.gate_types[improved_circuit.gates[gate][2]]} {labels[1]}')
+            for p in improved_circuit_graph.predecessors(gate):
+                replaced_graph.add_edge(p, gate)
+
+        for i in range(len(subcircuit_outputs)):
+            for s in circuit_graph.successors(subcircuit_outputs[i]):
+                if s in replaced_graph.nodes:
+                    replaced_graph.add_edge(improved_circuit.outputs[i], s)
+                    replaced_graph.nodes[s]['label'] = make_label(replaced_graph.nodes[s]['label'],
+                                                                  subcircuit_outputs[i],
+                                                                  improved_circuit.outputs[i])
+        return replaced_graph
+
+    def draw(self, file_name='circuit'):
         a = nx.nx_agraph.to_agraph(self.construct_graph())
-        for gate in self.gates:
-            a.get_node(gate).attr['shape'] = 'circle'
         for gate in self.input_labels:
-            a.get_node(gate).attr['shape'] = 'square'
+            a.get_node(gate).attr['shape'] = 'box'
+        if isinstance(self.outputs, str):
+            self.outputs = [self.outputs]
         for output in self.outputs:
             a.get_node(output).attr['shape'] = 'box'
         a.layout(prog='dot')
-        a.draw(file_name)
+        a.draw(project_directory + '/circuits/.images/' + file_name + '.png')
 
     def get_truth_tables(self):
         truth_tables = {}
@@ -158,4 +240,3 @@ class Circuit:
         self.gates[gate_label] = (first_predecessor, second_predecessor, operation)
 
         return gate_label
-
