@@ -1,3 +1,14 @@
+# tex
+/paper/_minted*
+/paper/circuits_local_improvement.pdf
+*.aux 
+*.log 
+*.bak
+*.blg
+*.bbl
+*.toc
+*.synctex.gz
+
 .idea/*
 
 # Byte-compiled / optimized / DLL files

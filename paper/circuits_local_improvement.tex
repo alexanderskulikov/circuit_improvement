@@ -69,21 +69,17 @@ circuit in a~ball around a~given circuit.
 We~report the results of experiments with various symmetric functions. 
 \end{abstract}
 
-\tableofcontents
+%\tableofcontents
+%\clearpage
 
-\clearpage
-
-
-%\end{document}
 
 \section{Boolean Circuits}
 A~Boolean \emph{straight line program} 
-%or a~\emph{circuit} 
 of size~$r$ for input variables $(x_1, \dotsc, x_n)$ 
 is a~sequence of~$r$~instructions where each 
 instruction $g \gets h \circ k$ 
 applies a~binary Boolean operation~$\circ$ to 
-two operands $h,k$ each of which is either an input bit 
+two operands $h,k$ each of which is either an~input bit 
 or the result of a~previous instruction. 
 If $m$~instructions are designated as outputs,
 the straight line program computes a~function 
@@ -390,13 +386,13 @@ in~nine~seconds. This circuit can~be also found via \mintinline{python}{find_cir
 
 \section{Experimental Evaluation}
 In~this section, we~report the results of~experiments
-with various symmetric functions. A~function $f(x_1,\dotsc,x_n)$ is called \emph{symmetric} if~its value depends on~$\sum_{i=1}^nx_i$ only. These are among the most basic Boolean functions:
+with various symmetric functions. A~function $f(x_1,\dotsc,x_n)$ is called \emph{symmetric} if~its value depends on~$\sum_{i=1}^nx_i$ only. They are among the most basic Boolean functions:
 \begin{itemize}
 \item to~specify an~arbitrary Boolean function, one needs
-to~write down its truth table of length~$2^n$; symmetric functions allow for much compact representation: it is enough to specify $n+1$ bits (for each of $n+1$ values 
+to~write down its truth table of length~$2^n$; symmetric functions allow for more compact representation: it is enough to specify $n+1$ bits (for each of $n+1$ values 
 of~$\sum_{i=1}^nx_i$);
 \item circuit complexity of almost all functions 
-of~$n$ variables is exponential, whereas any symmetric function can~be computed by a~linear circuit. 
+of~$n$ variables is exponential ($\Theta(2^n/n)$), whereas any symmetric function can~be computed by a~linear size circuit ($\Theta(n)$). 
 \end{itemize}
 Despite simplicity of~symmetric functions, we still do~not
 know how optimal circuits look like for most of~them. Below, we~present new circuits for some of these functions.
