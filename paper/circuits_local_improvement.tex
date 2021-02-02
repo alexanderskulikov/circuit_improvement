@@ -477,23 +477,33 @@ by a~straightforward \texttt{Python} code that verifies their correctness.
 The following table shows how to~combine the blocks
 to~get a~circuit computing~$\MOD_n^{3,r}$ of the required size. (Technically, it requires $n$~to~be at~least~$4$. For $n=3$, the corresponding circuits are easy to~construct.)
 
-\begin{center}
-\begin{tabular}{cccc}
-\toprule
-& $n=3s+4$ & $n=3s+5$ & $n=3s+6$ \\ 
-\hline
-\strut $r=0$ & 
-$\IN_2 + s \times \MID_3+\OUT_2^0$ &
-$\IN_3 + s \times \MID_3+\OUT_2^0$ &
-$\IN_4 + s \times \MID_3+\OUT_2^0$ \\
-& $2+9s/3+5=3n-5$ & $\dotsb$\\
-\midrule
-\strut $r=1$ &\\
-\midrule
-\strut $r=2$ &\\
-\bottomrule
-\end{tabular}
-\end{center}
+    \begin{center}
+        \begin{tabular}{ cccc }
+        \toprule
+         & $n=3s$ & $n=3s+1$ & $n=3s+2$  \\ \hline
+
+        $r=0$ & \small{$\IN_4 + (s-2) \times \MID_3 + \OUT_2^0$} &
+              \small{$\IN_2 + (s-1) \times \MID_3 + \OUT_2^0$} &
+              \small{$\IN_3 + (s-1) \times \MID_3 + \OUT_2^0$} \\
+          & \small{$7 + \frac{n-6}{3} \cdot 9 + 5 = 3n-6$} &
+            \small{$2 + \frac{n-4}{3} \cdot 9 + 5 = 3n-5$} &
+            \small{$5 + \frac{n-5}{3} \cdot 9 + 5 = 3n-5$} \\ \hline
+
+        $r=1$ & \small{$\IN_2 + (s-1) \times \MID_3 + \OUT_1^1$} &
+              \small{$\IN_3 + (s-1) \times \MID_3 + \OUT_1^1$} &
+              \small{$\IN_4 + (s-1) \times \MID_3 + \OUT_1^1$} \\
+          & \small{$2 + \frac{n-3}{3} \cdot 9 + 2 = 3n-5$} &
+            \small{$5 + \frac{n-4}{3} \cdot 9 + 2 = 3n-5$} &
+            \small{$7 + \frac{n-5}{3} \cdot 9 + 2 = 3n-6$} \\ \hline
+
+        $r=2$ & \small{$\IN_3 + (s-2) \times \MID_3 + \OUT_3^2$} &
+              \small{$\IN_4 + (s-2) \times \MID_3 + \OUT_3^2$} &
+              \small{$\IN_2 + (s-1) \times \MID_3 + \OUT_3^2$} \\
+          & \small{$5 + \frac{n-6}{3} \cdot 9 + 8 = 3n-5$} &
+            \small{$7 + \frac{n-7}{3} \cdot 9 + 8 = 3n-6$} &
+            \small{$2 + \frac{n-5}{3} \cdot 9 + 8 = 3n-5$} \\ \bottomrule
+        \end{tabular}
+    \end{center}
 
 \todo[inline]{Nikita, fix and complete the table}
 
