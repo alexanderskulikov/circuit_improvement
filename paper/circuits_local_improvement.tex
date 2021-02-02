@@ -38,6 +38,8 @@
 
 \newenvironment{mypic}{\begin{center}\begin{tikzpicture}}{\end{tikzpicture}\end{center}}
 
+\bibliographystyle{plainurl}
+
 
 
 \begin{document}
@@ -83,7 +85,9 @@ two operands $h,k$ each of which is either an~input bit
 or the result of a~previous instruction. 
 If $m$~instructions are designated as outputs,
 the straight line program computes a~function 
-$\{0,1\}^n \to \{0,1\}^m$ in a~natural way. For 
+$\{0,1\}^n \to \{0,1\}^m$ in a~natural way. 
+We denote the set of all such functions by $B_{n,m}$ and we let $B_n=B_{n,1}$.
+For 
 a~Boolean function $f \colon \{0,1\}^n \to \{0,1\}^m$,
 by $\size(f)$ we denote the minimum size of 
 a~straight line program
@@ -388,7 +392,8 @@ in~nine~seconds. This circuit can~be also found via \mintinline{python}{find_cir
 In~this section, we~report the results of~experiments
 with various symmetric functions. A~function $f(x_1,\dotsc,x_n)$ is called \emph{symmetric} if~its value depends on~$\sum_{i=1}^nx_i$ only. They are among the most basic Boolean functions:
 \begin{itemize}
-\item to~specify an~arbitrary Boolean function, one needs
+\item to~specify an~arbitrary Boolean function 
+from~$B_n$, one needs
 to~write down its truth table of length~$2^n$; symmetric functions allow for more compact representation: it is enough to specify $n+1$ bits (for each of $n+1$ values 
 of~$\sum_{i=1}^nx_i$);
 \item circuit complexity of almost all functions 
@@ -398,6 +403,13 @@ Despite simplicity of~symmetric functions, we still do~not
 know how optimal circuits look like for most of~them. Below, we~present new circuits for some of these functions.
 
 \subsection{Sum Function}
+The $\SUM$ function is a~fundamental symmetric function: for any symmetric $f \in B_n$, $\size(f)\le \size(SUM_n)+o(n)$. The reason for this is that any function from~$B_n$ can be~computed by a~circuit of size $O(2^n/n)$ by the results of Muller~\cite{M56} and Lupanov~\cite{Lup59}. This allows to compute any symmetric $f(x_1, \dotsc, x_n) \in B_n$ as follows: first, compute $\SUM_n(x_1, \dotsc, x_n)$ using $\size(\SUM_n)$ gates; then, compute the resulting bit using at most $O(2^{\log n}/\log n)=o(n)$ gates. For the same reason, any lower bound $\size(f) \le \alpha$ for
+a~symmetric function~$f \in B_n$ implies a~lower bound $\size(\SUM_n) \le \alpha-o(n)$. Currently, we know the following bounds for $\SUM_n$:
+\[2.5n-O(1) \le \size(\SUM_n) \le 4.5n+o(n) \, .\]
+The lower bound is~due to~Stockmeyer~\cite{DBLP:journals/mst/Stockmeyer77}, the upper bound is~due to~Demenkov et al.~\cite{DBLP:journals/ipl/DemenkovKKY10}.
+
+A~circuit for $\SUM_n$ can~be constructed from circuits for $\SUM_k$ for some small~$k$. Say, one can compute
+
 
 \subsection{Modulo-3 Function}
 In~\cite{DBLP:conf/sat/KojevnikovKY09}, Kojevnikov et al. 
@@ -493,7 +505,7 @@ $\IN_4 + s \times \MID_3+\OUT_2^0$ \\
 \section{Further Directions}
 
 
-\bibliographystyle{plain}
+%\bibliographystyle{plain}
 \bibliography{circuits}
 
 \appendix
