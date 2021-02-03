@@ -8,6 +8,11 @@
 *.bbl
 *.toc
 *.synctex.gz
+*.out
+*.vtc
+/paper/main.pdf
+/paper/main_lipics.pdf
+*.tdo
 
 .idea/*
 
