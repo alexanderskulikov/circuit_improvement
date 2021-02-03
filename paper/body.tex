@@ -594,18 +594,18 @@ is the pair of bits $(r_0, r_1)$ encoding the current remainder~$r$ modulo~$3$ a
 
 The theorem follows from the following upper bounds 
 on~the circuit size of the just introduced functions:
-$\size(\IN_2) \le ?$, 
-$\size(\IN_3) \le ?$, 
-$\size(\IN_4) \le ?$,
-$\size(\MID_3) \le ?$,
-$\size(\OUT_2^0) \le ?$,
-$\size(\OUT_1^1) \le ?$,
-$\size(\OUT_3^2) \le ?$.
+$\size(\IN_2) \le 2$,
+$\size(\IN_3) \le 5$,
+$\size(\IN_4) \le 7$,
+$\size(\MID_3) \le 9$,
+$\size(\OUT_2^0) \le 5$,
+$\size(\OUT_1^1) \le 2$,
+$\size(\OUT_3^2) \le 8$.
 \todo[inline]{Nikita, fill in these question marks}
-The corresponding circuits are presented in the Appendix 
+The corresponding circuits are presented in the Appendix
 by a~straightforward \texttt{Python} code that verifies their correctness.
 
-Table~\ref{table:parameters} shows how to~combine 
+Table~\ref{table:parameters} shows how to~combine
 the blocks
 to~get a~circuit computing~$\MOD_n^{3,r}$ of the required size. (Technically, it requires $n$~to~be at~least~$4$. For $n=3$, the corresponding circuits are easy to~construct.)
 
@@ -613,12 +613,24 @@ to~get a~circuit computing~$\MOD_n^{3,r}$ of the required size. (Technically, it
 \begin{center}
 \begin{tabular}{cccc}
 \toprule
-& $n=3t$ & $n=3t+1$ & $n=3t+2$\\ 
+& $n=3t$ & $n=3t+1$ & $n=3t+2$\\
 \hline
 $r=0$
-& $(4, t-2, 2)$, $(?, ?)$, $3n-6$
-& $(2, t-1, 2)$, $(?, ?)$, $3n-5$
-& $(3, t-1, 2)$, $(?, ?)$, $3n-5$
+& $(4, t-2, 2)$, $(7, 5)$, $3n-6$
+& $(2, t-1, 2)$, $(2, 5)$, $3n-5$
+& $(3, t-1, 2)$, $(5, 5)$, $3n-5$
+\\
+\hline
+$r=1$
+& $(2, t-1, 1)$, $(2, 2)$, $3n-5$
+& $(3, t-1, 1)$, $(5, 2)$, $3n-5$
+& $(4, t-1, 1)$, $(7, 2)$, $3n-6$
+\\
+\hline
+$r=2$
+& $(3, t-2, 3)$, $(5, 8)$, $3n-5$
+& $(4, t-2, 3)$, $(7, 8)$, $3n-6$
+& $(2, t-1, 3)$, $(2, 8)$, $3n-5$
 \\
 \bottomrule
 \end{tabular}
