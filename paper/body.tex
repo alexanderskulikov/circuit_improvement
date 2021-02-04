@@ -639,10 +639,9 @@ $r=2$
 as~follows: $\IN_k + m \times \MID_3 + \OUT_r^l$. For each
 pair $(n \mod 3, r)$ we show three things: the triple
 $(m, k, l)$; the sizes of~two blocks: $\size(\IN_k)$ and $\size(\OUT_r^l)$; the size of~the resulting circuit
-computed as $s=\size(\IN_k)+9m+\size(\OUT_r^l)$.}
+computed as $s=\size(\IN_k)+9m+\size(\OUT_r^l)$. For example, the top left cell is read as follows: when $r=0$ and $n=3t$, we set $k=4,m=t-2,l=2$; the resulting circuit is then $\IN_4 + (t-2) \times \MID_3 + \OUT_0^2$; since $\size(\IN_4)=7$ and $\size(\OUT_0^2)=5$, the size of the circuit is $7+9(t-2)+5=9t-6=3n-6$.}
 \label{table:parameters}
 \end{table}
-\todo[inline]{Nikita, complete the table}
 \end{proof}
 
 \subsection{Threshold-2 Function}
