@@ -371,7 +371,7 @@ Despite simplicity of~symmetric functions, we still do~not
 know how optimal circuits look like for most of~them. Below, we~present new circuits for some of these functions.
 
 \subsection{Sum Function}
-The $\SUM$ function is a~fundamental symmetric function: for any symmetric $f \in B_n$, $\size(f)\le \size(SUM_n)+o(n)$. The reason for this is that any function from~$B_n$ can be~computed by a~circuit of size $O(2^n/n)$ by the results of Muller~\cite{M56} and Lupanov~\cite{Lup59}. This allows to compute any symmetric $f(x_1, \dotsc, x_n) \in B_n$ as follows: first, compute $\SUM_n(x_1, \dotsc, x_n)$ using $\size(\SUM_n)$ gates; then, compute the resulting bit using at most $O(2^{\log n}/\log n)=o(n)$ gates. For the same reason, any lower bound $\size(f) \le \alpha$ for
+The $\SUM$ function is a~fundamental symmetric function: for any symmetric $f \in B_n$, $\size(f)\le \size(\SUM_n)+o(n)$. The reason for this is that any function from~$B_n$ can be~computed by a~circuit of size $O(2^n/n)$ by the results of Muller~\cite{M56} and Lupanov~\cite{Lup59}. This allows to compute any symmetric $f(x_1, \dotsc, x_n) \in B_n$ as follows: first, compute $\SUM_n(x_1, \dotsc, x_n)$ using $\size(\SUM_n)$ gates; then, compute the resulting bit using at most $O(2^{\log n}/\log n)=o(n)$ gates. For the same reason, any lower bound $\size(f) \le \alpha$ for
 a~symmetric function~$f \in B_n$ implies a~lower bound $\size(\SUM_n) \le \alpha-o(n)$. Currently, we know the following bounds for $\SUM_n$:
 \[2.5n-O(1) \le \size(\SUM_n) \le 4.5n+o(n) \, .\]
 The lower bound is~due to~Stockmeyer~\cite{DBLP:journals/mst/Stockmeyer77}, the upper bound is~due to~Demenkov et al.~\cite{DBLP:journals/ipl/DemenkovKKY10}.
