@@ -24,13 +24,14 @@ def run(fun, input_size, subcircuit_size=5, connected=True):
     improve_circuit(circuit, subcircuit_size, connected)
 
 
-command = 'r'
+if __name__ == '__main__':
+    command = 'r'
 
-if command == 'r':
-    run(add_sum5_suboptimal, 5, subcircuit_size=5, connected=True)
-elif command == 'rf':
-    run_file('sum/sum7_sub', subcircuit_size=5, connected=True)
-elif command == 'mc':
-    Circuit.make_code('ex/ex2_over1_size13', 'code')
-elif command == 'd':
-    c = Circuit(fn='sum/sum3_size5').draw('sum3_size5')
+    if command == 'r':
+        run(add_sum5_suboptimal, 5, subcircuit_size=5, connected=True)
+    elif command == 'rf':
+        run_file('sum/sum7_sub', subcircuit_size=5, connected=True)
+    elif command == 'mc':
+        Circuit.make_code('ex/ex2_over1_size13', 'code')
+    elif command == 'd':
+        c = Circuit(fn='sum/sum3_size5').draw('sum3_size5')
