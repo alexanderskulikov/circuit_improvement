@@ -528,24 +528,99 @@ manner. And it turns out that $\MDFA$ is just a~subcircuit of the optimal circui
 
 \subsubsection{Best Known Circuits for SUM with New Structure}
 
-For many upper bounds from the bottom row of~Table~\ref{table:sum}, we found circuits with the following interesting structure: the first thing the circuit computes is $x_1 \oplus x_2 \oplus \dotsb \oplus x_n$; moreover the variables $x_2, \dotsc, x_n$ are used for this only. This is best illustrated by an~example~--- see Figure~\ref{}. 
+For many upper bounds from the bottom row of~Table~\ref{table:sum}, we found circuits with the following interesting structure: the first thing the circuit computes is $x_1 \oplus x_2 \oplus \dotsb \oplus x_n$; moreover the variables $x_2, \dotsc, x_n$ are used for this only. This is best illustrated by an~example~--- see Figure~\ref{figure:xorsum}.
 \todo[inline]{Nikita, could you draw such circuits for $n=3,4,5$?}
 
+
+\begin{figure}[t]
+\begin{mypic}
+\begin{scope}[scale=.9]
+%\draw[help lines] (0,-5) grid (16,6);
+\begin{scope}[xshift=20mm, yshift=30mm]
+%\draw[help lines] (0,-3) grid (4,4);
+\draw[draw=none, rounded corners=0,fill=gray!20] (0.6,2.5)--(0.6,3.5)--(2.4,3.5)--(2.4,2.5);
+
+\foreach \n/\x/\y in {1/0/4, 2/1/4, 3/2/4}
+  \node[input] (x\n) at (\x, \y) {$x_{\n}$};
+\node[gate,label=left:$a$] (g1) at (1,3) {$\oplus$};
+\node[gate,label=right:$w_0$] (g2) at (2,3) {$\oplus$};
+\node[gate, label=left:$b$] (g3) at (0,2) {$\oplus$};
+\node[gate,label=left:$c$] (g4) at (1,1.5) {$\lor$};
+\node[gate, label=right:$w_1$] (g5) at (2,1) {$\oplus$};
+\foreach \f/\t in {x1/g1, x2/g1, g1/g2, x3/g2, x1/g3, g2/g3, g1/g4, g3/g4, g2/g5, g4/g5}
+  \draw[->] (\f) -- (\t);
+\end{scope}
+
+\begin{scope}[label distance=-1mm, xshift=70mm, yshift=20mm]
+%\draw[help lines] (0,-3) grid (4,4);
+\draw[draw=none, rounded corners=0,fill=gray!20] (0.6,3.5)--(0.6,4.5)--(3.4,4.5)--(3.4,3.5);
+\foreach \n/\x/\y in {1/0/5, 2/1/5, 3/2/5, 4/3/5}
+  \node[input] (x\n) at (\x, \y) {$x_{\n}$};
+\node[gate,label=left:$a$] (g1) at (1,4) {$\oplus$};
+\node[gate,label={[shift={(-0.2,0.01)}]$b$}] (g2) at (2,4) {$\oplus$};
+\node[gate,label=right:$w_0$] (g3) at (3,4) {$\oplus$};
+
+\node[gate, label=left:$c$] (g4) at (0.5,3) {$\oplus$};
+\node[gate,label=left:$d$] (g5) at (3,3) {$>$};
+
+\node[gate,label=left:$e$] (g6) at (1,2) {$\lor$};
+\node[gate,label={[shift={(0.2,0.01)}]$f$}] (g7) at (2,1.5) {$\oplus$};
+\node[gate,label=right:$w_1$] (g8) at (3,1) {$\oplus$};
+
+\node[gate,label=left:$w_2$] (g9) at (2,0.5) {$>$};
+\foreach \f/\t in {x1/g1, x2/g1, g1/g2, x3/g2, g2/g3, x4/g3, x1/g4, g2/g4, g2/g5, g3/g5, g4/g6, g1/g6, g6/g7, g2/g7, g7/g8, g5/g8, g8/g9, g7/g9}
+  \draw[->] (\f) -- (\t);
+\end{scope}
+
+\begin{scope}[label distance=-1mm, xshift=120mm, yshift=20mm]
+%\draw[help lines] (0,-3) grid (4,4);
+\draw[draw=none, rounded corners=0,fill=gray!20] (0.6,3.5)--(0.6,4.5)--(4.4,4.5)--(4.4,3.5);
+\foreach \n/\x/\y in {1/0/5, 2/1/5, 3/2/5, 4/3/5, 5/4/5}
+  \node[input] (x\n) at (\x, \y) {$x_{\n}$};
+\node[gate,label=left:$a$] (g1) at (1,4) {$\oplus$};
+\node[gate,label={[shift={(-0.2,0.01)}]$b$}] (g2) at (2,4) {$\oplus$};
+\node[gate,label={[shift={(-0.2,0.01)}]$c$}] (g3) at (3,4) {$\oplus$};
+\node[gate,label=right:$w_0$] (g4) at (4,4) {$\oplus$};
+
+\node[gate,label=left:$d$] (g5) at (0.5,3) {$\oplus$};
+\node[gate,label=right:$e$] (g6) at (4,3) {$\oplus$};
+
+\node[gate,label=left:$f$] (g7) at (1,2) {$\lor$};
+\node[gate,label=right:$g$] (g8) at (3.5,2) {$>$};
+
+\node[gate,label=left:$h$] (g9) at (2,1) {$\oplus$};
+\node[gate,label=right:$w_1$] (g10) at (3,1) {$\oplus$};
+
+\node[gate,label=right:$w_2$] (g11) at (2.5,0) {$>$};
+
+\foreach \f/\t in {x1/g1, x2/g1, g1/g2, x3/g2, g2/g3, x4/g3, g3/g4, x5/g4, x1/g5, g2/g5, g2/g6, g4/g6, g1/g7, g5/g7, g3/g8, g6/g8, g2/g9, g7/g9, g8/g10, g7/g10, g9/g11, g10/g11}
+  \draw[->] (\f) -- (\t);
+\end{scope}
+
+\foreach \x/\n in {3/a, 9/b, 14/c}
+  \node at (\x,1) {(\n)};
+\end{scope}
+\end{mypic}
+\caption{(a)~$\SUM_3$. (b)~$\SUM_4$. (c)~$\SUM_5$.}
+\label{figure:xorsum}
+\end{figure}
+
+
 \subsubsection{Optimal Circuits for Counting Modulo~4}
-The optimal circuit for $\SUM_5$ can be used to construct 
-an~optimal circuit of~size $2.5n+O(1)$ for $\MOD_4^n$ due 
-to~Stockmeyer~\cite{DBLP:journals/mst/Stockmeyer77}. 
-To~do this, note that 
-there is a~subcircuit (of the circuit at~Figure~\ref{figure:sumfive}(c)) of size~9 that computes the two least significant bits ($w_0,w_1$) of $x_1+\dotsb+x_5$ (one removes the gates $g_5, w_2$). To~compute $x_1+\dotsb+x_n \bmod 4$, one first applies $\frac n4$ such blocks and then computes the parity of~the resulting bits of weight~1. The total size is~$9 \cdot \frac n4 + \frac n4=2.5n$. Thus, 
+The optimal circuit for $\SUM_5$ can be used to construct
+an~optimal circuit of~size $2.5n+O(1)$ for $\MOD_4^n$ due
+to~Stockmeyer~\cite{DBLP:journals/mst/Stockmeyer77}.
+To~do this, note that
+there is a~subcircuit (of the circuit at~Figure~\ref{figure:sumfive}(c)) of size~9 that computes the two least significant bits ($w_0,w_1$) of $x_1+\dotsb+x_5$ (one removes the gates $g_5, w_2$). To~compute $x_1+\dotsb+x_n \bmod 4$, one first applies $\frac n4$ such blocks and then computes the parity of~the resulting bits of weight~1. The total size is~$9 \cdot \frac n4 + \frac n4=2.5n$. Thus,
 the circuit that Stockmeyer constructed in~1977 by~hand,
 nowadays can be~found automatically in~a~few seconds.
 
 
 \subsection{Modulo-3 Function}
-In~\cite{DBLP:conf/sat/KojevnikovKY09}, Kojevnikov et~al. 
-presented circuits of~size $3n+O(1)$ for $\MOD_n^{3,r}$ (for any~$r$). Later, 
-Knuth~\cite[solution to exercise~$480$]{Knuth:2015:ACP:2898950} analyzed their construction and proved an~upper 
-bound $3n-4$. Also, by~finding the exact values 
+In~\cite{DBLP:conf/sat/KojevnikovKY09}, Kojevnikov et~al.
+presented circuits of~size $3n+O(1)$ for $\MOD_n^{3,r}$ (for any~$r$). Later,
+Knuth~\cite[solution to exercise~$480$]{Knuth:2015:ACP:2898950} analyzed their construction and proved an~upper
+bound $3n-4$. Also, by~finding the exact values
 for $\size(\MOD_n^{3,r})$ for all $3 \le n \le 5$ and all $0 \le r \le 2$, he~made the conjecture~\eqref{conjecture}.
 Using our program, we~proved the conjectured upper bound for all~$n$.
 
@@ -554,12 +629,12 @@ For all $n \ge 3$ and all $r \in \{0,1,2\}$,
 \[\size(\MOD_n^{3,r}) \le 3n-5-[(n+r) \equiv r\bmod 3] \,. \]
 \end{theorem}
 
-To~prove Knuth's conjecture, one also needs to~prove a~lower bound on $\size(\MOD_n^{3,r})$. The currently strongest known lower bound for $\size(\MOD_n^{3,r})$ 
-is~$2.5n-O(1)$ due to~Stockmeyer~\cite{DBLP:journals/mst/Stockmeyer77} 
+To~prove Knuth's conjecture, one also needs to~prove a~lower bound on $\size(\MOD_n^{3,r})$. The currently strongest known lower bound for $\size(\MOD_n^{3,r})$
+is~$2.5n-O(1)$ due to~Stockmeyer~\cite{DBLP:journals/mst/Stockmeyer77}
 (and no~stronger lower bound is known for any other symmetric function).
 
 \begin{proof}
-As~in~\cite{DBLP:conf/sat/KojevnikovKY09}, 
+As~in~\cite{DBLP:conf/sat/KojevnikovKY09},
 we~construct the required circuit out of~constant size blocks. Schematically, the circuit looks as~follows.
 
 \begin{center}
@@ -568,10 +643,10 @@ we~construct the required circuit out of~constant size blocks. Schematically, th
 
 \foreach \x in {0, 4, 9, 13}
   \draw (\x,0) rectangle (\x+3,2);
-  
+
 \foreach \x in {0.5, 2.5, 4.5, 5.5, 6.5, 9.5, 10.5, 11.5, 13.5, 15.5}
   \draw[->] (\x,2.5) -- (\x,2);
-  
+
 \foreach \x/\y in {1.5/2.25, 14.5/2.25, 8/1}
   \node at (\x,\y) {$\dotsb$};
 
@@ -592,7 +667,7 @@ Here, the $n$~input bits are passed from above.
 What is passed from block to block (from left to~right)
 is the pair of bits $(r_0, r_1)$ encoding the current remainder~$r$ modulo~$3$ as~follows: if $r=0$, then $(r_0,r_1)=(0,0)$; if $r=1$, then $(r_0,r_1)=(0,1)$; if $r=2$, then $r_0=1$. The first block $\IN_k$ takes the first $k$~input bits and computes the remainder of their sum modulo~$3$. It is followed by a~number of~$\MID_3$ blocks each of which takes the current remainder and three new input bits and computes the new remainder. Finally, the block~$\OUT_l^r$ takes the remainder and the last~$l$ input bits and outputs $\MOD_n^{3,r}$. The integers $k,l$ take values in~$\{2,3,4\}$ and $\{1,2,3\}$, respectively. Their exact values depend on~$r$ and $n \mod 3$ as~described below.
 
-The theorem follows from the following upper bounds 
+The theorem follows from the following upper bounds
 on~the circuit size of the just introduced functions:
 $\size(\IN_2) \le 2$,
 $\size(\IN_3) \le 5$,
@@ -635,7 +710,7 @@ $r=2$
 \bottomrule
 \end{tabular}
 \end{center}
-\caption{Choosing parameters $k, m, l$ depending on $n \mod 3$ and~$r$. The circuit is composed out of~blocks 
+\caption{Choosing parameters $k, m, l$ depending on $n \mod 3$ and~$r$. The circuit is composed out of~blocks
 as~follows: $\IN_k + m \times \MID_3 + \OUT_r^l$. For each
 pair $(n \mod 3, r)$ we show three things: the triple
 $(m, k, l)$; the sizes of~two blocks: $\size(\IN_k)$ and $\size(\OUT_r^l)$; the size of~the resulting circuit
@@ -645,7 +720,6 @@ computed as $s=\size(\IN_k)+9m+\size(\OUT_r^l)$. For example, the top left cell 
 \end{proof}
 
 \subsection{Threshold-2 Function}
-
 
 \section{Further Directions}
 
