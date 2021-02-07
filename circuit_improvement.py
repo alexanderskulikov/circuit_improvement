@@ -91,9 +91,7 @@ def improve_circuit(circuit, subcircuit_size=5, connected=True):
                                                              make_improved_circuit_outputs(circuit.outputs,
                                                                                            subcircuit_outputs,
                                                                                            improved_circuit.outputs))
-                print(improved_full_circuit)
-                improved_full_circuit.save_to_file('circuit_improved')
-                return
+                return improved_full_circuit
 
         stop = timer()
         time += stop - start
