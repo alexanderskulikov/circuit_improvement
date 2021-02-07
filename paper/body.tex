@@ -4,7 +4,7 @@
 Finding exact circuit size 
 is a~notorious optimization
 problem in practice. Whereas modern computers 
-and optimization techniques allow to~find a~circuit 
+and algorithmic techniques allow to~find a~circuit 
 of~size seven in~blink of an~eye, it~may take more 
 than a~week to~search for a~circuit of~size thirteen.
 One of the reasons of~this behavior is~that the search 
@@ -22,9 +22,9 @@ circuit in a~ball around a~given circuit.
 We~report the results of experiments with various symmetric functions. 
 \end{abstract}
 
-\tableofcontents
-\clearpage
-\listoftodos
+%\tableofcontents
+%\clearpage
+%\listoftodos
 
 
 
@@ -108,7 +108,7 @@ def sum3(x1, x2, x3):
 The straight line
 programs are given 
 in~\texttt{Python} programming language.
-This makes it particularly easy to verify the correctness of the presented straight line programs.
+This makes particularly easy to~verify their correctness.
 For example, the program for $\SUM_3$ can be verified
 with just three lines of code:
 \begin{minted}{python}
@@ -131,14 +131,15 @@ in~NP is~$(3+1/86)n-o(n)$~\cite{DBLP:conf/focs/FindGHK16}.
 Here, by a~\emph{function family} we mean an~infinite sequence of~functions $\{f_n\}_{n=1}^{\infty}$ where $f_n \in B_n$. 
 
 Even proving lower bounds for specific functions (rather than function families) is~difficult. Brute force approaches become impractical quickly: $|B_n|=2^{2^n}$, hence already for $n=6$, one cannot just enumerate all 
-functions from~$B_n$; also, the number of~circuits of size~$s$, hence checking all circuits of size~$s$ takes reasonable time for small values of~$s$ only.
+functions from~$B_n$; also, the number of~circuits 
+of~size~$s$ is $s^{\Theta(s)}$, hence checking all circuits of size~$s$ takes reasonable time for small values of~$s$ only.
 Knuth~\cite{Knuth:2008:ACP:1377542} found the exact circuit size of all functions from~$B_4$ and~$B_5$.
 
 Finding the exact value of $\size(f)$ for $f \in B_6$
 is~already a~difficult computational task for modern
 computers and techniques. One approach 
 is~to~translate a~statement ``there exists a~circuit 
-of~size~$s$ computing`$s$'' to a~Boolean formula and 
+of~size~$s$ computing~$f$'' to a~Boolean formula and 
 to~pass~it to~a~SAT-solver. Then, if the formula 
 is~satisfiable, one decodes a~circuit from its satisfying 
 assignment; otherwise, one gets a~(computer generated) proof of a~lower bound $\size(f) > s$. This circuit synthesis approach was proposed 
@@ -173,7 +174,7 @@ be~done in a~few days;
 \item for $s \ge 13$, this is~out of~reach.
 \end{itemize}
 
-In this paper, we explore the limits of the following natural idea: given a~circuit, try to~reduce its size by~reducing (using SAT-solvers, for example) the size 
+In~this paper, we explore the limits of the following natural idea: given a~circuit, try to~improve its size by~improving (using SAT-solvers, for example) the size 
 of~its subcircuit of~size seven. This is a~kind of a~local search approach: we~have no~possibility to~go through the whole space of all circuits, but we can at~least
 search in a~neighborhood of a~given circuit. 
 This allows~us to~work with circuits consisting
@@ -309,17 +310,16 @@ circuit.draw('sum5.png')
 \label{figure:sumfive}
 \end{figure}
 
-\subsection{Finding Optimum Circuits}
+\subsection{Finding Efficient Circuits}
 The method \mintinline{python}{find_circuit}
 checks whether there exists a~circuit of the required
 size for a~given Boolean function. For example, 
-one may discover the full adder as follows.
+one may discover the full adder as follows. (The function
+\mintinline{python}{sum_n} returns the list of $\lceil \log_2(n+1) \rceil$ bits of~the binary representation of~the sum of~$n$~bits.)
 
 \begin{minted}{python}
 def sum_n(x):
-    assert all(a in (0, 1) for a in x)
-    s, l = sum(x), ceil(log2(len(x) + 1))
-    return [(s >> i) & 1 for i in range(l)]
+    return [(sum(x) >> i) & 1 for i in range(ceil(log2(len(x) + 1)))]
 
 circuit = find_circuit(dimension=3, number_of_gates=5, function=sum_n)
 circuit.draw('sum3.png')
@@ -341,6 +341,10 @@ the required circuit does not exist (by~proving that the corresponding formula i
 
 \todo[inline]{various bases}
 
+The program allows to~predefine some of the gates and 
+wires of a~circuit. We demonstrate this functionality
+later in~the text.
+
 \subsection{Improving Circuits}
 The method \mintinline{python}{improve_circuit}
 goes through all subcircuits of a~given size
@@ -349,14 +353,15 @@ of~them can be~replaced by a~smaller subcircuit
 (computing the same function) via \mintinline{python}{find_circuit}. For example, applying this method 
 to~the circuit from Figure~\ref{figure:sumfive}(b)
 gives the circuit from Figure~\ref{figure:sumfive}(c)
-in~nine~seconds. This circuit can~be also found via \mintinline{python}{find_circuit} directly, but it takes about seven hours.
+in~nine~seconds. 
 
-\todo[inline]{fix gates, forbid wires}
+\todo[inline]{Nikita, please paste the code here}
+
+This circuit can~be also found via \mintinline{python}{find_circuit} directly, but it takes about seven hours.
 
 
 
-
-\section{Experimental Evaluation}
+\section{Evaluation}
 In~this section, we~report the results of~experiments
 with various symmetric functions. A~function $f(x_1,\dotsc,x_n)$ is called \emph{symmetric} if~its value depends on~$\sum_{i=1}^nx_i$ only. They are among the most basic Boolean functions:
 \begin{itemize}
@@ -431,7 +436,9 @@ $\size(\SUM_n) \le 4.5n+o(n)$ due to~Demenkov et al.~\cite{DBLP:journals/ipl/Dem
 we~present several interesting observations on~the found circuits.
 
 \subsubsection{Best Known Upper Bound for the SUM Function}
-The optimal circuit of size~$11$ for $\SUM_5$ shown in~Figure~\ref{figure:sumfive}(c) can be~used to get an~upper bound $4.5n+o(n)$ for $\size(\SUM_n)$. To~do this,
+The optimal circuit of size~$11$ for $\SUM_5$ shown in~Figure~\ref{figure:sumfive}(c) can be~used to get an~upper bound $4.5n+o(n)$ for $\size(\SUM_n)$
+(though not through~\eqref{eq:sumupper} directly).
+To~do this,
 consider two consecutive $\SUM_3$ circuits shown in~Figure~\ref{figure:mdfa}(a).
 %
 \begin{figure}
@@ -529,8 +536,6 @@ manner. And it turns out that $\MDFA$ is just a~subcircuit of the optimal circui
 \subsubsection{Best Known Circuits for SUM with New Structure}
 
 For many upper bounds from the bottom row of~Table~\ref{table:sum}, we found circuits with the following interesting structure: the first thing the circuit computes is $x_1 \oplus x_2 \oplus \dotsb \oplus x_n$; moreover the variables $x_2, \dotsc, x_n$ are used for this only. This is best illustrated by an~example~--- see Figure~\ref{figure:xorsum}.
-\todo[inline]{Nikita, could you draw such circuits for $n=3,4,5$?}
-
 
 \begin{figure}[t]
 \begin{mypic}
@@ -597,13 +602,36 @@ For many upper bounds from the bottom row of~Table~\ref{table:sum}, we found cir
   \draw[->] (\f) -- (\t);
 \end{scope}
 
-\foreach \x/\n in {3/a, 9/b, 14/c}
-  \node at (\x,1) {(\n)};
+%\foreach \x/\n in {3/a, 9/b, 14/c}
+%  \node at (\x,1) {(\n)};
 \end{scope}
 \end{mypic}
-\caption{(a)~$\SUM_3$. (b)~$\SUM_4$. (c)~$\SUM_5$.}
+%\caption{(a)~$\SUM_3$. (b)~$\SUM_4$. (c)~$\SUM_5$.}
+\caption{Optimal circuits computing $\SUM_n$ 
+for $n=3,4,5$ with a~specific structure: every input, 
+except for~$x_1$, has out-degree~one.}
 \label{figure:xorsum}
 \end{figure}
+
+These circuits can be~found using the following code. 
+It~demonstrates two new useful features: fixing gates and forbidding wires between some pairs of~gates.
+
+\todo[inline]{Nikita, please add forbidding wires to this code and ensure that it produces the right result}
+
+\begin{minted}{python}
+def sum_n(x):
+    return [(sum(x) >> i) & 1 for i in range(ceil(log2(len(x) + 1)))]
+
+
+for n, size in ((3, 5), (4, 9), (5, 11)):
+    circuit_finder = CircuitFinder(dimension=n, number_of_gates=size, 
+                                   function=sum_n)
+    circuit_finder.fix_gate(n, 0, 1, '0110')
+    for k in range(n - 2):
+        circuit_finder.fix_gate(n + k + 1, k + 2, n + k, '0110')
+    circuit = circuit_finder.solve_cnf_formula(verbose=0)
+    circuit.draw(f'sum{n}.png')
+\end{minted}
 
 
 \subsubsection{Optimal Circuits for Counting Modulo~4}
@@ -641,6 +669,9 @@ we~construct the required circuit out of~constant size blocks. Schematically, th
 \begin{tikzpicture}[scale=.8]
 %\draw[help lines] (0,0) grid (16,6);
 
+\foreach \x/\k in {0.5/1, 2.5/k, 4.5/{k+1}, 5.5/{k+2}, 6.5/{k+3}, 13.5/{n-l+1}, 15.5/n}
+  \node[above] at (\x,2.5) {$x_{\k}$};
+
 \foreach \x in {0, 4, 9, 13}
   \draw (\x,0) rectangle (\x+3,2);
 
@@ -677,7 +708,7 @@ $\size(\OUT_2^0) \le 5$,
 $\size(\OUT_1^1) \le 2$,
 $\size(\OUT_3^2) \le 8$.
 The corresponding circuits are presented in the Appendix
-by a~straightforward \texttt{Python} code that verifies their correctness. (The presented code proves the mentioned upper bounds by~providing explicit circuits. We have also verified that no~smaller circuits exists meaning that the
+by a~straightforward \texttt{Python} code that verifies their correctness. (The presented code proves the mentioned upper bounds by~providing explicit circuits. We~have also verified that no~smaller circuits exist meaning that the
 inequalities above are in fact equalities.)
 
 Table~\ref{table:parameters} shows how to~combine
@@ -689,19 +720,17 @@ to~get a~circuit computing~$\MOD_n^{3,r}$ of the required size. (Technically, it
 \begin{tabular}{cccc}
 \toprule
 & $n=3t$ & $n=3t+1$ & $n=3t+2$\\
-\hline
+\midrule
 $r=0$
 & $(4, t-2, 2)$, $(7, 5)$, $3n-6$
 & $(2, t-1, 2)$, $(2, 5)$, $3n-5$
 & $(3, t-1, 2)$, $(5, 5)$, $3n-5$
 \\
-\hline
 $r=1$
 & $(2, t-1, 1)$, $(2, 2)$, $3n-5$
 & $(3, t-1, 1)$, $(5, 2)$, $3n-5$
 & $(4, t-1, 1)$, $(7, 2)$, $3n-6$
 \\
-\hline
 $r=2$
 & $(3, t-2, 3)$, $(5, 8)$, $3n-5$
 & $(4, t-2, 3)$, $(7, 8)$, $3n-6$
@@ -720,9 +749,20 @@ computed as $s=\size(\IN_k)+9m+\size(\OUT_r^l)$. For example, the top left cell 
 \end{proof}
 
 \subsection{Threshold-2 Function}
+Here, we present an~example of a~reasonably small circuit 
+that our program fails to~improve though a~better circuit 
+is~known. The reason is that these two circuits are quite
+different. The function we are going to~consider is the threshold-2 function:
+\[\THR_n^2(x_1, \dotsc, x_n)=[x_1+\dotsb+x_n \ge 2] \, .\]
+It~is not difficult to~show that $\size(\THR_n^2) \le 3n-5$: 
+to~construct the corresponding circuit, perform one and
+a~half iterations of~the bubble sort algorithm (where one sorts two bits $x,y$ as~follows: $\min\{x,y\}=x\lor y, \max\{x,y\} = x \land y$). Dunne~\cite{Dunne84} came~up with 
+a~circuit of size~$2n+o(n)$ based on~the following clever trick: organize the input bits into a~$\sqrt{n} \times \sqrt{n}$ matrix, compute the disjunction of all rows and columns, and proceed recursively. Sergeev~\cite{Sergeev2020} showed recently that the \emph{monotone} circuit size of $\THR_n^2$ is $2n+\Theta(\sqrt n)$. 
 
-\section{Further Directions}
-
+For $n=12$, the bubble sort approach gives a~circuit of size $31$, whereas Dunne's circuit has size $29$. One can construct these two circuits as~follows.
+\todo[inline]{Nikita, please add code here constructing and drawing both circuits}
+Our program is~not able to~find out that the circuit of size~$31$ is~suboptimal. It~would be~interesting to~find
+a~way extending the program to~make it~possible.
 
 %\bibliographystyle{plain}
 \bibliography{circuits}
