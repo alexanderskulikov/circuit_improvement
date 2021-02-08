@@ -357,6 +357,13 @@ in~nine~seconds.
 
 \todo[inline]{Nikita, please paste the code here}
 
+\begin{minted}{python}
+improved_circuit = run_improve_circuit(add_sum5_suboptimal, 5,
+                            subcircuit_size=5, connected=True)
+print(improved_circuit)
+improved_circuit.draw('sum5')
+\end{minted}
+
 This circuit can~be also found via \mintinline{python}{find_circuit} directly, but it takes about seven hours.
 
 
@@ -365,12 +372,12 @@ This circuit can~be also found via \mintinline{python}{find_circuit} directly, b
 In~this section, we~report the results of~experiments
 with various symmetric functions. A~function $f(x_1,\dotsc,x_n)$ is called \emph{symmetric} if~its value depends on~$\sum_{i=1}^nx_i$ only. They are among the most basic Boolean functions:
 \begin{itemize}
-\item to~specify an~arbitrary Boolean function 
+\item to~specify an~arbitrary Boolean function
 from~$B_n$, one needs
-to~write down its truth table of length~$2^n$; symmetric functions allow for more compact representation: it is enough to specify $n+1$ bits (for each of $n+1$ values 
+to~write down its truth table of length~$2^n$; symmetric functions allow for more compact representation: it is enough to specify $n+1$ bits (for each of $n+1$ values
 of~$\sum_{i=1}^nx_i$);
-\item circuit complexity of almost all functions 
-of~$n$ variables is exponential ($\Theta(2^n/n)$), whereas any symmetric function can~be computed by a~linear size circuit ($O(n)$). 
+\item circuit complexity of almost all functions
+of~$n$ variables is exponential ($\Theta(2^n/n)$), whereas any symmetric function can~be computed by a~linear size circuit ($O(n)$).
 \end{itemize}
 Despite simplicity of~symmetric functions, we still do~not
 know how optimal circuits look like for most of~them. Below, we~present new circuits for some of these functions.
@@ -381,12 +388,12 @@ a~symmetric function~$f \in B_n$ implies a~lower bound $\size(\SUM_n) \le \alpha
 \[2.5n-O(1) \le \size(\SUM_n) \le 4.5n+o(n) \, .\]
 The lower bound is~due to~Stockmeyer~\cite{DBLP:journals/mst/Stockmeyer77}, the upper bound is~due to~Demenkov et al.~\cite{DBLP:journals/ipl/DemenkovKKY10}.
 
-A~circuit for $\SUM_n$ can~be constructed from circuits for $\SUM_k$ for some small~$k$. For example, 
-using full and half adders as~building blocks, one can compute $\SUM_n$ (for any~$n$) by a~circuit of size $5n$ as~follows. Start from $n$~bits $(x_1, \dotsc, x_n)$ of~weight~$0$. While there are three bits of the same weight~$k$, replace them by~two bits of weights~$k$ and~$k+1$ using a~full adder. This way, one gets at~most two bits of~each weight $0,1,\dotsc,l-1$ ($l=\lceil \log_2(n+1)\rceil$) in at most $5(n-l)$ gates (as each full adder reduces the number of~bits). To~leave exactly one bit 
-of~each weight, it suffices to use at~most~$l$ half 
+A~circuit for $\SUM_n$ can~be constructed from circuits for $\SUM_k$ for some small~$k$. For example,
+using full and half adders as~building blocks, one can compute $\SUM_n$ (for any~$n$) by a~circuit of size $5n$ as~follows. Start from $n$~bits $(x_1, \dotsc, x_n)$ of~weight~$0$. While there are three bits of the same weight~$k$, replace them by~two bits of weights~$k$ and~$k+1$ using a~full adder. This way, one gets at~most two bits of~each weight $0,1,\dotsc,l-1$ ($l=\lceil \log_2(n+1)\rceil$) in at most $5(n-l)$ gates (as each full adder reduces the number of~bits). To~leave exactly one bit
+of~each weight, it suffices to use at~most~$l$ half
 or~full adders ($o(n)$ gates). Let~us denote the
 size of the resulting circuit by~$s(n)$. The second row
-of~Table~\ref{table:sum} shows the values of~$s(n)$ for 
+of~Table~\ref{table:sum} shows the values of~$s(n)$ for
 some $n \le 15$ (see~(28) in~\cite{Knuth:2008:ACP:1377542}).
 
 \begin{table}
@@ -396,15 +403,15 @@ some $n \le 15$ (see~(28) in~\cite{Knuth:2008:ACP:1377542}).
 $n$ & $2$ & $3$ & $4$ & $5$ & $6$ & $7$ & $8$ & $9$ & $10$ & $15$
 \\
 \midrule
-$s(n)$ &$2$ & $5$ & $9$ & $12$ & $17$ & $20$ & $26$ & $29$& $34$& 
-%$37$ & $44$ & $47$ & $52$ & 
+$s(n)$ &$2$ & $5$ & $9$ & $12$ & $17$ & $20$ & $26$ & $29$& $34$&
+%$37$ & $44$ & $47$ & $52$ &
 $55$
 \\
 $\size(\SUM_n)$ & $2$ & $5$ & $9$ & $11$
 & $\le 16$ & $\le 19$ & $\le 25$ & $\le 27$
 & $\le 32$ & $\le 53$
 \\
-\bottomrule    
+\bottomrule
 \end{tabular}
 \end{center}
 \caption{The first line shows the value of~$n$. The second line gives the size $s(n)$ of~a~circuit for $\SUM_n$
@@ -416,23 +423,23 @@ In a~similar fashion, one can get an~upper bound (see Theorem~1 in~\cite{DBLP:co
 \begin{equation}\label{eq:sumupper}
 \size(\SUM_n) \le \frac{\size(\SUM_k)}{k-\lceil \log_2(k+1) \rceil} \cdot n + o(n) \, .
 \end{equation}
-This motivates the search for efficient circuits 
-for $\SUM_k$ for small values of~$k$. The bottom row 
-of~Table~\ref{table:sum} gives upper bounds that 
-we~were able to~find using the program 
-(the upper bounds for $n \le 7$ were found 
+This motivates the search for efficient circuits
+for $\SUM_k$ for small values of~$k$. The bottom row
+of~Table~\ref{table:sum} gives upper bounds that
+we~were able to~find using the program
+(the upper bounds for $n \le 7$ were found
 by~Knuth~\cite{Knuth:2008:ACP:1377542}).
 The table shows that the first value where $s(n)$ is not
-optimal is $n=5$. The best upper bound for $\SUM_n$ given 
-by~\eqref{eq:sumupper} is $4.75n+o(n)$ for $n=7$. The upper 
-bound for $n=15$ is $53n/11+o(n)$ which is worse than the 
-previous upper bound. But if it~turned out that 
-$\size(\SUM_{15}) \le 52$, 
-it~would give a~better upper bound. 
+optimal is $n=5$. The best upper bound for $\SUM_n$ given
+by~\eqref{eq:sumupper} is $4.75n+o(n)$ for $n=7$. The upper
+bound for $n=15$ is $53n/11+o(n)$ which is worse than the
+previous upper bound. But if it~turned out that
+$\size(\SUM_{15}) \le 52$,
+it~would give a~better upper bound.
 
-The found circuits for $\SUM_n$ for $n \le 15$ 
+The found circuits for $\SUM_n$ for $n \le 15$
 does not allow to~improve the strongest known upper bound
-$\size(\SUM_n) \le 4.5n+o(n)$ due to~Demenkov et al.~\cite{DBLP:journals/ipl/DemenkovKKY10}. Below, 
+$\size(\SUM_n) \le 4.5n+o(n)$ due to~Demenkov et al.~\cite{DBLP:journals/ipl/DemenkovKKY10}. Below,
 we~present several interesting observations on~the found circuits.
 
 \subsubsection{Best Known Upper Bound for the SUM Function}
@@ -518,7 +525,7 @@ consider two consecutive $\SUM_3$ circuits shown in~Figure~\ref{figure:mdfa}(a).
 \end{scope}
 \end{tikzpicture}
 \end{center}
-\caption{(a)~Two consecutive $\SUM_3$ blocks. (b)~The $\MDFA$ block. (c)~The highlighted part of the optimal circuit 
+\caption{(a)~Two consecutive $\SUM_3$ blocks. (b)~The $\MDFA$ block. (c)~The highlighted part of the optimal circuit
 for $\SUM_5$ computes $\MDFA$.}
 \label{figure:mdfa}
 \end{figure}
@@ -526,10 +533,10 @@ for $\SUM_5$ computes $\MDFA$.}
 Its specification~is: $x_1+\dotsb+x_5=b_0+2(a_1+b_1)$, its size is~equal to~10. One can construct a~similar block, called MDFA (for modified double full adder), of size~8, whose specification is
 \[\MDFA(x_1 \oplus x_2, x_2, x_3, x_4, x_4 \oplus x_5)=(b_0, a_1, a_1 \oplus b_1) \, ,\]
 see Figure~\ref{figure:mdfa}(b).
-The fact that $\MDFA$ uses the encoding $(p, p \oplus q)$ for pairs of bits $(p,q)$, allows to use~it recursively 
+The fact that $\MDFA$ uses the encoding $(p, p \oplus q)$ for pairs of bits $(p,q)$, allows to use~it recursively
 to~compute $\SUM_n$: first, compute $x_1 \oplus x_2, x_3 \oplus x_4, \dotsc, x_{n-1} \oplus x_n$ ($n/2$ gates); then,
-apply~$n/2$ $\MDFA$ blocks ($4n$ gates). 
-The $\MDFA$ block was constructed by~Demenkov et al.~\cite{DBLP:journals/ipl/DemenkovKKY10} in~a~semiautomatic 
+apply~$n/2$ $\MDFA$ blocks ($4n$ gates).
+The $\MDFA$ block was constructed by~Demenkov et al.~\cite{DBLP:journals/ipl/DemenkovKKY10} in~a~semiautomatic
 manner. And it turns out that $\MDFA$ is just a~subcircuit of the optimal circuit for $\SUM_5$! See Figure~\ref{figure:mdfa}(c).
 
 
@@ -607,13 +614,13 @@ For many upper bounds from the bottom row of~Table~\ref{table:sum}, we found cir
 \end{scope}
 \end{mypic}
 %\caption{(a)~$\SUM_3$. (b)~$\SUM_4$. (c)~$\SUM_5$.}
-\caption{Optimal circuits computing $\SUM_n$ 
-for $n=3,4,5$ with a~specific structure: every input, 
+\caption{Optimal circuits computing $\SUM_n$
+for $n=3,4,5$ with a~specific structure: every input,
 except for~$x_1$, has out-degree~one.}
 \label{figure:xorsum}
 \end{figure}
 
-These circuits can be~found using the following code. 
+These circuits can be~found using the following code.
 It~demonstrates two new useful features: fixing gates and forbidding wires between some pairs of~gates.
 
 \todo[inline]{Nikita, please add forbidding wires to this code and ensure that it produces the right result}
@@ -624,13 +631,17 @@ def sum_n(x):
 
 
 for n, size in ((3, 5), (4, 9), (5, 11)):
-    circuit_finder = CircuitFinder(dimension=n, number_of_gates=size, 
+    circuit_finder = CircuitFinder(dimension=n, number_of_gates=size,
                                    function=sum_n)
     circuit_finder.fix_gate(n, 0, 1, '0110')
     for k in range(n - 2):
         circuit_finder.fix_gate(n + k + 1, k + 2, n + k, '0110')
+    for i in range(1, n):
+        for j in range(n, n + size):
+            if i + n - 1 != j:
+                circuit_finder.forbid_wire(i, j)
     circuit = circuit_finder.solve_cnf_formula(verbose=0)
-    circuit.draw(f'sum{n}.png')
+    circuit.draw(f'sum{n}')
 \end{minted}
 
 
@@ -749,18 +760,176 @@ computed as $s=\size(\IN_k)+9m+\size(\OUT_r^l)$. For example, the top left cell 
 \end{proof}
 
 \subsection{Threshold-2 Function}
-Here, we present an~example of a~reasonably small circuit 
-that our program fails to~improve though a~better circuit 
+Here, we present an~example of a~reasonably small circuit
+that our program fails to~improve though a~better circuit
 is~known. The reason is that these two circuits are quite
 different. The function we are going to~consider is the threshold-2 function:
 \[\THR_n^2(x_1, \dotsc, x_n)=[x_1+\dotsb+x_n \ge 2] \, .\]
-It~is not difficult to~show that $\size(\THR_n^2) \le 3n-5$: 
+It~is not difficult to~show that $\size(\THR_n^2) \le 3n-5$:
 to~construct the corresponding circuit, perform one and
-a~half iterations of~the bubble sort algorithm (where one sorts two bits $x,y$ as~follows: $\min\{x,y\}=x\lor y, \max\{x,y\} = x \land y$). Dunne~\cite{Dunne84} came~up with 
-a~circuit of size~$2n+o(n)$ based on~the following clever trick: organize the input bits into a~$\sqrt{n} \times \sqrt{n}$ matrix, compute the disjunction of all rows and columns, and proceed recursively. Sergeev~\cite{Sergeev2020} showed recently that the \emph{monotone} circuit size of $\THR_n^2$ is $2n+\Theta(\sqrt n)$. 
+a~half iterations of~the bubble sort algorithm (where one sorts two bits $x,y$ as~follows: $\min\{x,y\}=x\lor y, \max\{x,y\} = x \land y$). Dunne~\cite{Dunne84} came~up with
+a~circuit of size~$2n+o(n)$ based on~the following clever trick: organize the input bits into a~$\sqrt{n} \times \sqrt{n}$ matrix, compute the disjunction of all rows and columns, and proceed recursively. Sergeev~\cite{Sergeev2020} showed recently that the \emph{monotone} circuit size of $\THR_n^2$ is $2n+\Theta(\sqrt n)$.
 
 For $n=12$, the bubble sort approach gives a~circuit of size $31$, whereas Dunne's circuit has size $29$. One can construct these two circuits as~follows.
 \todo[inline]{Nikita, please add code here constructing and drawing both circuits}
+
+\begin{minted}{python}
+c = Circuit(input_labels=[f'x{i}' for i in range(1, 13)], gates={})
+c.outputs = add_naive_thr2_circuit(c, c.input_labels)
+
+c = Circuit(input_labels=[f'x{i}' for i in range(1, 13)], gates={})
+c.outputs = add_efficient_thr2_circuit(c, c.input_labels, 3, 4)
+\end{minted}
+
+\begin{figure}[t]
+\begin{mypic}
+\begin{scope}[scale=.9]
+%\draw[help lines] (0,-5) grid (16,6);
+\begin{scope}[xshift=20mm, yshift=30mm]
+%\draw[help lines] (0,-3) grid (4,4);
+
+\foreach \n/\x/\y in {1/0/12, 2/1/12, 3/2/12, 4/3/12, 5/4/12, 6/5/12, 7/6/12, 8/7/12, 9/8/12, 10/9/12, 11/10/12, 12/11/12}
+  \node[input] (x\n) at (\x, \y) {$x_{\n}$};
+\node[gate] (g1) at (0.3,11) {$\land$};
+\node[gate] (g2) at (1,11) {$\lor$};
+
+\node[gate] (g3) at (1.3,10) {$\land$};
+\node[gate] (g4) at (2,10) {$\lor$};
+
+\node[gate] (g5) at (2.3,9) {$\land$};
+\node[gate] (g6) at (3,9) {$\lor$};
+
+\node[gate] (g7) at (3.3,8) {$\land$};
+\node[gate] (g8) at (4,8) {$\lor$};
+
+\node[gate] (g9) at (4.3,7) {$\land$};
+\node[gate] (g10) at (5,7) {$\lor$};
+
+\node[gate] (g11) at (5.3,6) {$\land$};
+\node[gate] (g12) at (6,6) {$\lor$};
+
+\node[gate] (g13) at (6.3,5) {$\land$};
+\node[gate] (g14) at (7,5) {$\lor$};
+
+\node[gate] (g15) at (7.3,4) {$\land$};
+\node[gate] (g16) at (8,4) {$\lor$};
+
+\node[gate] (g17) at (8.3,3) {$\land$};
+\node[gate] (g18) at (9,3) {$\lor$};
+
+\node[gate] (g19) at (9.3,2) {$\land$};
+\node[gate] (g20) at (10,2) {$\lor$};
+
+\node[gate] (g21) at (0.3,9) {$\lor$};
+\node[gate] (g22) at (1.3,8) {$\lor$};
+\node[gate] (g23) at (2.3,7) {$\lor$};
+\node[gate] (g24) at (3.3,6) {$\lor$};
+\node[gate] (g25) at (4.3,5) {$\lor$};
+\node[gate] (g26) at (5.3,4) {$\lor$};
+\node[gate] (g27) at (6.3,3) {$\lor$};
+\node[gate] (g28) at (7.3,2) {$\lor$};
+\node[gate] (g29) at (8.3,1) {$\lor$};
+
+\node[gate] (g30) at (10.3,1) {$\land$};
+\node[gate, label=right:$w_0$] (g31) at (9.3,0) {$\lor$};
+
+\foreach \f/\t in {x1/g1, x1/g2, x2/g1, x2/g2,
+                   g2/g3, g2/g4, x3/g3, x3/g4,
+                   g4/g5, g4/g6, x4/g5, x4/g6,
+                   g6/g7, g6/g8, x5/g7, x5/g8,
+                   g8/g9, g8/g10, x6/g9, x6/g10,
+                   g10/g11, g10/g12, x7/g11, x7/g12,
+                   g12/g13, g12/g14, x8/g13, x8/g14,
+                   g14/g15, g14/g16, x9/g15, x9/g16,
+                   g16/g17, g16/g18, x10/g17, x10/g18,
+                   g18/g19, g18/g20, x11/g19, x11/g20,
+                   g1/g21, g3/g21, g21/g22, g5/g22,
+                   g22/g23, g7/g23, g23/g24, g9/g24,
+                   g24/g25, g11/g25, g25/g26, g13/g26,
+                   g26/g27, g15/g27, g27/g28, g17/g28,
+                   g28/g29, g19/g29,
+                   x12/g30, g20/g30, g29/g31, g30/g31}
+  \draw[->] (\f) -- (\t);
+\end{scope}
+
+\end{scope}
+\end{mypic}
+\caption{size(THR_{12}^2)=31}
+\label{figure:thr31}
+\end{figure}
+
+\begin{figure}[t]
+\begin{mypic}
+\begin{scope}[scale=.9]
+%\draw[help lines] (0,-5) grid (16,6);
+\begin{scope}[xshift=20mm, yshift=30mm]
+%\draw[help lines] (0,-3) grid (4,4);
+
+\node[input] (x5) at (2, 7) {$x_5$};
+\node[input] (x1) at (4, 7) {$x_1$};
+\node[input] (x6) at (6, 7) {$x_6$};
+\node[input] (x2) at (8, 7) {$x_2$};
+
+\node[gate] (g9) at (1.5,6) {$\lor$};
+\node[input] (x9) at (2.5, 6) {$x_9$};
+\node[input] (x10) at (3.5, 6) {$x_{10}$};
+\node[gate] (g3) at (4.5,6) {$\lor$};
+\node[gate] (g11) at (5.5,6) {$\lor$};
+\node[input] (x7) at (6.5, 6) {$x_7$};
+\node[input] (x3) at (7.5, 6) {$x_3$};
+\node[gate] (g0) at (8.5,6) {$\lor$};
+
+\node[gate] (g10) at (1,5) {$\lor$};
+\node[gate] (g6) at (2,5) {$\lor$};
+\node[gate] (g12) at (3,5) {$\lor$};
+\node[input] (x11) at (4, 5) {$x_{11}$};
+\node[gate] (g4) at (5,5) {$\lor$};
+\node[gate] (g13) at (6,5) {$\lor$};
+\node[input] (x8) at (7, 5) {$x_8$};
+\node[input] (x4) at (8, 5) {$x_4$};
+\node[gate] (g1) at (9,5) {$\lor$};
+
+\node[gate] (g22) at (1.5,4) {$\land$};
+\node[gate] (g21) at (2.5,4) {$\lor$};
+\node[gate] (g7) at (3.5,4) {$\lor$};
+\node[gate] (g14) at (4.5,4) {$\lor$};
+\node[input] (x12) at (5.5, 4) {$x_{12}$};
+\node[gate] (g5) at (6.5,4) {$\lor$};
+\node[gate] (g15) at (7.5,4) {$\lor$};
+\node[gate] (g2) at (8.5,4) {$\lor$};
+
+\node[gate] (g24) at (2.5,3) {$\land$};
+\node[gate] (g23) at (3.5,3) {$\lor$};
+\node[gate] (g8) at (4.5,3) {$\lor$};
+\node[gate] (g16) at (5.5,3) {$\lor$};
+\node[gate] (g17) at (6.5,3) {$\lor$};
+\node[gate] (g18) at (7.5,3) {$\land$};
+
+\node[gate] (g25) at (2.5,2) {$\lor$};
+\node[gate] (g26) at (4,2) {$\land$};
+\node[gate] (g19) at (5,2) {$\land$};
+
+\node[gate] (g27) at (4,1) {$\lor$};
+\node[gate] (g20) at (5,1) {$\lor$};
+
+\node[gate, label=right:$w_0$] (g28) at (4.5,0) {$\lor$};
+
+\foreach \f/\t in {x5/g9, x1/g9, x5/g3, x6/g3, x6/g11, x2/g11, x2/g0, x1/g0,
+                   g9/g10, x9/g10, x9/g6, x10/g6, x10/g12, g11/g12, g3/g4, x7/g4, x7/g13, x3/g13, x3/g1, g0/g1,
+                   g10/g22, g10/g21, g6/g7, g12/g22, g12/g21, x11/g7, x11/g14, g4/g5, g13/g14, x8/g5, x8/g15, x4/g15, x4/g2, g1/g2,
+                   g22/g25, g21/g24, g21/g23, g7/g8, g14/g24, g14/g23, x12/g8, x12/g16, g5/g17, g5/g18, g15/g16, g2/g17, g2/g18,
+                   g24/g25, g23/g26, g8/g19, g16/g26, g17/g19, g18/g20,
+                   g25/g27, g26/g27, g19/g20,
+                   g27/g28, g20/g28}
+  \draw[->] (\f) -- (\t);
+\end{scope}
+
+\end{scope}
+\end{mypic}
+\caption{size(THR_{12}^2)=29}
+\label{figure:thr29}
+\end{figure}
+
 Our program is~not able to~find out that the circuit of size~$31$ is~suboptimal. It~would be~interesting to~find
 a~way extending the program to~make it~possible.
 
