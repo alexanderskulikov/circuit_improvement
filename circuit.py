@@ -205,7 +205,9 @@ class Circuit:
         for output in self.outputs:
             a.get_node(output).attr['shape'] = 'box'
         a.layout(prog='dot')
-        a.draw(project_directory + '/circuits/.images/' + file_name + '.png')
+        file_name = project_directory + '/circuits/.images/' + file_name + '.png'
+        a.draw(file_name)
+        print(f'Circuit is drawn to {file_name}')
 
     def get_truth_tables(self):
         truth_tables = {}

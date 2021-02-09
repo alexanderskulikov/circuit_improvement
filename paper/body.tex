@@ -190,21 +190,20 @@ it~is
 
 \section{Program Overview}
 The program is~implemented in~\texttt{Python}.
-We give a~high-level overview of its main features below.
-All the code shown below can be~found in~the 
+We give a~high-level overview of~its main features below.
+All the code shown below 
+can be~found in~the 
 file \texttt{tutorial.py} at~\cite{git-improvement}.
 One may run~it after installing a~few \texttt{Python} modules. Alternatively, one may run the Jupyter notebook
 \texttt{tutorial.ipynb} in~the cloud without installing 
 anything. To~do this, press the badge ``Colab'' 
 at~\cite{git-improvement}.
 
-\todo[inline]{Nikita, prepare two tutorial files}
-
 \subsection{Manipulating Circuits}
 This is done through the \mintinline{python}{Circuit}
 class. One can load and save circuits as~well~as
 print and draw them. A~nicely looking layout of
-a~circuit is produced by the \texttt{pygraphviz} module \cite{}. The program also contains some built-in
+a~circuit is produced by the \texttt{pygraphviz} module \cite{pygraphviz}. The program also contains some built-in
 circuits that can be used as~building blocks.
 The following sample code constructs a~circuit
 for $\SUM_5$ out of two full adders and 
@@ -215,16 +214,7 @@ the circuit is verified via the
 Finally, the circuit is drawn. As a~result, one gets
 a~picture similar to~the one in~Figure~\ref{figure:sumfive}(b).
 
-\begin{minted}{python}
-circuit = Circuit(input_labels=['x1', 'x2', 'x3', 'x4', 'x5'])
-x1, x2, x3, x4, x5 = circuit.input_labels
-a0, a1 = add_sum3(circuit, [x1, x2, x3])
-b0, b1 = add_sum3(circuit, [a0, x4, x5])
-w1, w2 = add_sum2(circuit, [a1, b1])
-circuit.outputs = [b0, w1, w2]
-check_sum_circuit(circuit)
-circuit.draw('sum5.png')
-\end{minted}
+\inputminted[firstline=11,lastline=18]{python}{../tutorial.py}
 
 \begin{figure}[t]
 \begin{mypic}
@@ -317,13 +307,7 @@ size for a~given Boolean function. For example,
 one may discover the full adder as follows. (The function
 \mintinline{python}{sum_n} returns the list of $\lceil \log_2(n+1) \rceil$ bits of~the binary representation of~the sum of~$n$~bits.)
 
-\begin{minted}{python}
-def sum_n(x):
-    return [(sum(x) >> i) & 1 for i in range(ceil(log2(len(x) + 1)))]
-
-circuit = find_circuit(dimension=3, number_of_gates=5, function=sum_n)
-circuit.draw('sum3.png')
-\end{minted}
+\inputminted[firstline=22,lastline=27]{python}{../tutorial.py}
 
 This is~done by~encoding the task as~a~CNF formula
 and invoking the PicoSAT solver~\cite{DBLP:journals/jsat/Biere08} (via the \texttt{pycosat} module~\cite{pycosat}). The reduction to~SAT is~described 
@@ -355,7 +339,7 @@ to~the circuit from Figure~\ref{figure:sumfive}(b)
 gives the circuit from Figure~\ref{figure:sumfive}(c)
 in~nine~seconds. 
 
-\todo[inline]{Nikita, please paste the code here}
+\todo[inline]{Nikita, please remove run\_improve\_circuit method!! Instead, use improve\_circuit method. (For the user, it is not at all clear why we have two such methods.)}
 
 \begin{minted}{python}
 improved_circuit = run_improve_circuit(add_sum5_suboptimal, 5,
@@ -363,7 +347,7 @@ improved_circuit = run_improve_circuit(add_sum5_suboptimal, 5,
 print(improved_circuit)
 improved_circuit.draw('sum5')
 \end{minted}
-
+%
 This circuit can~be also found via \mintinline{python}{find_circuit} directly, but it takes about seven hours.
 
 
@@ -554,10 +538,10 @@ For many upper bounds from the bottom row of~Table~\ref{table:sum}, we found cir
 
 \foreach \n/\x/\y in {1/0/4, 2/1/4, 3/2/4}
   \node[input] (x\n) at (\x, \y) {$x_{\n}$};
-\node[gate,label=left:$a$] (g1) at (1,3) {$\oplus$};
+\node[gate] (g1) at (1,3) {$\oplus$};
 \node[gate,label=right:$w_0$] (g2) at (2,3) {$\oplus$};
-\node[gate, label=left:$b$] (g3) at (0,2) {$\oplus$};
-\node[gate,label=left:$c$] (g4) at (1,1.5) {$\lor$};
+\node[gate] (g3) at (0,2) {$\oplus$};
+\node[gate] (g4) at (1,1.5) {$\lor$};
 \node[gate, label=right:$w_1$] (g5) at (2,1) {$\oplus$};
 \foreach \f/\t in {x1/g1, x2/g1, g1/g2, x3/g2, x1/g3, g2/g3, g1/g4, g3/g4, g2/g5, g4/g5}
   \draw[->] (\f) -- (\t);
@@ -568,15 +552,15 @@ For many upper bounds from the bottom row of~Table~\ref{table:sum}, we found cir
 \draw[draw=none, rounded corners=0,fill=gray!20] (0.6,3.5)--(0.6,4.5)--(3.4,4.5)--(3.4,3.5);
 \foreach \n/\x/\y in {1/0/5, 2/1/5, 3/2/5, 4/3/5}
   \node[input] (x\n) at (\x, \y) {$x_{\n}$};
-\node[gate,label=left:$a$] (g1) at (1,4) {$\oplus$};
-\node[gate,label={[shift={(-0.2,0.01)}]$b$}] (g2) at (2,4) {$\oplus$};
+\node[gate] (g1) at (1,4) {$\oplus$};
+\node[gate] (g2) at (2,4) {$\oplus$};
 \node[gate,label=right:$w_0$] (g3) at (3,4) {$\oplus$};
 
-\node[gate, label=left:$c$] (g4) at (0.5,3) {$\oplus$};
-\node[gate,label=left:$d$] (g5) at (3,3) {$>$};
+\node[gate] (g4) at (0.5,3) {$\oplus$};
+\node[gate] (g5) at (3,3) {$>$};
 
-\node[gate,label=left:$e$] (g6) at (1,2) {$\lor$};
-\node[gate,label={[shift={(0.2,0.01)}]$f$}] (g7) at (2,1.5) {$\oplus$};
+\node[gate] (g6) at (1,2) {$\lor$};
+\node[gate] (g7) at (2,1.5) {$\oplus$};
 \node[gate,label=right:$w_1$] (g8) at (3,1) {$\oplus$};
 
 \node[gate,label=left:$w_2$] (g9) at (2,0.5) {$>$};
@@ -589,18 +573,18 @@ For many upper bounds from the bottom row of~Table~\ref{table:sum}, we found cir
 \draw[draw=none, rounded corners=0,fill=gray!20] (0.6,3.5)--(0.6,4.5)--(4.4,4.5)--(4.4,3.5);
 \foreach \n/\x/\y in {1/0/5, 2/1/5, 3/2/5, 4/3/5, 5/4/5}
   \node[input] (x\n) at (\x, \y) {$x_{\n}$};
-\node[gate,label=left:$a$] (g1) at (1,4) {$\oplus$};
-\node[gate,label={[shift={(-0.2,0.01)}]$b$}] (g2) at (2,4) {$\oplus$};
-\node[gate,label={[shift={(-0.2,0.01)}]$c$}] (g3) at (3,4) {$\oplus$};
+\node[gate] (g1) at (1,4) {$\oplus$};
+\node[gate] (g2) at (2,4) {$\oplus$};
+\node[gate] (g3) at (3,4) {$\oplus$};
 \node[gate,label=right:$w_0$] (g4) at (4,4) {$\oplus$};
 
-\node[gate,label=left:$d$] (g5) at (0.5,3) {$\oplus$};
-\node[gate,label=right:$e$] (g6) at (4,3) {$\oplus$};
+\node[gate] (g5) at (0.5,3) {$\oplus$};
+\node[gate] (g6) at (4,3) {$\oplus$};
 
-\node[gate,label=left:$f$] (g7) at (1,2) {$\lor$};
-\node[gate,label=right:$g$] (g8) at (3.5,2) {$>$};
+\node[gate] (g7) at (1,2) {$\lor$};
+\node[gate] (g8) at (3.5,2) {$>$};
 
-\node[gate,label=left:$h$] (g9) at (2,1) {$\oplus$};
+\node[gate] (g9) at (2,1) {$\oplus$};
 \node[gate,label=right:$w_1$] (g10) at (3,1) {$\oplus$};
 
 \node[gate,label=right:$w_2$] (g11) at (2.5,0) {$>$};
@@ -622,8 +606,6 @@ except for~$x_1$, has out-degree~one.}
 
 These circuits can be~found using the following code.
 It~demonstrates two new useful features: fixing gates and forbidding wires between some pairs of~gates.
-
-\todo[inline]{Nikita, please add forbidding wires to this code and ensure that it produces the right result}
 
 \begin{minted}{python}
 def sum_n(x):
@@ -776,9 +758,11 @@ For $n=12$, the bubble sort approach gives a~circuit of size $31$, whereas Dunne
 \begin{minted}{python}
 c = Circuit(input_labels=[f'x{i}' for i in range(1, 13)], gates={})
 c.outputs = add_naive_thr2_circuit(c, c.input_labels)
+c.draw('thr2naive')
 
 c = Circuit(input_labels=[f'x{i}' for i in range(1, 13)], gates={})
 c.outputs = add_efficient_thr2_circuit(c, c.input_labels, 3, 4)
+c.draw('thr2efficient')
 \end{minted}
 
 \begin{figure}[t]
@@ -854,9 +838,11 @@ c.outputs = add_efficient_thr2_circuit(c, c.input_labels, 3, 4)
 
 \end{scope}
 \end{mypic}
-\caption{size(THR_{12}^2)=31}
+\caption{$\size(\THR_{12}^2)=31$}
 \label{figure:thr31}
 \end{figure}
+
+\todo[inline]{Nikita, sdelai, pogaluista, etu shemu bolee gorizontal'noi: pust' vse verhnie or-geiti idut na odnom (gorizontal'nom) urovne}
 
 \begin{figure}[t]
 \begin{mypic}
@@ -926,14 +912,22 @@ c.outputs = add_efficient_thr2_circuit(c, c.input_labels, 3, 4)
 
 \end{scope}
 \end{mypic}
-\caption{size(THR_{12}^2)=29}
+\caption{$\size(\THR_{12}^2)=29$}
 \label{figure:thr29}
 \end{figure}
 
-Our program is~not able to~find out that the circuit of size~$31$ is~suboptimal. It~would be~interesting to~find
+Our program is~not able to~find out that the circuit 
+of~size~$31$ is~suboptimal. It~would be~interesting to~find
 a~way extending the program to~make it~possible.
 
-%\bibliographystyle{plain}
+\section{Further Directions}
+In~the paper, we~focus mainly on~proving asymptotic upper bounds for function families (that is, that work for every input size). 
+A~natural further step is~to~apply the program 
+to~specific circuits that are used in~practice.
+
+It~would also be~interesting to~extend the program 
+so~that it~is able to~discover the circuit from Figure~\ref{figure:thr29}.
+
 \bibliography{circuits}
 
 \appendix
