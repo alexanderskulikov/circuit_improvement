@@ -58,12 +58,7 @@ of~weights $(0,1,\dotsc,l-1)$.
 %
 \begin{figure}[t]
 \begin{minipage}{.28\textwidth}
-\begin{minted}{python}
-def sum2(x1, x2):
-    w0 = x1 ^ x2
-    w1 = x1 * x2
-    return w0, w1
-\end{minted}
+\inputminted[firstline=15,lastline=18]{python}{../tutorial.py}
 \end{minipage}
 \begin{minipage}{.18\textwidth}
 \begin{tikzpicture}[label distance=-.9mm,scale=.9]
@@ -76,15 +71,7 @@ def sum2(x1, x2):
 \end{tikzpicture}
 \end{minipage}
 \begin{minipage}{.33\textwidth}
-\begin{minted}{python}
-def sum3(x1, x2, x3):
-    a = x1 ^ x2
-    b = x2 ^ x3
-    c = a | b
-    w0 = a ^ x3
-    w1 = c ^ w0
-    return w0, w1
-\end{minted}
+\inputminted[firstline=22,lastline=28]{python}{../tutorial.py}
 \end{minipage}
 \begin{minipage}{.18\textwidth}
 ~
@@ -106,19 +93,12 @@ def sum3(x1, x2, x3):
 \end{figure}
 %
 The straight line
-programs are given 
+programs are given
 in~\texttt{Python} programming language.
 This makes particularly easy to~verify their correctness.
 For example, the program for $\SUM_3$ can be verified
 with just three lines of code:
-\begin{minted}{python}
-from itertools import product
-
-
-for x1, x2, x3 in product(range(2), repeat=3):
-    w0, w1 = sum3(x1, x2, x3)    
-    assert x1 + x2 + x3 == w0 + 2 * w1
-\end{minted}
+\inputminted[firstline=32,lastline=36]{python}{../tutorial.py}
 
 Determining $\size(f)$ requires
 proving lower bounds:
@@ -128,21 +108,21 @@ of~size at~most~$\alpha$ does not compute~$f$.
 Known lower bounds are far from being satisfactory:
 the strongest known lower bound for a~function family
 in~NP is~$(3+1/86)n-o(n)$~\cite{DBLP:conf/focs/FindGHK16}.
-Here, by a~\emph{function family} we mean an~infinite sequence of~functions $\{f_n\}_{n=1}^{\infty}$ where $f_n \in B_n$. 
+Here, by a~\emph{function family} we mean an~infinite sequence of~functions $\{f_n\}_{n=1}^{\infty}$ where $f_n \in B_n$.
 
-Even proving lower bounds for specific functions (rather than function families) is~difficult. Brute force approaches become impractical quickly: $|B_n|=2^{2^n}$, hence already for $n=6$, one cannot just enumerate all 
-functions from~$B_n$; also, the number of~circuits 
+Even proving lower bounds for specific functions (rather than function families) is~difficult. Brute force approaches become impractical quickly: $|B_n|=2^{2^n}$, hence already for $n=6$, one cannot just enumerate all
+functions from~$B_n$; also, the number of~circuits
 of~size~$s$ is $s^{\Theta(s)}$, hence checking all circuits of size~$s$ takes reasonable time for small values of~$s$ only.
 Knuth~\cite{Knuth:2008:ACP:1377542} found the exact circuit size of all functions from~$B_4$ and~$B_5$.
 
 Finding the exact value of $\size(f)$ for $f \in B_6$
 is~already a~difficult computational task for modern
-computers and techniques. One approach 
-is~to~translate a~statement ``there exists a~circuit 
-of~size~$s$ computing~$f$'' to a~Boolean formula and 
-to~pass~it to~a~SAT-solver. Then, if the formula 
-is~satisfiable, one decodes a~circuit from its satisfying 
-assignment; otherwise, one gets a~(computer generated) proof of a~lower bound $\size(f) > s$. This circuit synthesis approach was proposed 
+computers and techniques. One approach
+is~to~translate a~statement ``there exists a~circuit
+of~size~$s$ computing~$f$'' to a~Boolean formula and
+to~pass~it to~a~SAT-solver. Then, if the formula
+is~satisfiable, one decodes a~circuit from its satisfying
+assignment; otherwise, one gets a~(computer generated) proof of a~lower bound $\size(f) > s$. This circuit synthesis approach was proposed
 by~Kojevnikov et al.~\cite{DBLP:conf/sat/KojevnikovKY09}
 and, since then, has been used in various circuit synthesis programs (\texttt{abc}~\cite{abc}, \texttt{mockturtle}~\cite{EPFLLibraries}, \texttt{sat-chains}~\cite{knuthreduction}).
 
@@ -162,41 +142,41 @@ found $\size(\MOD_n^{3,r})$ for all $3 \le n \le 5$ and all $0 \le r \le 2$. Bas
 \begin{equation}\label{conjecture}
 \size(\MOD_n^{3,r})=3n-5-[(n+r) \equiv r\bmod 3] \text{ for all $n \ge 3$ and $r$.}
 \end{equation}
-He was also able to find the circuit size 
-for the $n=6,r=0$ case and wrote: ``The case $n=6$ and $r \neq 0$, which lies tantalizingly close to the limits of 
-today's solvers, is still unknown.'' 
+He was also able to find the circuit size
+for the $n=6,r=0$ case and wrote: ``The case $n=6$ and $r \neq 0$, which lies tantalizingly close to the limits of
+today's solvers, is still unknown.''
 
-To~summarize, our current abilities for checking whether there exists a~Boolean circuit of~size~$s$ are roughly the following: 
+To~summarize, our current abilities for checking whether there exists a~Boolean circuit of~size~$s$ are roughly the following:
 \begin{itemize}
 \item for $s \le 6$, this can be~done in a~few seconds;
-\item for $7 \le s \le 12$, this can (sometimes) 
+\item for $7 \le s \le 12$, this can (sometimes)
 be~done in a~few days;
 \item for $s \ge 13$, this is~out of~reach.
 \end{itemize}
 
-In~this paper, we explore the limits of the following natural idea: given a~circuit, try to~improve its size by~improving (using SAT-solvers, for example) the size 
+In~this paper, we explore the limits of the following natural idea: given a~circuit, try to~improve its size by~improving (using SAT-solvers, for example) the size
 of~its subcircuit of~size seven. This is a~kind of a~local search approach: we~have no~possibility to~go through the whole space of all circuits, but we can at~least
-search in a~neighborhood of a~given circuit. 
+search in a~neighborhood of a~given circuit.
 This allows~us to~work with circuits consisting
-of many gates. 
+of many gates.
 
 As the results of experiments, we show several circuits
-for which the approach described above leads to improved upper bounds. In particular, we support Knuth's conjecture~\eqref{conjecture} by~proving the matching upper bound. 
-Also, we~present improvements for $\size(\SUM_n)$ for various small~$n$. 
+for which the approach described above leads to improved upper bounds. In particular, we support Knuth's conjecture~\eqref{conjecture} by~proving the matching upper bound.
+Also, we~present improvements for $\size(\SUM_n)$ for various small~$n$.
 Finally, we provide examples of~circuits that are
-optimal locally, but not globally: our program is not able to find a~(known) smaller circuit since 
-it~is 
+optimal locally, but not globally: our program is not able to find a~(known) smaller circuit since
+it~is
 ``too different'' from the original circuit.
 
 \section{Program Overview}
 The program is~implemented in~\texttt{Python}.
 We give a~high-level overview of~its main features below.
-All the code shown below 
-can be~found in~the 
+All the code shown below
+can be~found in~the
 file \texttt{tutorial.py} at~\cite{git-improvement}.
 One may run~it after installing a~few \texttt{Python} modules. Alternatively, one may run the Jupyter notebook
-\texttt{tutorial.ipynb} in~the cloud without installing 
-anything. To~do this, press the badge ``Colab'' 
+\texttt{tutorial.ipynb} in~the cloud without installing
+anything. To~do this, press the badge ``Colab''
 at~\cite{git-improvement}.
 
 \subsection{Manipulating Circuits}
@@ -206,15 +186,15 @@ print and draw them. A~nicely looking layout of
 a~circuit is produced by the \texttt{pygraphviz} module \cite{pygraphviz}. The program also contains some built-in
 circuits that can be used as~building blocks.
 The following sample code constructs a~circuit
-for $\SUM_5$ out of two full adders and 
-one half adder. This construction is~shown 
-in~Figure~\ref{figure:sumfive}(a). Then, 
-the circuit is verified via the  
-\mintinline{python}{check_sum_circuit} method. 
+for $\SUM_5$ out of two full adders and
+one half adder. This construction is~shown
+in~Figure~\ref{figure:sumfive}(a). Then,
+the circuit is verified via the
+\mintinline{python}{check_sum_circuit} method.
 Finally, the circuit is drawn. As a~result, one gets
 a~picture similar to~the one in~Figure~\ref{figure:sumfive}(b).
 
-\inputminted[firstline=11,lastline=18]{python}{../tutorial.py}
+\inputminted[firstline=40,lastline=47]{python}{../tutorial.py}
 
 \begin{figure}[t]
 \begin{mypic}
@@ -303,50 +283,49 @@ a~picture similar to~the one in~Figure~\ref{figure:sumfive}(b).
 \subsection{Finding Efficient Circuits}
 The method \mintinline{python}{find_circuit}
 checks whether there exists a~circuit of the required
-size for a~given Boolean function. For example, 
+size for a~given Boolean function. For example,
 one may discover the full adder as follows. (The function
 \mintinline{python}{sum_n} returns the list of $\lceil \log_2(n+1) \rceil$ bits of~the binary representation of~the sum of~$n$~bits.)
 
-\inputminted[firstline=22,lastline=27]{python}{../tutorial.py}
+\todo[inline]{Aleksander, CircuitFinder instead of find circuit}
+
+\inputminted[firstline=51,lastline=58]{python}{../tutorial.py}
 
 This is~done by~encoding the task as~a~CNF formula
-and invoking the PicoSAT solver~\cite{DBLP:journals/jsat/Biere08} (via the \texttt{pycosat} module~\cite{pycosat}). The reduction to~SAT is~described 
-in~\cite{DBLP:conf/sat/KojevnikovKY09}. 
+and invoking the PicoSAT solver~\cite{DBLP:journals/jsat/Biere08} (via the \texttt{pycosat} module~\cite{pycosat}). The reduction to~SAT is~described
+in~\cite{DBLP:conf/sat/KojevnikovKY09}.
 
-As~mentioned in~the introduction, the limits 
-of~applicability of~this approach (for finding a~circuit 
+As~mentioned in~the introduction, the limits
+of~applicability of~this approach (for finding a~circuit
 of~size~$s$) are roughly the following:
 for $s \le 6$, it~usually works in~less than a~minute;
-for $7 \le s \le 12$, it~may already take up~to 
+for $7 \le s \le 12$, it~may already take up~to
 several hours or days; for $s \ge 13$, it~becomes almost impractical. The running time may vary a~lot
 for inputs of the same length. In~particular,
-it usually takes much longer to~prove that 
+it usually takes much longer to~prove that
 the required circuit does not exist (by~proving that the corresponding formula is~unsatisfiable).
 
 \todo[inline]{various bases}
 
-The program allows to~predefine some of the gates and 
+The program allows to~predefine some of the gates and
 wires of a~circuit. We demonstrate this functionality
 later in~the text.
 
 \subsection{Improving Circuits}
 The method \mintinline{python}{improve_circuit}
 goes through all subcircuits of a~given size
-of a~given circuit and checks whether any 
-of~them can be~replaced by a~smaller subcircuit 
-(computing the same function) via \mintinline{python}{find_circuit}. For example, applying this method 
+of a~given circuit and checks whether any
+of~them can be~replaced by a~smaller subcircuit
+(computing the same function) via \mintinline{python}{find_circuit}. For example, applying this method
 to~the circuit from Figure~\ref{figure:sumfive}(b)
 gives the circuit from Figure~\ref{figure:sumfive}(c)
-in~nine~seconds. 
+in~nine~seconds.
 
 \todo[inline]{Nikita, please remove run\_improve\_circuit method!! Instead, use improve\_circuit method. (For the user, it is not at all clear why we have two such methods.)}
 
-\begin{minted}{python}
-improved_circuit = run_improve_circuit(add_sum5_suboptimal, 5,
-                            subcircuit_size=5, connected=True)
-print(improved_circuit)
-improved_circuit.draw('sum5')
-\end{minted}
+
+\inputminted[firstline=62,lastline=69]{python}{../tutorial.py}
+
 %
 This circuit can~be also found via \mintinline{python}{find_circuit} directly, but it takes about seven hours.
 
@@ -607,25 +586,7 @@ except for~$x_1$, has out-degree~one.}
 These circuits can be~found using the following code.
 It~demonstrates two new useful features: fixing gates and forbidding wires between some pairs of~gates.
 
-\begin{minted}{python}
-def sum_n(x):
-    return [(sum(x) >> i) & 1 for i in range(ceil(log2(len(x) + 1)))]
-
-
-for n, size in ((3, 5), (4, 9), (5, 11)):
-    circuit_finder = CircuitFinder(dimension=n, number_of_gates=size,
-                                   function=sum_n)
-    circuit_finder.fix_gate(n, 0, 1, '0110')
-    for k in range(n - 2):
-        circuit_finder.fix_gate(n + k + 1, k + 2, n + k, '0110')
-    for i in range(1, n):
-        for j in range(n, n + size):
-            if i + n - 1 != j:
-                circuit_finder.forbid_wire(i, j)
-    circuit = circuit_finder.solve_cnf_formula(verbose=0)
-    circuit.draw(f'sum{n}')
-\end{minted}
-
+\inputminted[firstline=73,lastline=88]{python}{../tutorial.py}
 
 \subsubsection{Optimal Circuits for Counting Modulo~4}
 The optimal circuit for $\SUM_5$ can be used to construct
@@ -755,15 +716,7 @@ a~circuit of size~$2n+o(n)$ based on~the following clever trick: organize the in
 For $n=12$, the bubble sort approach gives a~circuit of size $31$, whereas Dunne's circuit has size $29$. One can construct these two circuits as~follows.
 \todo[inline]{Nikita, please add code here constructing and drawing both circuits}
 
-\begin{minted}{python}
-c = Circuit(input_labels=[f'x{i}' for i in range(1, 13)], gates={})
-c.outputs = add_naive_thr2_circuit(c, c.input_labels)
-c.draw('thr2naive')
-
-c = Circuit(input_labels=[f'x{i}' for i in range(1, 13)], gates={})
-c.outputs = add_efficient_thr2_circuit(c, c.input_labels, 3, 4)
-c.draw('thr2efficient')
-\end{minted}
+\inputminted[firstline=92,lastline=98]{python}{../tutorial.py}
 
 \begin{figure}[t]
 \begin{mypic}
@@ -774,48 +727,18 @@ c.draw('thr2efficient')
 
 \foreach \n/\x/\y in {1/0/12, 2/1/12, 3/2/12, 4/3/12, 5/4/12, 6/5/12, 7/6/12, 8/7/12, 9/8/12, 10/9/12, 11/10/12, 12/11/12}
   \node[input] (x\n) at (\x, \y) {$x_{\n}$};
-\node[gate] (g1) at (0.3,11) {$\land$};
-\node[gate] (g2) at (1,11) {$\lor$};
 
-\node[gate] (g3) at (1.3,10) {$\land$};
-\node[gate] (g4) at (2,10) {$\lor$};
+\foreach \n/\x/\y in {2/1/11, 4/2/11, 6/3/11, 8/4/11, 10/5/11, 12/6/11, 14/7/11, 16/8/11, 18/9/11, 20/10/11}
+  \node[gate] (g\n) at (\x, \y) {$\lor$};
 
-\node[gate] (g5) at (2.3,9) {$\land$};
-\node[gate] (g6) at (3,9) {$\lor$};
+\foreach \n/\x/\y in {1/0/10, 3/1/10, 5/2/10, 7/3/10, 9/4/10, 11/5/10, 13/6/10, 15/7/10, 17/8/10, 19/9/10}
+  \node[gate] (g\n) at (\x, \y) {$\land$};
 
-\node[gate] (g7) at (3.3,8) {$\land$};
-\node[gate] (g8) at (4,8) {$\lor$};
+\foreach \n/\x/\y in {21/0.3/9, 22/1.3/9, 23/2.3/9, 24/3.3/9, 25/4.3/9, 26/5.3/9, 27/6.3/9, 28/7.3/9, 29/8.3/9}
+  \node[gate] (g\n) at (\x, \y) {$\lor$};
 
-\node[gate] (g9) at (4.3,7) {$\land$};
-\node[gate] (g10) at (5,7) {$\lor$};
-
-\node[gate] (g11) at (5.3,6) {$\land$};
-\node[gate] (g12) at (6,6) {$\lor$};
-
-\node[gate] (g13) at (6.3,5) {$\land$};
-\node[gate] (g14) at (7,5) {$\lor$};
-
-\node[gate] (g15) at (7.3,4) {$\land$};
-\node[gate] (g16) at (8,4) {$\lor$};
-
-\node[gate] (g17) at (8.3,3) {$\land$};
-\node[gate] (g18) at (9,3) {$\lor$};
-
-\node[gate] (g19) at (9.3,2) {$\land$};
-\node[gate] (g20) at (10,2) {$\lor$};
-
-\node[gate] (g21) at (0.3,9) {$\lor$};
-\node[gate] (g22) at (1.3,8) {$\lor$};
-\node[gate] (g23) at (2.3,7) {$\lor$};
-\node[gate] (g24) at (3.3,6) {$\lor$};
-\node[gate] (g25) at (4.3,5) {$\lor$};
-\node[gate] (g26) at (5.3,4) {$\lor$};
-\node[gate] (g27) at (6.3,3) {$\lor$};
-\node[gate] (g28) at (7.3,2) {$\lor$};
-\node[gate] (g29) at (8.3,1) {$\lor$};
-
-\node[gate] (g30) at (10.3,1) {$\land$};
-\node[gate, label=right:$w_0$] (g31) at (9.3,0) {$\lor$};
+\node[gate] (g30) at (10,10) {$\land$};
+\node[gate, label=right:$w_0$] (g31) at (9.3,9) {$\lor$};
 
 \foreach \f/\t in {x1/g1, x1/g2, x2/g1, x2/g2,
                    g2/g3, g2/g4, x3/g3, x3/g4,
