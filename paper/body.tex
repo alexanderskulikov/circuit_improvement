@@ -710,13 +710,7 @@ different. The function we are going to~consider is the threshold-2 function:
 \[\THR_n^2(x_1, \dotsc, x_n)=[x_1+\dotsb+x_n \ge 2] \, .\]
 It~is not difficult to~show that $\size(\THR_n^2) \le 3n-5$:
 to~construct the corresponding circuit, perform one and
-a~half iterations of~the bubble sort algorithm (where one sorts two bits $x,y$ as~follows: $\min\{x,y\}=x\lor y, \max\{x,y\} = x \land y$). Dunne~\cite{Dunne84} came~up with
-a~circuit of size~$2n+o(n)$ based on~the following clever trick: organize the input bits into a~$\sqrt{n} \times \sqrt{n}$ matrix, compute the disjunction of all rows and columns, and proceed recursively. Sergeev~\cite{Sergeev2020} showed recently that the \emph{monotone} circuit size of $\THR_n^2$ is $2n+\Theta(\sqrt n)$.
-
-For $n=12$, the bubble sort approach gives a~circuit of size $31$, whereas Dunne's circuit has size $29$. One can construct these two circuits as~follows.
-\todo[inline]{Nikita, please add code here constructing and drawing both circuits}
-
-\inputminted[firstline=92,lastline=98]{python}{../tutorial.py}
+a~half iterations of~the bubble sort algorithm (where one sorts two bits $x,y$ as~follows: $\min\{x,y\}=x\lor y, \max\{x,y\} = x \land y$). For $n=12$, the corresponding circuit of size~$31$ is~shown in~Figure~\ref{figure:thr31}.
 
 \begin{figure}[t]
 \begin{mypic}
@@ -725,7 +719,7 @@ For $n=12$, the bubble sort approach gives a~circuit of size $31$, whereas Dunne
 \begin{scope}[xshift=20mm, yshift=30mm]
 %\draw[help lines] (0,-3) grid (4,4);
 
-\foreach \n/\x/\y in {1/0/12, 2/1/12, 3/2/12, 4/3/12, 5/4/12, 6/5/12, 7/6/12, 8/7/12, 9/8/12, 10/9/12, 11/10/12, 12/11/12}
+\foreach \n/\x/\y in {1/0/11, 2/1/12, 3/2/12, 4/3/12, 5/4/12, 6/5/12, 7/6/12, 8/7/12, 9/8/12, 10/9/12, 11/10/12, 12/11/12}
   \node[input] (x\n) at (\x, \y) {$x_{\n}$};
 
 \foreach \n/\x/\y in {2/1/11, 4/2/11, 6/3/11, 8/4/11, 10/5/11, 12/6/11, 14/7/11, 16/8/11, 18/9/11, 20/10/11}
@@ -765,7 +759,22 @@ For $n=12$, the bubble sort approach gives a~circuit of size $31$, whereas Dunne
 \label{figure:thr31}
 \end{figure}
 
-\todo[inline]{Nikita, sdelai, pogaluista, etu shemu bolee gorizontal'noi: pust' vse verhnie or-geiti idut na odnom (gorizontal'nom) urovne}
+Dunne~\cite{Dunne84} came~up with
+a~circuit of size~$2n+o(n)$ based on~the following clever trick. Organize the input bits into a~$\sqrt{n} \times \sqrt{n}$ matrix. Then, there are at least two~$1$'s among 
+the input bits if and only if~there are two rows or~two
+columns both containing~$1$. This observation allows to~proceed as~follows: compute the disjunction of all rows and columns (in~at most $2n$~gates), compute $\THR_{\sqrt{n}}^2$ for all rows and columns, and return
+the disjunction of the results. (Sergeev~\cite{Sergeev2020} showed recently that the \emph{monotone} circuit size of $\THR_n^2$ is $2n+\Theta(\sqrt n)$.) For $n=12$, this 
+leads to~a~circuit of size~$29$ shown in~Figure~\ref{figure:thr29}. 
+
+
+For $n=12$, the bubble sort approach gives a~circuit of size $31$, whereas Dunne's circuit has size $29$. One can construct these two circuits as~follows.
+
+Our program is~not able to~find out that the circuit 
+of~size~$31$ is~suboptimal. It~would be~interesting to~find
+a~way extending the program to~make it~possible.
+
+\inputminted[firstline=92,lastline=98]{python}{../tutorial.py}
+
 
 \begin{figure}[t]
 \begin{mypic}
@@ -839,9 +848,7 @@ For $n=12$, the bubble sort approach gives a~circuit of size $31$, whereas Dunne
 \label{figure:thr29}
 \end{figure}
 
-Our program is~not able to~find out that the circuit 
-of~size~$31$ is~suboptimal. It~would be~interesting to~find
-a~way extending the program to~make it~possible.
+
 
 \section{Further Directions}
 In~the paper, we~focus mainly on~proving asymptotic upper bounds for function families (that is, that work for every input size). 
