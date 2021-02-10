@@ -1,9 +1,9 @@
 # This tutorial shows the main features of the program.
 # To run it in the cloud, press the Google Colab badge above
-# and the notebook.
+# and run the notebook.
+
 
 from circuit import Circuit
-from functions import *
 from math import ceil, log2
 from functions.sum import add_sum2, add_sum3, check_sum_circuit, add_sum5_suboptimal
 from functions.th import add_naive_thr2_circuit, add_efficient_thr2_circuit
@@ -11,14 +11,14 @@ from circuit_search import CircuitFinder
 from circuit_improvement import improve_circuit
 
 
-# sum_2 circuit for checker
+# Straight line program computing the binary representation of x1+x2
 def sum2(x1, x2):
     w0 = x1 ^ x2
     w1 = x1 * x2
     return w0, w1
 
 
-# sum_3 circuit for checker
+# Straight line program computing the binary representation of x1+x2+x3
 def sum3(x1, x2, x3):
     a = x1 ^ x2
     b = x2 ^ x3
@@ -28,7 +28,7 @@ def sum3(x1, x2, x3):
     return w0, w1
 
 
-# Check correctness sum3 circuit
+# Verify correctness of the SUM3 circuit
 from itertools import product
 
 for x1, x2, x3 in product(range(2), repeat=3):
@@ -36,7 +36,7 @@ for x1, x2, x3 in product(range(2), repeat=3):
     assert x1 + x2 + x3 == w0 + 2 * w1
 
 
-# Building a circuit for SUM5 out of SUM2 and SUM3 blocks
+# Build a circuit for SUM5 out of SUM2 and SUM3 blocks
 circuit = Circuit(input_labels=['x1', 'x2', 'x3', 'x4', 'x5'])
 x1, x2, x3, x4, x5 = circuit.input_labels
 a0, a1 = add_sum3(circuit, [x1, x2, x3])
@@ -47,7 +47,7 @@ check_sum_circuit(circuit)
 circuit.draw('sum5')
 
 
-# Finding an optimum circuit for SUM3 using SAT-solvers
+# Find an optimum circuit for SUM3 using SAT-solvers
 def sum_n(x):
     return [(sum(x) >> i) & 1 for i in range(ceil(log2(len(x) + 1)))]
 
@@ -58,7 +58,7 @@ circuit = circuit_finder.solve_cnf_formula()
 circuit.draw('sum3')
 
 
-# improve circuit function
+# Improve the SUM5 circuit of size 12
 circuit = Circuit(input_labels=[f'x{i}' for i in range(1, 6)], gates={})
 circuit.outputs = add_sum5_suboptimal(circuit, circuit.input_labels)
 improved_circuit = improve_circuit(circuit, subcircuit_size=5,
@@ -67,7 +67,7 @@ print(improved_circuit)
 improved_circuit.draw('sum5')
 
 
-# Construct circuit with fix gates and forbid wire
+# Find a circuit for SUM_n (for n=3,4,5) with special structure
 def sum_n(x):
     return [(sum(x) >> i) & 1 for i in range(ceil(log2(len(x) + 1)))]
 
@@ -86,7 +86,7 @@ for n, size in ((3, 5), (4, 9), (5, 11)):
     circuit.draw(f'sum{n}')
 
 
-# Thr2 naive and efficient
+# Construct two circuits for THR2 for n=12: of size 3n-5 and of size 2n+o(n)
 c = Circuit(input_labels=[f'x{i}' for i in range(1, 13)], gates={})
 c.outputs = add_naive_thr2_circuit(c, c.input_labels)
 c.draw('thr2naive')
