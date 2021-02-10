@@ -281,13 +281,12 @@ a~picture similar to~the one in~Figure~\ref{figure:sumfive}(b).
 \end{figure}
 
 \subsection{Finding Efficient Circuits}
-The method \mintinline{python}{find_circuit}
-checks whether there exists a~circuit of the required
+The class \mintinline{python}{CircuitFinder}
+allows to~check whether there exists a~circuit 
+of~the required
 size for a~given Boolean function. For example,
 one may discover the full adder as follows. (The function
 \mintinline{python}{sum_n} returns the list of $\lceil \log_2(n+1) \rceil$ bits of~the binary representation of~the sum of~$n$~bits.)
-
-\todo[inline]{Aleksander, CircuitFinder instead of find circuit}
 
 \inputminted[firstline=51,lastline=58]{python}{../tutorial.py}
 
@@ -305,10 +304,8 @@ for inputs of the same length. In~particular,
 it usually takes much longer to~prove that
 the required circuit does not exist (by~proving that the corresponding formula is~unsatisfiable).
 
-\todo[inline]{various bases}
-
 The program allows to~predefine some of the gates and
-wires of a~circuit. We demonstrate this functionality
+wires of a~circuit. We~demonstrate this functionality
 later in~the text.
 
 \subsection{Improving Circuits}
@@ -320,12 +317,8 @@ of~them can be~replaced by a~smaller subcircuit
 to~the circuit from Figure~\ref{figure:sumfive}(b)
 gives the circuit from Figure~\ref{figure:sumfive}(c)
 in~nine~seconds.
-
-\todo[inline]{Nikita, please remove run\_improve\_circuit method!! Instead, use improve\_circuit method. (For the user, it is not at all clear why we have two such methods.)}
-
-
+%
 \inputminted[firstline=62,lastline=67]{python}{../tutorial.py}
-
 %
 This circuit can~be also found via \mintinline{python}{find_circuit} directly, but it takes about seven hours.
 
@@ -697,7 +690,8 @@ $r=2$
 as~follows: $\IN_k + m \times \MID_3 + \OUT_r^l$. For each
 pair $(n \mod 3, r)$ we show three things: the triple
 $(m, k, l)$; the sizes of~two blocks: $\size(\IN_k)$ and $\size(\OUT_r^l)$; the size of~the resulting circuit
-computed as $s=\size(\IN_k)+9m+\size(\OUT_r^l)$. For example, the top left cell is read as follows: when $r=0$ and $n=3t$, we set $k=4,m=t-2,l=2$; the resulting circuit is then $\IN_4 + (t-2) \times \MID_3 + \OUT_0^2$; since $\size(\IN_4)=7$ and $\size(\OUT_0^2)=5$, the size of the circuit is $7+9(t-2)+5=9t-6=3n-6$.}
+computed as $s=\size(\IN_k)+9m+\size(\OUT_r^l)$. For example, the top left cell is read as follows: when $r=0$ and $n=3t$, we set $k=4,m=t-2,l=2$; the resulting circuit 
+is~then $\IN_4 + (t-2) \times \MID_3 + \OUT_0^2$; since $\size(\IN_4)=7$ and $\size(\OUT_0^2)=5$, the size of~the circuit is $7+9(t-2)+5=9t-6=3n-6$.}
 \label{table:parameters}
 \end{table}
 \end{proof}
@@ -708,13 +702,18 @@ that our program fails to~improve though a~better circuit
 is~known. The reason is that these two circuits are quite
 different. The function we are going to~consider is the threshold-2 function:
 \[\THR_n^2(x_1, \dotsc, x_n)=[x_1+\dotsb+x_n \ge 2] \, .\]
-It~is not difficult to~show that $\size(\THR_n^2) \le 3n-5$:
-to~construct the corresponding circuit, perform one and
-a~half iterations of~the bubble sort algorithm (where one sorts two bits $x,y$ as~follows: $\min\{x,y\}=x\lor y, \max\{x,y\} = x \land y$). For $n=12$, the corresponding circuit of size~$31$ is~shown in~Figure~\ref{figure:thr31}.
+Figures~\ref{figure:thr31} and~\ref{figure:thr29} show circuits of~size~$31$ and~$29$ for $\THR_{12}^2$.
+They are 
+quite different and our program is~not able to~find out 
+that the circuit 
+of~size~$31$ is~suboptimal.
+One can construct the two circuits in~the program as~follows.
+
+\inputminted[firstline=90,lastline=96]{python}{../tutorial.py}
 
 \begin{figure}[t]
 \begin{mypic}
-\begin{scope}[scale=.9]
+\begin{scope}[scale=.6]
 %\draw[help lines] (0,-5) grid (16,6);
 \begin{scope}[xshift=20mm, yshift=30mm]
 %\draw[help lines] (0,-3) grid (4,4);
@@ -732,7 +731,7 @@ a~half iterations of~the bubble sort algorithm (where one sorts two bits $x,y$ a
   \node[gate] (g\n) at (\x, \y) {$\lor$};
 
 \node[gate] (g30) at (10,10) {$\land$};
-\node[gate, label=right:$w_0$] (g31) at (9.3,9) {$\lor$};
+\node[gate, label=right:output] (g31) at (9.3,9) {$\lor$};
 
 \foreach \f/\t in {x1/g1, x1/g2, x2/g1, x2/g2,
                    g2/g3, g2/g4, x3/g3, x3/g4,
@@ -754,15 +753,8 @@ a~half iterations of~the bubble sort algorithm (where one sorts two bits $x,y$ a
 \end{scope}
 
 \end{scope}
-\end{mypic}
-\caption{$\size(\THR_{12}^2)=31$}
-\label{figure:thr31}
-\end{figure}
 
-
-\begin{figure}[t]
-\begin{mypic}
-\begin{scope}[scale=1.4]
+\begin{scope}[scale=.6,xshift=-90mm,yshift=100mm]
 %\draw[help lines] (0,0) grid (9,5);
 
 
@@ -801,33 +793,26 @@ a~half iterations of~the bubble sort algorithm (where one sorts two bits $x,y$ a
   \draw[->] (\f) -- (\t);
 \end{scope}
 \end{mypic}
-\caption{$\size(\THR_{12}^2)=31$}
-\label{figure:thr31_new}
+
+\caption{A~circuit of~size~$31$ for~$\THR_{12}^2$: 
+(a)~block structure and (b)~gate structure. 
+The $\operatorname{SORT}(u,v)$ block sorts two input bits
+as~follows: $\operatorname{SORT}(u,v)=(\min\{u,v\}, \max\{u,v\})=(u \land v, u \lor v)$. The circuit performs
+one and a~half iterations of~the bubble sort algorithm:
+one first finds the maximum bit among $n$~input bits; then,
+it~remains to~compute the disjunction of the remaining $n-1$ bits to~check whether there~is at~least one~$1$.
+In~general, this leads to~a~circuit of~size $3n-5$.}
+\label{figure:thr31}
 \end{figure}
 
-
-Dunne~\cite{Dunne84} came~up with
-a~circuit of size~$2n+o(n)$ based on~the following clever trick. Organize the input bits into a~$\sqrt{n} \times \sqrt{n}$ matrix. Then, there are at least two~$1$'s among 
-the input bits if and only if~there are two rows or~two
-columns both containing~$1$. This observation allows to~proceed as~follows: compute the disjunction of all rows and columns (in~at most $2n$~gates), compute $\THR_{\sqrt{n}}^2$ for all rows and columns, and return
-the disjunction of the results. (Sergeev~\cite{Sergeev2020} showed recently that the \emph{monotone} circuit size of $\THR_n^2$ is $2n+\Theta(\sqrt n)$.) For $n=12$, this 
-leads to~a~circuit of size~$29$ shown in~Figure~\ref{figure:thr29}. 
-
-
-For $n=12$, the bubble sort approach gives a~circuit of size $31$, whereas Dunne's circuit has size $29$. One can construct these two circuits as~follows.
-
-Our program is~not able to~find out that the circuit 
-of~size~$31$ is~suboptimal. It~would be~interesting to~find
-a~way extending the program to~make it~possible.
-
-\inputminted[firstline=90,lastline=96]{python}{../tutorial.py}
+\todo[inline]{Nikita, poprav' levuyu kartinku, pogaluista}
 
 
 \begin{figure}[t]
 \begin{mypic}
-\begin{scope}[scale=.9]
+\begin{scope}[xscale=.8,yscale=.7]
 %\draw[help lines] (0,-5) grid (16,6);
-\begin{scope}[xshift=20mm, yshift=30mm]
+\begin{scope}[xshift=20mm, yshift=40mm]
 %\draw[help lines] (0,-3) grid (4,4);
 
 \node[input] (x5) at (2, 7) {$x_5$};
@@ -878,7 +863,7 @@ a~way extending the program to~make it~possible.
 \node[gate] (g27) at (4,1) {$\lor$};
 \node[gate] (g20) at (5,1) {$\lor$};
 
-\node[gate, label=right:$w_0$] (g28) at (4.5,0) {$\lor$};
+\node[gate, label=right:output] (g28) at (4.5,0) {$\lor$};
 
 \foreach \f/\t in {x5/g9, x1/g9, x5/g3, x6/g3, x6/g11, x2/g11, x2/g0, x1/g0,
                    g9/g10, x9/g10, x9/g6, x10/g6, x10/g12, g11/g12, g3/g4, x7/g4, x7/g13, x3/g13, x3/g1, g0/g1,
@@ -891,15 +876,8 @@ a~way extending the program to~make it~possible.
 \end{scope}
 
 \end{scope}
-\end{mypic}
-\caption{$\size(\THR_{12}^2)=29$}
-\label{figure:thr29}
-\end{figure}
 
-
-\begin{figure}[t]
-\begin{mypic}
-\begin{scope}[scale=.9]
+\begin{scope}[scale=.8,xshift=-60mm,yshift=25mm]
 %\draw[help lines] (0,0) grid (10,8);
 \draw (0.5,4.5) rectangle (4.5,7.5); \node at (0,0) {};
 \foreach \n/\x/\y in {1/1/7, 2/2/7, 3/3/7, 4/4/7, 5/1/6, 6/2/6, 7/3/6, 8/4/6, 9/1/5, 10/2/5, 11/3/5, 12/4/5}
@@ -919,13 +897,15 @@ a~way extending the program to~make it~possible.
 \draw[->] (3,4.5)--(r3);
 \draw[->] (4,4.5)--(r4);
 
-\draw (0.5,1.5) rectangle (4.5,2.5); \node at (2.5,2) {$THR_2^4$};
+\draw (0.5,1.5) rectangle (4.5,2.5); 
+\node at (2.5,2) {$\THR_2^4$};
 \draw[->] (r1) -- (1,2.5);
 \draw[->] (r2) -- (2,2.5);
 \draw[->] (r3) -- (3,2.5);
 \draw[->] (r4) -- (4,2.5);
 
-\draw (6.5,4.5) rectangle (7.5,7.5); \node at (7,6) {$THR_2^3$};
+\draw (6.5,4.5) rectangle (7.5,7.5); 
+\node[rotate=90] at (7,6) {$\THR_2^3$};
 \draw[->] (c1) -- (6.5,7);
 \draw[->] (c2) -- (6.5,6);
 \draw[->] (c3) -- (6.5,5);
@@ -935,13 +915,18 @@ a~way extending the program to~make it~possible.
 \draw[->] (7,4.5)--(g);
 
 \end{scope}
+
 \end{mypic}
-\caption{$\size(\THR_{12}^2)=29$}
-\label{figure:thr29_new}
+\caption{A~circuit of~size~$29$ for $\THR_{12}^2$: (a)~block structure and (b)~gate structure. It~implements a~clever trick by~Dunne~\cite{Dunne84}. Organize $12$~input bits 
+into a~$3 \times 4$ table. Compute disjunctions $r_1,r_2,r_3$ of~the rows and disjunctions $c_1,c_2,c_3,c_4$ of~the columns. Then, there are at least two~$1$'s among 
+$x_1, \dotsc, x_{12}$ if~and only if~there are at~least 
+two~$1$'s among either $r_1,r_2,r_3$ or $c_1,c_2,c_3,c_4$.
+This allows to~proceed recursively. In~general, it~leads
+to~a~circuit of~size $2n+o(n)$. (Sergeev~\cite{Sergeev2020} showed recently that the \emph{monotone} circuit size of $\THR_n^2$ is $2n+\Theta(\sqrt n)$.)}
+\label{figure:thr29}
 \end{figure}
 
-
-
+\todo[inline]{Nikita, na levoi kartinke pomenyai, pogaluista, $r$-ki i $c$-ki mestami. Potom pomenyayi escho ne pravoi kartinke i sdelai tak, chtobi leible bili poblige k geitam.}
 
 \section{Further Directions}
 In~the paper, we~focus mainly on~proving asymptotic upper bounds for function families (that is, that work for every input size). 
