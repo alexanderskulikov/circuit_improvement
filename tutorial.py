@@ -61,8 +61,6 @@ circuit.draw('sum3')
 # improve circuit function
 circuit = Circuit(input_labels=[f'x{i}' for i in range(1, 6)], gates={})
 circuit.outputs = add_sum5_suboptimal(circuit, circuit.input_labels)
-if isinstance(circuit.outputs, str):
-    circuit.outputs = [circuit.outputs]
 improved_circuit = improve_circuit(circuit, subcircuit_size=5,
                                    connected=True)
 print(improved_circuit)
@@ -96,4 +94,3 @@ c.draw('thr2naive')
 c = Circuit(input_labels=[f'x{i}' for i in range(1, 13)], gates={})
 c.outputs = add_efficient_thr2_circuit(c, c.input_labels, 3, 4)
 c.draw('thr2efficient')
-

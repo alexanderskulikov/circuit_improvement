@@ -324,7 +324,7 @@ in~nine~seconds.
 \todo[inline]{Nikita, please remove run\_improve\_circuit method!! Instead, use improve\_circuit method. (For the user, it is not at all clear why we have two such methods.)}
 
 
-\inputminted[firstline=62,lastline=69]{python}{../tutorial.py}
+\inputminted[firstline=62,lastline=67]{python}{../tutorial.py}
 
 %
 This circuit can~be also found via \mintinline{python}{find_circuit} directly, but it takes about seven hours.
@@ -586,7 +586,7 @@ except for~$x_1$, has out-degree~one.}
 These circuits can be~found using the following code.
 It~demonstrates two new useful features: fixing gates and forbidding wires between some pairs of~gates.
 
-\inputminted[firstline=73,lastline=88]{python}{../tutorial.py}
+\inputminted[firstline=71,lastline=86]{python}{../tutorial.py}
 
 \subsubsection{Optimal Circuits for Counting Modulo~4}
 The optimal circuit for $\SUM_5$ can be used to construct
@@ -759,6 +759,53 @@ a~half iterations of~the bubble sort algorithm (where one sorts two bits $x,y$ a
 \label{figure:thr31}
 \end{figure}
 
+
+\begin{figure}[t]
+\begin{mypic}
+\begin{scope}[scale=1.4]
+%\draw[help lines] (0,0) grid (9,5);
+
+
+\node[input] (x1) at (0, 4) {$x_{1}$};
+\foreach \n/\x/\y in {2/1.5/5, 3/3/5, 4/4.5/5, 11/7.5/5, 12/9/5}
+  \node[input] (x\n) at (\x, \y) {$x_{\n}$};
+
+\foreach \x/\y/\z in {1/2/1.5, 2.5/3.5/3, 4/5/4.5, 7/8/7.5} {
+  \draw (\x,3.8) rectangle (\y,4.2);
+  \node at (\z,4) {SORT};
+}
+
+\node[gate] (g1) at (9,4) {$\land$};
+\node[gate] (g2) at (5,2) {$\lor$};
+
+\draw[->] (x1) -- (1,4);
+\draw[->] (x2) -- (1.5,4.2);
+\draw[->] (x3) -- (3,4.2);
+\draw[->] (x4) -- (4.5,4.2);
+\draw[->] (x11) -- (7.5,4.2);
+\draw[->] (x12) -- (g1);
+
+\draw[->] (2,4) -- (2.5,4);
+\draw[->] (3.5,4) -- (4,4);
+\draw[->] (5,4) -- (5.5,4);
+\draw[->] (6.5,4) -- (7,4);
+\draw[->] (8,4) -- (g1);
+
+\draw[->] (1.5,3.8) -- (g2);
+\draw[->] (3,3.8) -- (g2);
+\draw[->] (4.5,3.8) -- (g2);
+\draw[->] (7.5,3.8) -- (g2);
+\draw[->] (g1) -- (g2);
+
+\foreach \f/\t in {}
+  \draw[->] (\f) -- (\t);
+\end{scope}
+\end{mypic}
+\caption{$\size(\THR_{12}^2)=31$}
+\label{figure:thr31_new}
+\end{figure}
+
+
 Dunne~\cite{Dunne84} came~up with
 a~circuit of size~$2n+o(n)$ based on~the following clever trick. Organize the input bits into a~$\sqrt{n} \times \sqrt{n}$ matrix. Then, there are at least two~$1$'s among 
 the input bits if and only if~there are two rows or~two
@@ -773,7 +820,7 @@ Our program is~not able to~find out that the circuit
 of~size~$31$ is~suboptimal. It~would be~interesting to~find
 a~way extending the program to~make it~possible.
 
-\inputminted[firstline=92,lastline=98]{python}{../tutorial.py}
+\inputminted[firstline=90,lastline=96]{python}{../tutorial.py}
 
 
 \begin{figure}[t]
@@ -797,9 +844,9 @@ a~way extending the program to~make it~possible.
 \node[input] (x3) at (7.5, 6) {$x_3$};
 \node[gate] (g0) at (8.5,6) {$\lor$};
 
-\node[gate] (g10) at (1,5) {$\lor$};
+\node[gate, label=left:$r_1$] (g10) at (1,5) {$\lor$};
 \node[gate] (g6) at (2,5) {$\lor$};
-\node[gate] (g12) at (3,5) {$\lor$};
+\node[gate, label={[shift={(0.4,-0.8)}]$r_2$}] (g12) at (3,5) {$\lor$};
 \node[input] (x11) at (4, 5) {$x_{11}$};
 \node[gate] (g4) at (5,5) {$\lor$};
 \node[gate] (g13) at (6,5) {$\lor$};
@@ -810,16 +857,17 @@ a~way extending the program to~make it~possible.
 \node[gate] (g22) at (1.5,4) {$\land$};
 \node[gate] (g21) at (2.5,4) {$\lor$};
 \node[gate] (g7) at (3.5,4) {$\lor$};
-\node[gate] (g14) at (4.5,4) {$\lor$};
+\node[gate, label={[shift={(0.08,-0.06)}]$r_3$}] (g14) at (4.5,4) {$\lor$};
 \node[input] (x12) at (5.5, 4) {$x_{12}$};
-\node[gate] (g5) at (6.5,4) {$\lor$};
+\node[gate, label={[shift={(-0.1,-0.06)}]$c_2$}] (g5) at (6.5,4) {$\lor$};
 \node[gate] (g15) at (7.5,4) {$\lor$};
-\node[gate] (g2) at (8.5,4) {$\lor$};
+\node[gate, label=right:$c_1$] (g2) at (8.5,4) {$\lor$};
+
 
 \node[gate] (g24) at (2.5,3) {$\land$};
 \node[gate] (g23) at (3.5,3) {$\lor$};
-\node[gate] (g8) at (4.5,3) {$\lor$};
-\node[gate] (g16) at (5.5,3) {$\lor$};
+\node[gate, label={[shift={(-0.1,-0.06)}]$c_3$}] (g8) at (4.5,3) {$\lor$};
+\node[gate, label={[shift={(0.3,-0.06)}]$r_4$}] (g16) at (5.5,3) {$\lor$};
 \node[gate] (g17) at (6.5,3) {$\lor$};
 \node[gate] (g18) at (7.5,3) {$\land$};
 
@@ -847,6 +895,51 @@ a~way extending the program to~make it~possible.
 \caption{$\size(\THR_{12}^2)=29$}
 \label{figure:thr29}
 \end{figure}
+
+
+\begin{figure}[t]
+\begin{mypic}
+\begin{scope}[scale=.9]
+%\draw[help lines] (0,0) grid (10,8);
+\draw (0.5,4.5) rectangle (4.5,7.5); \node at (0,0) {};
+\foreach \n/\x/\y in {1/1/7, 2/2/7, 3/3/7, 4/4/7, 5/1/6, 6/2/6, 7/3/6, 8/4/6, 9/1/5, 10/2/5, 11/3/5, 12/4/5}
+  \node[input] (x\n) at (\x,\y) {$x_{\n}$};
+
+\foreach \n/\x/\y in {1/5.5/7, 2/5.5/6, 3/5.5/5}
+  \node[gate, label={[shift={(0.3,-0.2)}]$c_\n$}] (c\n) at (\x, \y) {$\lor$};
+\draw[->] (4.5,7)--(c1);
+\draw[->] (4.5,6)--(c2);
+\draw[->] (4.5,5)--(c3);
+
+
+\foreach \n/\x/\y in {1/1/3.5, 2/2/3.5, 3/3/3.5, 4/4/3.5}
+  \node[gate, label={[shift={(0.3,-0.2)}]$r_\n$}] (r\n) at (\x, \y) {$\lor$};
+\draw[->] (1,4.5)--(r1);
+\draw[->] (2,4.5)--(r2);
+\draw[->] (3,4.5)--(r3);
+\draw[->] (4,4.5)--(r4);
+
+\draw (0.5,1.5) rectangle (4.5,2.5); \node at (2.5,2) {$THR_2^4$};
+\draw[->] (r1) -- (1,2.5);
+\draw[->] (r2) -- (2,2.5);
+\draw[->] (r3) -- (3,2.5);
+\draw[->] (r4) -- (4,2.5);
+
+\draw (6.5,4.5) rectangle (7.5,7.5); \node at (7,6) {$THR_2^3$};
+\draw[->] (c1) -- (6.5,7);
+\draw[->] (c2) -- (6.5,6);
+\draw[->] (c3) -- (6.5,5);
+
+\node[gate] (g) at (7, 2) {$\lor$};
+\draw[->] (4.5,2)--(g);
+\draw[->] (7,4.5)--(g);
+
+\end{scope}
+\end{mypic}
+\caption{$\size(\THR_{12}^2)=29$}
+\label{figure:thr29_new}
+\end{figure}
+
 
 
 
