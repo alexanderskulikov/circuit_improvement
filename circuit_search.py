@@ -7,7 +7,9 @@ from timeit import default_timer as timer
 
 
 class CircuitFinder:
-    def __init__(self, dimension, number_of_gates, input_labels=None, input_truth_tables=None, output_truth_tables=None, function=None):
+    def __init__(self, dimension, number_of_gates, input_labels=None,
+                 input_truth_tables=None, output_truth_tables=None, function=None,
+                 forbidden_operations=None):
         self.dimension = dimension
 
         if function is not None:
@@ -58,6 +60,8 @@ class CircuitFinder:
         self.outputs = list(range(number_of_outputs))
 
         assert all(str(gate) not in self.input_labels for gate in self.internal_gates)
+
+        self.forbidden_operations = forbidden_operations or []
 
         self.clauses = []
         self.variables = {'dummy': 0}
@@ -152,6 +156,15 @@ class CircuitFinder:
 
             self.clauses += [[self.gate_type_variable(gate, 0, 0), -self.gate_type_variable(gate, 0, 1), self.gate_type_variable(gate, 1, 0), -self.gate_type_variable(gate, 1, 1)]]
             self.clauses += [[-self.gate_type_variable(gate, 0, 0), self.gate_type_variable(gate, 0, 1), -self.gate_type_variable(gate, 1, 0), self.gate_type_variable(gate, 1, 1)]]
+
+        # each gate computes an allowed operation
+        for gate in self.internal_gates:
+            for op in self.forbidden_operations:
+                assert len(op) == 4 and all(int(b) in (0, 1) for b in op)
+                clause = []
+                for i in range(4):
+                    clause.append((1 if int(op[i]) == 1 else -1) * self.gate_type_variable(gate, i // 2, i % 2))
+                self.clauses.append(clause)
 
         return self.clauses
 
