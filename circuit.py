@@ -104,13 +104,16 @@ class Circuit:
                 circuit_file.write(f'\n{gate} {first} {second} {gate_type}')
             circuit_file.write('\n' + ' '.join(self.outputs))
 
-    def construct_graph(self):
+    def construct_graph(self, detailed_labels=True):
         circuit_graph = nx.DiGraph()
         for input_label in self.input_labels:
             circuit_graph.add_node(input_label)
 
         for gate in self.gates:
-            circuit_graph.add_node(gate, label=f'{gate}: {self.gates[gate][0]} {self.gate_types[self.gates[gate][2]]} {self.gates[gate][1]}')
+            label = self.gate_types[self.gates[gate][2]]
+            if detailed_labels:
+                label = f'{gate}: {self.gates[gate][0]} {self.gate_types[self.gates[gate][2]]} {self.gates[gate][1]}'
+            circuit_graph.add_node(gate, label=label)
             circuit_graph.add_edge(self.gates[gate][0], gate)
             circuit_graph.add_edge(self.gates[gate][1], gate)
 
@@ -196,8 +199,8 @@ class Circuit:
                                                                   improved_circuit.outputs[i])
         return replaced_graph
 
-    def draw(self, file_name='circuit'):
-        a = nx.nx_agraph.to_agraph(self.construct_graph())
+    def draw(self, file_name='circuit', detailed_labels=True):
+        a = nx.nx_agraph.to_agraph(self.construct_graph(detailed_labels))
         for gate in self.input_labels:
             a.get_node(gate).attr['shape'] = 'box'
         if isinstance(self.outputs, str):
