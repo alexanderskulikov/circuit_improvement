@@ -164,9 +164,14 @@ As the results of experiments, we show several circuits
 for which the approach described above leads to improved upper bounds. In particular, we support Knuth's conjecture~\eqref{conjecture} by~proving the matching upper bound.
 Also, we~present improvements for $\size(\SUM_n)$ for various small~$n$.
 Finally, we provide examples of~circuits that are
-optimal locally, but not globally: our program is not able to find a~(known) smaller circuit since
+optimal locally, but not globally: our program 
+is~not able to~find a~(known) smaller circuit since
 it~is
 ``too different'' from the original circuit.
+
+\subsection{Related work}
+\todo[inline]{to be written}
+
 
 \section{Program Overview}
 The program is~implemented in~\texttt{Python}.
@@ -314,7 +319,12 @@ function & circuit size & status & time\\
 $\SUM_5$ & 12 & SAT & ??? sec.\\
 $\SUM_5$ & 11 & SAT & ??? sec.\\
 $\SUM_5$ & 10 & UNSAT & ??? \\
-$\MOD_5^{3,0}$ & \\
+$\MOD_5^{3,0}$ & $x$ & SAT & ???\\
+$\MOD_5^{3,0}$ & $x-1$ & UNSAT & ???\\
+$\MOD_5^{3,1}$ & $y$ & SAT & ???\\
+$\MOD_5^{3,1}$ & $y-1$ & UNSAT & ???\\
+$\MOD_5^{3,2}$ & $z$ & SAT & ???\\
+$\MOD_5^{3,2}$ & $z-1$ & UNSAT & ???\\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -338,7 +348,7 @@ in~nine~seconds.
 %
 \inputminted[firstline=62,lastline=67]{python}{../tutorial.py}
 %
-This circuit can~be also found via \mintinline{python}{find_circuit} directly, but it takes about seven hours.
+This circuit can~be also found via \mintinline{python}{find_circuit} directly, but it takes about seven hours.\todo{update}
 
 
 
@@ -357,8 +367,8 @@ Despite simplicity of~symmetric functions, we still do~not
 know how optimal circuits look like for most of~them. Below, we~present new circuits for some of these functions.
 
 \subsection{Sum Function}
-The $\SUM$ function is a~fundamental symmetric function: for any symmetric $f \in B_n$, $\size(f)\le \size(\SUM_n)+o(n)$. The reason for this is that any function from~$B_n$ can be~computed by a~circuit of size $O(2^n/n)$ by the results of Muller~\cite{M56} and Lupanov~\cite{Lup59}. This allows to compute any symmetric $f(x_1, \dotsc, x_n) \in B_n$ as follows: first, compute $\SUM_n(x_1, \dotsc, x_n)$ using $\size(\SUM_n)$ gates; then, compute the resulting bit using at most $O(2^{\log n}/\log n)=o(n)$ gates. For the same reason, any lower bound $\size(f) \le \alpha$ for
-a~symmetric function~$f \in B_n$ implies a~lower bound $\size(\SUM_n) \le \alpha-o(n)$. Currently, we know the following bounds for $\SUM_n$:
+The $\SUM$ function is a~fundamental symmetric function: for any symmetric $f \in B_n$, $\size(f)\le \size(\SUM_n)+o(n)$. The reason for this is that any function from~$B_n$ can be~computed by a~circuit of size $O(2^n/n)$ by the results of Muller~\cite{M56} and Lupanov~\cite{Lup59}. This allows to compute any symmetric $f(x_1, \dotsc, x_n) \in B_n$ as follows: first, compute $\SUM_n(x_1, \dotsc, x_n)$ using $\size(\SUM_n)$ gates; then, compute the resulting bit using at most $O(2^{\log n}/\log n)=o(n)$ gates. For the same reason, any lower bound $\size(f) \ge \alpha$ for
+a~symmetric function~$f \in B_n$ implies a~lower bound $\size(\SUM_n) \ge \alpha-o(n)$. Currently, we know the following bounds for $\SUM_n$:
 \[2.5n-O(1) \le \size(\SUM_n) \le 4.5n+o(n) \, .\]
 The lower bound is~due to~Stockmeyer~\cite{DBLP:journals/mst/Stockmeyer77}, the upper bound is~due to~Demenkov et al.~\cite{DBLP:journals/ipl/DemenkovKKY10}.
 
