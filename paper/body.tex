@@ -302,11 +302,29 @@ for $7 \le s \le 12$, it~may already take up~to
 several hours or days; for $s \ge 13$, it~becomes almost impractical. The running time may vary a~lot
 for inputs of the same length. In~particular,
 it usually takes much longer to~prove that
-the required circuit does not exist (by~proving that the corresponding formula is~unsatisfiable).
+the required circuit does not exist (by~proving that the corresponding formula is~unsatisfiable). Table~\ref{table:runningtimes} reports the running time 
+of~this approach on several datasets.
 
-The program allows to~predefine some of the gates and
-wires of a~circuit. We~demonstrate this functionality
-later in~the text.
+\begin{table}
+\begin{center}
+\begin{tabular}{llll}
+\toprule
+function & circuit size & status & time\\
+\midrule
+$\SUM_5$ & 12 & SAT & ??? sec.\\
+$\SUM_5$ & 11 & SAT & ??? sec.\\
+$\SUM_5$ & 10 & UNSAT & ??? \\
+$\MOD_5^{3,0}$ & \\
+\bottomrule
+\end{tabular}
+\end{center}
+\caption{The running time of \texttt{CircuitFinder} on~various Boolean functions.} \label{table:runningtimes}
+\end{table}
+
+%The program allows to~predefine some of the gates and
+%wires of a~circuit. We~demonstrate this functionality
+%later in~the text.
+
 
 \subsection{Improving Circuits}
 The method \mintinline{python}{improve_circuit}
