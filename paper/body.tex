@@ -332,15 +332,19 @@ of~this approach on several datasets.
 \toprule
 function & circuit size & status & time\\
 \midrule
-$\SUM_5$ & 12 & SAT & ??? sec.\\
-$\SUM_5$ & 11 & SAT & ??? sec.\\
-$\SUM_5$ & 10 & UNSAT & ??? \\
-$\MOD_5^{3,0}$ & $x$ & SAT & ???\\
-$\MOD_5^{3,0}$ & $x-1$ & UNSAT & ???\\
-$\MOD_5^{3,1}$ & $y$ & SAT & ???\\
-$\MOD_5^{3,1}$ & $y-1$ & UNSAT & ???\\
-$\MOD_5^{3,2}$ & $z$ & SAT & ???\\
-$\MOD_5^{3,2}$ & $z-1$ & UNSAT & ???\\
+$\SUM_5$ & 12 & SAT & 56.7726 sec\\
+$\SUM_5$ & 11 & SAT & 26782 sec\\
+$\SUM_5$ & 10 & UNSAT & * \\
+$\MOD_4^{3,0}$ & $7$ & SAT & 0.3948 sec\\
+$\MOD_4^{3,0}$ & $6$ & UNSAT & 4472.8590 sec\\
+$\MOD_4^{3,1}$ & $7$ & SAT & 0.4643 sec\\
+$\MOD_4^{3,1}$ & $6$ & UNSAT & 60.1429 sec\\
+$\MOD_4^{3,2}$ & $6$ & SAT & 0.3471 sec\\
+$\MOD_4^{3,2}$ & $5$ & UNSAT & 0.6956 sec\\
+
+$\MOD_5^{3,0}$ & $10$ & SAT & 268.8589 sec\\
+$\MOD_5^{3,1}$ & $9$ & SAT & 102.0609 sec\\
+$\MOD_5^{3,2}$ & $10$ & SAT & 221.9466 sec\\
 \bottomrule
 \end{tabular}
 \end{center}
