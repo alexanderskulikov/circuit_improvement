@@ -22,10 +22,11 @@ circuit in a~ball around a~given circuit.
 %We~report the results of experiments with various 
 %symmetric functions. 
 Through this approach, we~prove
-new upper bounds on the circuit size of~some
-symmetric functions. We~also demonstrate that
+new upper bounds on the circuit size 
+of~symmetric functions. We~also demonstrate that
 some upper bounds that we~proved by~hand
-decades ago, nowadays can be~found automatically.
+decades ago, nowadays can be~found automatically
+in a~few seconds.
 \end{abstract}
 
 %\tableofcontents
@@ -175,11 +176,20 @@ is~not able to~find a~(known) smaller circuit since
 it~is
 ``too different'' from the original circuit.
 
-\subsection{Related work}
-\todo[inline]{to be written}
+\subsection*{Related work}
+The approach we~use in this paper follows the SAT-based 
+local improvement method (SLIM): to~improve an~existing
+discrete structure one goes through all its substructures
+of~size accessible to a~SAT-solver. 
+SLIM has been applied successfully to~the following 
+structures:
+branchwidth~\cite{DBLP:journals/tocl/LodhaOS19},
+treewidth~\cite{DBLP:conf/sat/FichteLS17},
+treedepth~\cite{DBLP:conf/cp/RamaswamyS20},
+Bayesian network structure learning~\cite{AAAI1},
+decision tree learning~\cite{AAAI2}.
 
-
-\section{Program Overview}
+\section{Program: Feature Overview and Evaluation}
 The program is~implemented in~\texttt{Python}.
 We give a~high-level overview of~its main features below.
 All the code shown below
@@ -316,7 +326,7 @@ it usually takes much longer to~prove that
 the required circuit does not exist (by~proving that the corresponding formula is~unsatisfiable). Table~\ref{table:runningtimes} reports the running time 
 of~this approach on several datasets.
 
-\begin{table}
+\begin{table}[ht]
 \begin{center}
 \begin{tabular}{llll}
 \toprule
@@ -354,7 +364,25 @@ in~nine~seconds.
 %
 \inputminted[firstline=62,lastline=67]{python}{../tutorial.py}
 %
-This circuit can~be also found via \mintinline{python}{find_circuit} directly, but it takes about seven hours.\todo{update}
+%This circuit can~be also found via \mintinline{python}{find_circuit} directly, but it takes about seven hours.\todo{update}
+%
+Table~\ref{table:improvementrunningtimes} shows the time 
+taken by~\texttt{improve\_circuit} to~improve some 
+of~the known circuits for $\SUM$ and $\MOD^3$. 
+
+\begin{table}[ht]
+\begin{center}
+\begin{tabular}{llll}
+\toprule
+function & circuit size & time\\
+\midrule
+$\SUM_5$ & $12 \to 11$ & ??? sec.\\
+$\SUM_7$ & $19 \to 18$ & ??? sec.\\
+\bottomrule
+\end{tabular}
+\end{center}
+\caption{The running time of \texttt{improve\_circuit} on~various Boolean functions.} \label{table:improvementrunningtimes}
+\end{table}
 
 
 
