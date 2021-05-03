@@ -19,8 +19,6 @@ any of them can be improved by reducing to~SAT.
 This may be viewed
 as a~local search approach: we search for a~smaller
 circuit in a~ball around a~given circuit.
-%We~report the results of experiments with various 
-%symmetric functions. 
 Through this approach, we~prove
 new upper bounds on the circuit size 
 of~symmetric functions. We~also demonstrate that
@@ -364,12 +362,9 @@ of~them can be~replaced by a~smaller subcircuit
 (computing the same function) via \mintinline{python}{find_circuit}. For example, applying this method
 to~the circuit from Figure~\ref{figure:sumfive}(b)
 gives the circuit from Figure~\ref{figure:sumfive}(c)
-in~nine~seconds.
+in~a~few seconds.
 %
 \inputminted[firstline=62,lastline=67]{python}{../tutorial.py}
-%
-%This circuit can~be also found via \mintinline{python}{find_circuit} directly, but it takes about seven hours.\todo{update}
-%
 Table~\ref{table:improvementrunningtimes} shows the time 
 taken by~\texttt{improve\_circuit} to~improve some 
 of~the known circuits for $\SUM$ and $\MOD^3$. 
@@ -394,11 +389,8 @@ $\MOD_7^{3,2}$ & $16 \to 15$ & 43.0\\
 \caption{The running time of \texttt{improve\_circuit} on~various Boolean functions.} \label{table:improvementrunningtimes}
 \end{table}
 
-
-
-\section{Evaluation}
-In~this section, we~report the results of~experiments
-with various symmetric functions. A~function $f(x_1,\dotsc,x_n)$ is called \emph{symmetric} if~its value depends on~$\sum_{i=1}^nx_i$ only. They are among the most basic Boolean functions:
+\section{New Circuits}
+In~this section, we~present new circuits for symmetric functions found with the help of~the program. A~function $f(x_1,\dotsc,x_n)$ is called \emph{symmetric} if~its value depends on~$\sum_{i=1}^nx_i$ only. They are among the most basic Boolean functions:
 \begin{itemize}
 \item to~specify an~arbitrary Boolean function
 from~$B_n$, one needs
@@ -881,7 +873,7 @@ In~general, this leads to~a~circuit of~size $3n-5$.}
 
 \begin{figure}[t]
 \begin{mypic}
-\begin{scope}[xscale=.8,yscale=.7]
+\begin{scope}[xscale=.75,yscale=.7]
 %\draw[help lines] (0,-5) grid (16,6);
 \begin{scope}[xshift=20mm, yshift=40mm]
 %\draw[help lines] (0,-3) grid (4,4);
