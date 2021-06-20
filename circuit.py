@@ -199,14 +199,36 @@ class Circuit:
                                                                   improved_circuit.outputs[i])
         return replaced_graph
 
-    def draw(self, file_name='circuit', detailed_labels=True):
-        a = nx.nx_agraph.to_agraph(self.construct_graph(detailed_labels))
+    def draw(self, file_name='circuit', detailed_labels=True, experimental=False):
+        circuit_graph = self.construct_graph(detailed_labels)
+        a = nx.nx_agraph.to_agraph(circuit_graph)
         for gate in self.input_labels:
             a.get_node(gate).attr['shape'] = 'box'
         if isinstance(self.outputs, str):
             self.outputs = [self.outputs]
         for output in self.outputs:
             a.get_node(output).attr['shape'] = 'box'
+
+        if experimental:
+            for g in self.gates:
+                distance_to_inputs = float('inf')
+                for i in self.input_labels:
+                    if nx.has_path(circuit_graph, i, g):
+                        distance_to_inputs = min(distance_to_inputs, nx.shortest_path_length(circuit_graph, i, g))
+
+                if distance_to_inputs <= 2:
+                    a.get_node(g).attr['style'] = 'filled'
+                    if distance_to_inputs == 1:
+                        a.get_node(g).attr['fillcolor'] = 'green3'
+                    else:
+                        a.get_node(g).attr['fillcolor'] = 'green4'
+
+                if self.gates[g][2] != '0110' and self.gates[g][2] != '1001':
+                    a.get_node(g).attr['style'] = 'filled'
+                    a.get_node(g).attr['fillcolor'] = 'coral'
+
+
+
         a.layout(prog='dot')
         file_name = project_directory + '/circuits/.images/' + file_name + '.png'
         a.draw(file_name)

@@ -1,11 +1,14 @@
-from circuit_search import CircuitFinder
-from math import ceil, log2
+from os import listdir, system
+from circuit import Circuit
 
-def sum_n(x):
-    return [(sum(x) >> i) & 1 for i in range(ceil(log2(len(x) + 1)))]
+for ckt_file in sorted(listdir('circuits/mod3/')):
+    if ckt_file.endswith('.ckt'):
+        print(ckt_file)
+        circuit = Circuit(fn='mod3/' + ckt_file[:-4])
+        circuit.draw(ckt_file[:-4], experimental=True)
 
-
-circuit_finder = CircuitFinder(dimension=3, number_of_gates=7,
-                               function=sum_n, forbidden_operations=['0110', '1001'])
-circuit = circuit_finder.solve_cnf_formula()
-circuit.draw('sum3')
+# circuit = Circuit(fn='mod3/mod3_6_0_size12')
+# circuit.draw('mod3_6_0_size12', experimental=True)
+#
+# circuit = Circuit(fn='mod3/mod3_6_1_size13')
+# circuit.draw('mod3_6_1_size13', experimental=True)
