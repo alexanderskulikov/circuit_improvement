@@ -1,6 +1,7 @@
 from circuit import Circuit
 from itertools import product
 from functions.sum import add_sum4, add_sum5, add_sum6, add_sum7
+from functions.sum import add_sumn, add_sumn_mdfa
 
 
 def add_th2_2(circuit, input_labels):
@@ -298,7 +299,7 @@ def add_naive_thr2_circuit(circuit, input_labels):
             operation='0111',
         )
 
-    return [thr2_gates[n],]
+    return [thr2_gates[n], ]
 
 
 # of size 2n+o(n)
@@ -315,7 +316,48 @@ def add_efficient_thr2_circuit(circuit, input_labels, rows, columns):
     or1 = add_naive_thr2_circuit(circuit, row_gates)[0]
     or2 = add_naive_thr2_circuit(circuit, column_gates)[0]
     last_gate = circuit.add_gate(or1, or2, '0111')
-    return [last_gate,]
+    return [last_gate, ]
+
+
+def add_k0(circuit, input_labels):
+    [x0, x1, x2] = input_labels
+    x3 = circuit.add_gate(x0, x2, '0111')
+    x4 = circuit.add_gate(x0, x1, '0010')
+    x5 = circuit.add_gate(x3, x4, '0110')
+    return x3, x5
+
+
+def add_k1(circuit, input_labels):
+    [x0, x1, x2] = input_labels
+    x3 = circuit.add_gate(x0, x2, '1011')
+    x4 = circuit.add_gate(x0, x1, '0001')
+    return x3, x4
+
+
+def add_cmpn(circuit, input_labels, th):
+    iss_pred = circuit.add_gate(input_labels[0], input_labels[0], '0000')
+    a_pred = circuit.add_gate(input_labels[0], input_labels[0], '0000')
+
+    for i in range(len(th)):
+        if th[i] == 0:
+            iss, a = add_k0(circuit, [iss_pred, a_pred, input_labels[i]])
+        else:
+            iss, a = add_k1(circuit, [iss_pred, a_pred, input_labels[i]])
+        iss_pred = iss
+        a_pred = a
+
+    result = circuit.add_gate(iss_pred, a_pred, '1101')
+    return result
+
+
+def add_thn(circuit, input_labels, th, is5n=True):
+    w = add_sumn(circuit, input_labels) if is5n else add_sumn_mdfa(circuit, input_labels)
+    tharr = [int(x) for x in list('{0:0b}'.format(th))]
+
+    while len(tharr) < len(w):
+        tharr = [0] + tharr
+    k = add_cmpn(circuit, list(reversed(w)), tharr)
+    return k
 
 
 def check_th_circuit(circuit, k):
@@ -343,9 +385,8 @@ def check_2th_circuit(circuit, k):
 
 def run(fun, size, k):
     c = Circuit(input_labels=[f'x{i}' for i in range(1, size + 1)], gates={})
-    c.outputs = fun(c, c.input_labels)
+    c.outputs = fun(c, c.input_labels, k)
     check_th_circuit(c, k)
-    # c.save_to_file(f'th/ans29')
 
 
 def run31():
@@ -356,7 +397,7 @@ def run31():
 
 def run29():
     c = Circuit(input_labels=[f'x{i}' for i in range(1, 12 + 1)], gates={})
-    c.outputs = add_efficient_thr2_circuit(c, c.input_labels,3,4)
+    c.outputs = add_efficient_thr2_circuit(c, c.input_labels, 3, 4)
     check_th_circuit(c, 2)
 
 
@@ -379,8 +420,9 @@ def check_various_th_circuits():
     # run(add_th2_12, 12, 2)
     # run(add_th2_12_29, 12, 2)
     # run(add_th2_12_31, 12, 2)
-    run31()
-    run29()
+    # run31()
+    # run29()
+    run(add_thn, 2, 2)
 
 
 if __name__ == '__main__':
