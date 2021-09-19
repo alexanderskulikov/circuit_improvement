@@ -4,6 +4,8 @@ import os
 import pycosat
 import sys
 from timeit import default_timer as timer
+from pysat.formula import CNF
+from pysat.solvers import Solver
 
 
 class CircuitFinder:
@@ -183,16 +185,25 @@ class CircuitFinder:
 
         if solver is None:
             result = pycosat.solve(self.clauses, verbose=verbose)
+            if result == 'UNSAT':
+                return False
         elif solver == 'minisat':
             cnf_file_name = 'tmp.cnf'
             self.save_cnf_formula_to_file(cnf_file_name)
             # TODO: complete
             assert False
+        elif solver == 'pysat':
+            cnf_file_name = 'tmp.cnf'
+            self.save_cnf_formula_to_file(cnf_file_name)
+            f1 = CNF(from_file='tmp.cnf')
+            s = Solver()
+            s.append_formula(f1.clauses)
+            s.solve()
+            result = s.get_model()
+            if result is None:
+                return False
         else:
             assert False
-
-        if result == 'UNSAT':
-            return False
 
         gate_descriptions = {}
         for gate in self.internal_gates:
