@@ -250,15 +250,8 @@ def run(fun, size, modd):
     # c.save_to_file(f'mod3/mod3_{len(c.input_labels)}_{modd}_size{len(c.gates)}')
 
 
-def run_out(fun, size, modd):
-    c = Circuit(input_labels=[f'x{i}' for i in range(1, size + 1)], gates={})
-    c.outputs = fun(c, c.input_labels)
-    check_out_circuit(c, modd)
-    # c.save_to_file(f'mod3/out/out_{len(c.input_labels)-2}_{modd}_size{len(c.gates)}')
-
-
 def check_various_maj_circuits():
-    for i in range(3, 15):
+    for i in range(3, 9):
         for j in range(0, 3):
             check_mod3_circuit_and_size(i, j)
 

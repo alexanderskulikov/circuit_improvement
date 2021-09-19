@@ -32,7 +32,7 @@ if __name__ == '__main__':
         print(improved_circuit)
         improved_circuit.draw('sum5')
     elif command == 'rf':
-        run_file('sum/sum7_sub', subcircuit_size=5, connected=True)
+        run_file_improve_circuit('sum/sum7_sub', subcircuit_size=5, connected=True)
     elif command == 'mc':
         Circuit.make_code('ex/ex2_over1_size13', 'code')
     elif command == 'd':

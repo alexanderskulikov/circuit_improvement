@@ -7,7 +7,7 @@ LONG_DESCRIPTION = 'SAT-based Circuit Local Improvement'
 setup(
     name="circuit_improvement",
     version=VERSION,
-    author="Alexander S. Kulikov, SLezkin Nikita",
+    author="Alexander S. Kulikov, Slezkin Nikita",
     author_email="alexander.s.kulikov@gmail.com, ne.slezkin@gmail.com",
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
