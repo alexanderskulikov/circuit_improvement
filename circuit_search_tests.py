@@ -122,6 +122,16 @@ class TestCircuitSearch(unittest.TestCase):
             self.assertIsInstance(circuit, Circuit)
             self.assertTrue(verify_sum_circuit(circuit))
 
+    def test_u2_basis(self):
+        for n, s in ((3, 6), (4, 9)):
+            def parity(x):
+                return [sum(x) % 2, ]
+
+            finder = CircuitFinder(dimension=n, number_of_gates=s, function=parity,
+                                   forbidden_operations=['0110', '1001'])
+            circuit = finder.solve_cnf_formula()
+            self.assertIsInstance(circuit, Circuit)
+
 
 if __name__ == '__main__':
     unittest.main()

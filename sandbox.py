@@ -1,14 +1,11 @@
-from os import listdir, system
-from circuit import Circuit
+from circuit_search import CircuitFinder
 
-for ckt_file in sorted(listdir('circuits/mod3/')):
-    if ckt_file.endswith('.ckt'):
-        print(ckt_file)
-        circuit = Circuit(fn='mod3/' + ckt_file[:-4])
-        circuit.draw(ckt_file[:-4], experimental=True)
+# finding a circuit for the parity function over U_2
 
-# circuit = Circuit(fn='mod3/mod3_6_0_size12')
-# circuit.draw('mod3_6_0_size12', experimental=True)
-#
-# circuit = Circuit(fn='mod3/mod3_6_1_size13')
-# circuit.draw('mod3_6_1_size13', experimental=True)
+def parity(x):
+    return [sum(x) % 2, ]
+
+finder = CircuitFinder(dimension=4, number_of_gates=9, function=parity, forbidden_operations=['0110', '1001'])
+circuit = finder.solve_cnf_formula()
+print(circuit)
+circuit.draw('parity_u2')

@@ -165,7 +165,7 @@ class CircuitFinder:
                 assert len(op) == 4 and all(int(b) in (0, 1) for b in op)
                 clause = []
                 for i in range(4):
-                    clause.append((1 if int(op[i]) == 1 else -1) * self.gate_type_variable(gate, i // 2, i % 2))
+                    clause.append((-1 if int(op[i]) == 1 else 1) * self.gate_type_variable(gate, i // 2, i % 2))
                 self.clauses.append(clause)
 
         return self.clauses
