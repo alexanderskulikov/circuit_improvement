@@ -57,8 +57,7 @@ if __name__ == '__main__':
     _, _, benchmarks = next(walk('benchmarks'))
     benchmarks.sort()
     for benchmark in benchmarks:
-        if benchmark == 'hamming6-4.mtx':
-        #run(solver_name, benchmark, clique_repres=clique_n2, isUNSAT=False)
-        #run(solver_name, benchmark, clique_repres=clique_n2_th20n, isUNSAT=True)
-        #run(solver_name, benchmark, clique_repres=clique_n2_th18n, isUNSAT=True)
-            run(solver_name, benchmark, clique_repres=clique_kn, isUNSAT=False)
+        run(solver_name, benchmark, clique_repres=clique_n2, isUNSAT=False)
+        # run(solver_name, benchmark, clique_repres=clique_n2_th20n, isUNSAT=True)
+        # run(solver_name, benchmark, clique_repres=clique_n2_th18n, isUNSAT=True)
+        # run(solver_name, benchmark, clique_repres=clique_kn, isUNSAT=False)

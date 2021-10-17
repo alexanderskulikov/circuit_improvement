@@ -266,6 +266,28 @@ def add_mdfa(circuit, input_labels):
     return g9, g5, g10
 
 
+
+def add_mdfa_with_xors(circuit, input_labels):
+    assert len(input_labels) == 5
+    for input_label in input_labels:
+        assert input_label in circuit.input_labels or input_label in circuit.gates
+
+    [x2, x1, x3, x4, x5] = input_labels
+
+    x4_xor_x5 = circuit.add_gate(x4, x5, '0110')
+    x1_xor_x2 = circuit.add_gate(x1, x2, '0110')
+    g2 = circuit.add_gate(x2, x3, '0110')
+    g3 = circuit.add_gate(x1_xor_x2, g2, '0111')
+    g4 = circuit.add_gate(x1_xor_x2, x3, '0110')
+    g5 = circuit.add_gate(g3, g4, '0110')
+    g6 = circuit.add_gate(x4, g4, '0110')
+    g8 = circuit.add_gate(g6, x4_xor_x5, '0010')
+    g9 = circuit.add_gate(g4, x4_xor_x5, '0110')
+    g10 = circuit.add_gate(g3, g8, '0110')
+
+    return g9, g5, g10
+
+
 def add_mdfa_cut(circuit, input_labels):
     assert len(input_labels) == 4
     for input_label in input_labels:
