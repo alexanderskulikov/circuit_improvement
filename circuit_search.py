@@ -1,5 +1,6 @@
 from circuit import Circuit
 from itertools import combinations, product
+from functions import BooleanFunction
 import os
 import pycosat
 import sys
@@ -181,6 +182,15 @@ class CircuitFinder:
                 file.write(f'c {v} {self.variables[v]}\n')
 
     def solve_cnf_formula(self, solver=None, verbose=0):
+        # corner case: looking for a circuit of size 0
+        if self.number_of_gates == 0:
+            for tt in self.output_truth_tables:
+                f = BooleanFunction(tt)
+                if not f.is_constant() and not f.is_any_literal():
+                    return False
+
+            return Circuit()
+
         self.finalize_cnf_formula()
 
         if solver is None:
