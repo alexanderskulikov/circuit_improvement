@@ -1,257 +1,73 @@
-\documentclass[12pt,letterpaper]{article}
-\usepackage[utf8]{inputenc}
+\documentclass[a4paper, USenglish, cleveref, autoref, thm-restate]{lipics-v2021}
+%This is a template for producing LIPIcs articles.
+%See lipics-v2021-authors-guidelines.pdf for further information.
+%for A4 paper format use option "a4paper", for US-letter use option "letterpaper"
+%for british hyphenation rules use option "UKenglish", for american hyphenation rules use option "USenglish"
+%for section-numbered lemmas etc., use "numberwithinsect"
+%for enabling cleveref support, use "cleveref"
+%for enabling autoref support, use "autoref"
+%for anonymousing the authors (e.g. for double-blind review), add "anonymous"
+%for enabling thm-restate support, use "thm-restate"
+%for enabling a two-column layout for the author/affilation part (only applicable for > 6 authors), use "authorcolumns"
+%for producing a PDF according the PDF/A standard, add "pdfa"
 
-\usepackage{fullpage}
-\usepackage{paratype}
-\usepackage{eulervm}
-\usepackage{microtype}
+%\graphicspath{{./graphics/}}%helpful if your graphic files are in another directory
 
-\usepackage{amsmath}
-\usepackage{amsthm}
-\usepackage{amsfonts}
-\usepackage{amssymb}
-\newtheorem{theorem}{Theorem}
-\newtheorem{lemma}{Lemma}
+\bibliographystyle{plainurl}% the mandatory bibstyle
 
-\bibliographystyle{plainurl}
+\title{SAT-based Circuit Local Improvement} %TODO Please add
+
+%\titlerunning{Dummy short title} %TODO optional, please use if title is longer than one line
+
+\author{Alexander~S. Kulikov}{Steklov Mathematical Institute at St.~Petersburg, Russian Academy of Sciences \and St.~Petersburg State University \and \url{https://logic.pdmi.ras.ru/~kulikov/}}{kulikov@logic.pdmi.ras.ru}{https://orcid.org/0000-0002-5656-0336}{Supported by Russian Science Foundation (18-71-10042).}
+
+\author{Nikita Slezkin}{St.~Petersburg State University}{ne.slezkin@gmail.com}{https://orcid.org/0000-0003-1904-9261}{}
+
+\authorrunning{A.\,S. Kulikov and N. Slezkin} %TODO mandatory. First: Use abbreviated first/middle names. Second (only in severe cases): Use first author plus 'et al.'
+
+\Copyright{Alexander~S. Kulikov and Nikita Slezkin} %TODO mandatory, please use full first names. LIPIcs license is "CC-BY";  http://creativecommons.org/licenses/by/3.0/
+
+\ccsdesc[500]{Theory of computation~Circuit complexity} %TODO mandatory: Please choose ACM 2012 classifications from https://dl.acm.org/ccs/ccs_flat.cfm
+
+\keywords{circuits, algorithms, complexity theory, SAT, SAT-solvers, heuristics} %TODO mandatory; please add comma-separated list of keywords
+
+%\category{} %optional, e.g. invited paper
+
+\relatedversion{} %optional, e.g. full version hosted on arXiv, HAL, or other respository/website
+\relatedversiondetails[linktext={ECCC TR21-044}, cite={DBLP:journals/eccc/KulikovS21}]{Technical report}{https://eccc.weizmann.ac.il/report/2021/044/} %linktext and cite are optional
+
+%\supplement{}%optional, e.g. related research data, source code, ... hosted on a repository like zenodo, figshare, GitHub, ...
+%\supplementdetails[linktext={opt. text shown instead of the URL}, cite=DBLP:books/mk/GrayR93, subcategory={Description, Subcategory}, swhid={Software Heritage Identifier}]{General Classification (e.g. Software, Dataset, Model, ...)}{URL to related version} %linktext, cite, and subcategory are optional
+
+
+\supplement{Source code:}%optional, e.g. related research data, source code, ... hosted on a repository like zenodo, figshare, GitHub, ...
+\supplementdetails[linktext={GitHub}]{repository}{https://github.com/alexanderskulikov/circuit_improvement} %linktext, cite, and subcategory are optional
+
+
+%\funding{(Optional) general funding statement \dots}%optional, to capture a funding statement, which applies to all authors. Please enter author specific funding statements as fifth argument of the \author macro.
+
+%\acknowledgements{I want to thank \dots}%optional
+
+\nolinenumbers %uncomment to disable line numbering
+
+\hideLIPIcs  %uncomment to remove references to LIPIcs series (logo, DOI, ...), e.g. when preparing a pre-final version to be uploaded to arXiv or another public repository
+
+%Editor-only macros:: begin (do not touch as author)%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\EventEditors{John Q. Open and Joan R. Access}
+\EventNoEds{2}
+\EventLongTitle{42nd Conference on Very Important Topics (CVIT 2016)}
+\EventShortTitle{CVIT 2016}
+\EventAcronym{CVIT}
+\EventYear{2016}
+\EventDate{December 24--27, 2016}
+\EventLocation{Little Whinging, United Kingdom}
+\EventLogo{}
+\SeriesVolume{42}
+\ArticleNo{23}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \input defs
 
-\title{SAT-based Circuit Local Improvement}
-\author{Alexander~S. Kulikov \and Nikita Slezkin}
-
 \begin{document}
 \input body
-\end{document}
-
-
-
-\section{Overview}
-Let $l=\lceil \log_2(n+1)\rceil$. The function $\SUM_n \colon \{0,1\}^n \to \{0,1\}^{l}$ computes the binary representation of~the sum of~$n$~bits:
-$\SUM_n(x_1, \dotsc, x_n)=(w_0, w_1, \dotsc, w_{l-1})$ such that
-\[\sum_{i=1}^{n}x_i=\sum_{i=0}^{l-1}2^iw_i \, .\]
-This way, the function transform $n$~bits of weight~0 into $l$~bits 
-of~weights $(0,1,\dotsc,l-1)$.
-
-This is~a~fundamental symmetric function. In~particular, for any symmetric predicate~$f \colon \{0,1\}^n \to \{0,1\}$,
-\[\size(f) \le \size(\SUM_n)+o(n) \, ,\]
-where $\size(\cdot)$ is~the circuit size (in~this text, our default computational model is Boolean circuits over the full binary basis).
-
-
-
-\section{Circuit Size of $\SUM_n$}%{Circuit Size for Small Input Sizes}
-\subsection{Three Inputs}
-The exact circuit size of $\SUM_n$ is known for all~$n$ up to~$n=5$. The table below shows upper bounds for some other values of~$n$:
-\begin{center}
-\begin{tabular}{lccccccccccc}
-\toprule
-$n$ & $2$ & $3$ & $4$ & $5$ & $6$ & $7$ & $8$ & $9$ & $10$ & $15$ & $31$\\
-\midrule
-$\size(\SUM_n)$ & $2$ & $5$ & $9$ & $11$ & $16$ & $19$ & $25$ & $ 27$ & $33$ & $53$ & $125$\\
-\bottomrule
-\end{tabular}
-\end{center}
-%
-Below, we show optimal circuits for $n=2,3$. They are known as half adder and full adder, respectively.
-%
-\begin{mypic}
-\begin{scope}[yscale=.8]
-%\draw[help lines] (0,0) grid (16,6);
-
-\begin{scope}[yshift=2cm]
-\foreach \n/\x/\y in {1/0/1, 2/1/1}
-  \node[input] (x\n) at (\x, \y) {$x_{\n}$};
-\node[gate, label=left:$w_1$] (g1) at (0,0) {$\land$};
-\node[gate, label=right:$w_0$] (g2) at (1,0) {$\oplus$};
-\foreach \f/\t in {x1/g1, x1/g2, x2/g1, x2/g2}
-  \draw[->] (\f) -- (\t);
-\end{scope}
-
-\begin{scope}[xshift=4cm]
-\foreach \n/\x/\y in {1/0/3, 2/1/3, 3/2/3}
-  \node[input] (x\n) at (\x, \y) {$x_{\n}$};
-\node[gate] (g1) at (0.5,2) {$\oplus$};
-\node[gate] (g2) at (1.5,2) {$\oplus$};
-\node[gate] (g3) at (0.5,1) {$\lor$};
-\node[gate, label=right:$w_0$] (g4) at (1.5,1) {$\oplus$};
-\node[gate, label=right:$w_1$] (g5) at (0.5,0) {$\oplus$};
-\foreach \f/\t in {x1/g1, x2/g1, x2/g2, x3/g2, g1/g3, g2/g3, g1/g4, g3/g5, g4/g5}
-  \draw[->] (\f) -- (\t);
-\path (x3) edge[bend left,->] (g4);
-\end{scope}
-\end{scope}
-\end{mypic}
-
-\subsection{From Three Inputs to~the General Case}
-These two basic blocks can already be~used to~compute $\SUM_n$ for any~$n$.
-E.g., one can compute $\SUM_5$ by a~circuit of~size~12 as~follows:
-%
-\begin{mypic}
-\begin{scope}[yscale=.7]
-%\draw[help lines] (0,-5) grid (16,6);
-\foreach \n in {1,...,5}
-  \node[input] (\n) at (\n,6) {$x_{\n}$};
-\draw (0.5, 5.5) rectangle (3.5, 4.5); \node at (2, 5) {$\SUM_3$};
-\foreach \n in {1, 2, 3}
-  \draw[->] (\n) -- (\n, 5.5);
-\draw (2.5, 3.5) rectangle (5.5, 2.5); \node at (4, 3) {$\SUM_3$};
-\path (3, 4.5) edge[->] node[l] {0} (3, 3.5);
-\foreach \n in {4, 5}
-  \draw[->] (\n) -- (\n, 3.5);
-\draw (1.5, 1.5) rectangle (3.5, 0.5); \node at (2.5, 1) {$\SUM_2$};
-\path (2, 4.5) edge[->] node[l] {1} (2, 1.5);
-\path (3, 2.5) edge[->] node[l] {1} (3, 1.5);
-\node[input] (w2) at (2,-1) {$w_2$};
-\node[input] (w1) at (3,-1) {$w_1$};
-\node[input] (w0) at (4.5,-1) {$w_0$};
-\path (2, 0.5) edge[->] node[l] {1} (w2);
-\path (3, 0.5) edge[->] node[l] {0} (w1);
-\path (4.5, 2.5) edge[->] node[l] {0} (w0);
-\end{scope}
-\end{mypic}
-
-The same trick shows that $\size(\SUM_n) \le 5n+o(n)$. Indeed, 
-the $\SUM_3$ circuit replaces three bits of weight~$i$ by two bits of weight~$i$ and $i+1$. Thus, to~get from $n$~bits of weight~$0$ to $l$~bits of weight $(0,\dotsc, l-1)$, one may 
-repeatedly apply $\SUM_3$ to three bits of the same weight. 
-An~application of~$\SUM_3$ reduces the number of~bits by~one, hence
-the number of such applications is~at~most~$n$. What will remain after this step is at most two bits on each of $l=o(n)$~levels. Pictorially, this looks as~follows.
-
-\begin{mypic}
-    %\mydefgrid
-    \foreach \n/\t/\x in {{x1/x_1/0.5}, {x2/x_2/1}, {x3/x_3/2}, {x4/x_4/2.5}, {x5/x_5/3.5}, {x6/x_6/4}, {x7/x_7/5}, {x8/x_8/5.5}, {x10/x_n/8.5}}
-    {
-      \node[] (\n) at (\x,6) {$\t$};
-      \draw[->] (\n) -- (\x,5.25);
-    }
-    \foreach \n/\t/\y in {{y1/w_0/4.75}, {y2/w_1/3}, {y3/w_{l-1}/0.5}}
-      \node[] (\n) at (9.5,\y) {$\t$};
-    \foreach \l/\r/\x/\y in {{0.25/5.25/1.25/4.25}, {1.75/5.25/2.75/4.25}, {3.25/5.25/4.25/4.25}, {4.75/5.25/5.75/4.25}, {7.75/5.25/8.75/4.25}, {1/3.5/2/2.5}, {4/2.5/5/3.5}, {4/0/5/1}}
-      \draw (\l,\r) rectangle (\x,\y);
-    \foreach \x/\y in {{0.75/4.75}, {2.25/4.75}, {3.75/4.75}, {5.25/4.75}, {8.25/4.75}, {1.5/3}, {4.5/3}, {4.5/0.5}}
-      \node[] at (\x,\y) {\small $\SUM_3$};
-    \foreach \x/\y/\l/\r in {{1.25/4.75/1.75/4.75}, {2.75/4.75/3.25/4.75}, {4.25/4.75/4.75/4.75}, {5.75/4.75/6.25/4.75}, {2/3/4/3}, {5/3/7/3}, {0.75/4.25/1.25/3.5}, {2.25/4.25/1.75/3.5}, {3.75/4.25/4.25/3.5}, {5.25/4.25/4.75/3.5}, {5.25/1.75/4.75/1.0}, {3.75/1.75/4.25/1.0}, {7.25/4.75/7.75/4.75}}
-      \draw[->] (\x,\y) -- (\l,\r);
-    \foreach \x/\y/\t in {{6.75/4.75/\cdots}, {7.74/3/\cdots}, {4.5/2/\cdots}}
-      \node[] at (\x,\y) {$\t$};
-    \foreach \x/\y/\v in {{8.75/4.75/y1}, {8.25/3/y2}, {5/0.5/y3}}
-      \draw[->] (\x,\y) -- (\v);
-\end{mypic}
-
-In~general, this gives the following upper bound:
-if $\size(\SUM_k) \le r$, then for all~$n$, 
-\begin{equation}\label{eq:master}
-\size(\SUM_n) \le \frac{rn}{k-\lceil \log_2(k+1) \rceil}+o(n) \, .
-\end{equation}
-
-\subsection{Five Inputs and Improved General Case}
-It~turns out that 
-there exists a~smaller circuit for $\SUM_5$
-and that it can be used in two different ways
-to~improve the general upper bound! The following circuit of size~11 was found by Knuth. This is how he describes it: ``But $s(5)=12$ is \emph{not} optimum, despite the beauty of~7.1.2-(29)!'' (Here, 7.1.2-(29) refers to~the circuit of size~12.)
-
-\begin{mypic}
-\begin{scope}[yscale=.8, label distance=-1mm]
-\foreach \n/\x/\y in {1/0/3, 2/1/3, 3/2/3, 4/2.5/1, 5/3.5/1}
-  \node[input] (x\n) at (\x, \y) {$x_{\n}$};
-\node[gate,label=left:$g_1$] (g1) at (0.5,2) {$\oplus$};
-\node[gate,label=left:$g_2$] (g2) at (1.5,2) {$\oplus$};
-\node[gate,label=left:$g_3$] (g3) at (0.5,1) {$\lor$};
-\node[gate,label=left:$g_4$] (g4) at (1.5,1) {$\oplus$};
-\node[gate,label=left:$g_5$] (g5) at (0.5,0) {$\oplus$};
-\node[gate,label=left:$g_6$] (g6) at (2,0) {$\oplus$};
-\node[gate,label=left:$g_7$] (g7) at (3,0) {$\oplus$};
-\node[gate,label=left:$g_8$] (g8) at (2,-1) {$>$};
-\node[gate, label=right:$w_0$] (g9) at (3,-1) {$\oplus$};
-\node[gate, label=right:$w_1$] (g10) at (2,-2) {$\oplus$};
-\node[gate, label=right:$w_2$] (g11) at (1.5,-3) {$>$};
-
-\foreach \f/\t in {x1/g1, x2/g1, x2/g2, x3/g2, g1/g3, g2/g3, g1/g4, g3/g5, g4/g5, x4/g6, g4/g6, x4/g7, x5/g7, g6/g8, g7/g8, g7/g9, g3/g10, g8/g10, g10/g11, g5/g11}
-  \draw[->] (\f) -- (\t);
-
-\path (x3) edge[->,bend left] (g4);
-\path (g4) edge[->,bend left=20] (g9);
-
-\end{scope}
-\end{mypic}
-%
-Using this circuit, one can build a~circuit of size $5+11+2+1=19$ for $\SUM_7$:
-\begin{mypic}
-\begin{scope}[yscale=.7]
-%\draw[help lines] (0,-5) grid (16,6);
-\foreach \n in {1,...,7}
-  \node[input] (\n) at (\n,6) {$x_{\n}$};
-\draw (0.5, 5.5) rectangle (3.5, 4.5); \node at (2, 5) {$\SUM_3$};
-\foreach \n in {1, 2, 3}
-  \draw[->] (\n) -- (\n, 5.5);
-\draw (2.5, 3.5) rectangle (7.5, 2.5); \node at (5, 3) {$\SUM_5$};
-\path (3, 4.5) edge[->] node[l] {0} (3, 3.5);
-\foreach \n in {4, 5, 6, 7}
-  \draw[->] (\n) -- (\n, 3.5);
-\draw (1.5, 1.5) rectangle (3.5, 0.5); \node at (2.5, 1) {$\SUM_2$};
-\path (2, 4.5) edge[->] node[l] {1} (2, 1.5);
-\path (3, 2.5) edge[->] node[l] {1} (3, 1.5);
-\draw (2.5, -0.5) rectangle (4.5, -1.5); \node at (3.5, -1) {XOR};
-\path (4, 2.5) edge[->] node[l] {2} (4, -0.5);
-\path (3, 0.5) edge[->] node[l] {1} (3, -0.5);
-
-\node[input] (w0) at (6,-3) {$w_0$};
-\node[input] (w2) at (3.5,-3) {$w_2$};
-\node[input] (w1) at (2,-3) {$w_1$};
-
-\path (6, 2.5) edge[->] node[l] {0} (w0);
-\path (2, 0.5) edge[->] node[l] {0} (w1);
-\path (3.5, -1.5) edge[->]  (w2);
-\end{scope}
-\end{mypic}
-%
-Plugging $\size(\SUM_7) \le 19$ into~\eqref{eq:master}, gives an~upper bound $\size(\SUM_n) \le 4.75n$.
-
-Interestingly, the same $\SUM_5$ circuit can be used to~get a~$4.5n$ upper bound! 
-
-For this, 
-%
-
-
-Using this block, one can compute $\SUM_n$ by a~circuit of size $4.5n$ as~follows:
-
-\begin{mypic}
-    \foreach \n/\t/\x in {{x1/x_1/0.5}, {x2/x_2/1}, {x3/x_3/1.5}, {x4/x_4/2}, {x5/x_5/3}, {x6/x_6/3.5}, {x7/x_7/4}, {x8/x_8/4.5}, {x9/x_{n-1}/7.75}, {x10/x_n/8.5}}
-      \node[] (\n) at (\x,6.5) {$\t$};
-    \foreach \n/\x/\a/\b in {{xor1/1/x1/x2}, {xor2/2/x3/x4}, {xor3/3.5/x5/x6}, {xor4/4.5/x7/x8}, {xor5/8.5/x9/x10}}
-    {
-      %\mysimplegatetwo{\n}{(\x,5.75)}{$\oplus$}{\a}{\b};  
-      \node[gate] (\n) at (\x, 5.75) {$\oplus$};
-      \draw[->] (\a) -- (\n);
-      \draw[->] (\b) -- (\n);
-      \path[draw,->] (\n) -- (\x,5.25);
-    }
-    \foreach \n/\x in {x1/0.5, x3/1.5, x5/3, x7/4, x9/7.75}
-      \path[draw,->] (\n) -- (\x,5.25);
-    \foreach \n/\t/\y in {{y1/w_0/4.75}, {y2/w_1/3}, {y3/w_{l-1}/0.5}}
-      \node[] (\n) at (9.5,\y) {$\t$};
-    \foreach \l/\r/\x/\y in {{0.25/5.25/2.25/4.25}, {0.25+2.5/5.25/2.25+2.5/4.25}, {0.25+6.5/5.25/2.25+6.5/4.25}, {1.5/2.5/3.5/3.5}, {3.5/0/5.5/1}}%, {1.75/5.25/2.75/4.25}, {3.25/5.25/4.25/4.25}, {4.75/5.25/5.75/4.25}, {7.75/5.25/8.75/4.25}, {1/3.5/2/2.5}, {4/2.5/5/3.5}, {4/0/5/1}}
-      \draw (\l,\r) rectangle (\x,\y);
-    \foreach \x/\y in {{1.25/4.75}, {3.75/4.75}, {7.75/4.75}, {2.5/3}, {4.5/0.5}}
-      \node[] at (\x,\y) {MDFA};
-    \foreach \xa/\xb in {0.75/1.75, 1.25/2.25, 3.75/2.75, 4.25/3.25}
-      \draw[->] (\xa,4.25) -- (\xb,3.5);
-    \foreach \x/\y/\t in {{5.75/4.75/\cdots}, {6.75/3/\cdots}, {4.5/1.75/\cdots}}
-      \node[] at (\x,\y) {$\t$};
-    \foreach \x/\y/\v in {{8.75/4.75/y1}, {8.25/3/y2}, {5.5/0.5/y3}}
-      \draw[->] (\x,\y) -- (\v);
-    \foreach \xa/\xb/\y in {2.25/2.75/4.75, 4.75/5.25/4.75, 6.25/6.75/4.75, 3.5/4.5/3}
-      \draw[->] (\xa,\y) -- (\xb,\y);
-\end{mypic}
-
-Finally, the block MDFA is contained in the circuit of size~11 for $\SUM_5$! 
-
-
-
-
-
-
-
-
-
-
 \end{document}

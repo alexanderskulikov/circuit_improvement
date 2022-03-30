@@ -1,5 +1,4 @@
 main:
-	latexmk -pdf main_lipics
-	
+	latexmk -pdf main
 clean:
 	latexmk -pdf -c
