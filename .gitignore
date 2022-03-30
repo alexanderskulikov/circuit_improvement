@@ -129,3 +129,17 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# latex sources
+paper/_minted*
+paper/*.bak
+paper/*.aux
+paper/*.bbl
+paper/*.blg
+paper/*.out
+paper/*.synctex.gz
+paper/*.tdo
+paper/*.vtc
+paper/*.toc
+paper/main.pdf
+paper/main_lipics.pdf
