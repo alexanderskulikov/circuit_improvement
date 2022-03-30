@@ -145,7 +145,7 @@ of~this approach on~\emph{counting} functions:
 Using SAT-solvers, Knuth~\cite[solution to exercise~$480$]{Knuth:2015:ACP:2898950}
 found $\size(\MOD_n^{3,r})$ for all $3 \le n \le 5$ and all $0 \le r \le 2$. Based on the found numbers, he made the following conjecture:
 \begin{equation}\label{conjecture}
-\size(\MOD_n^{3,r})=3n-5-[(n+r) \equiv r\bmod 3] \text{ for all $n \ge 3$ and $r$.}
+\size(\MOD_n^{3,r})=3n-5-[(n+r) \equiv 0\bmod 3] \text{ for all $n \ge 3$ and $r$.}
 \end{equation}
 He was also able to find the circuit size
 for the $n=6,r=0$ case and wrote: ``The case $n=6$ and $r \neq 0$, which lies tantalizingly close to the limits of
@@ -665,7 +665,7 @@ Using our program, we~proved the conjectured upper bound for all~$n$.
 
 \begin{theorem}\label{theorem:mod3upper}
 For all $n \ge 3$ and all $r \in \{0,1,2\}$,
-\[\size(\MOD_n^{3,r}) \le 3n-5-[(n+r) \equiv r\bmod 3] \,. \]
+\[\size(\MOD_n^{3,r}) \le 3n-5-[(n+r) \equiv 0\bmod 3] \,. \]
 \end{theorem}
 
 To~prove Knuth's conjecture, one also needs to~prove a~lower bound on $\size(\MOD_n^{3,r})$. The currently strongest known lower bound for $\size(\MOD_n^{3,r})$
