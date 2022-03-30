@@ -1,26 +1,26 @@
 \maketitle
 
 \begin{abstract}
-Finding exact circuit size 
+Finding exact circuit size
 is a~notorious optimization
-problem in practice. Whereas modern computers 
-and algorithmic techniques allow to~find a~circuit 
-of~size seven in~blink of an~eye, it~may take more 
+problem in practice. Whereas modern computers
+and algorithmic techniques allow to~find a~circuit
+of~size seven in~blink of an~eye, it~may take more
 than a~week to~search for a~circuit of~size thirteen.
-One of the reasons of~this behavior is~that the search 
-space is~enormous: the number of~circuits of size~$s$ 
+One of the reasons of~this behavior is~that the search
+space is~enormous: the number of~circuits of size~$s$
 is~$s^{\Theta(s)}$, the number of~Boolean functions on~$n$ variables is~$2^{2^n}$.
 
 In~this paper, we~explore the following natural
 heuristic idea for decreasing the size of
 a~given circuit: go through all its subcircuits
-of moderate size and check whether 
-any of them can be improved by reducing to~SAT. 
+of moderate size and check whether
+any of them can be improved by reducing to~SAT.
 This may be viewed
 as a~local search approach: we search for a~smaller
 circuit in a~ball around a~given circuit.
 Through this approach, we~prove
-new upper bounds on the circuit size 
+new upper bounds on the circuit size
 of~symmetric functions. We~also demonstrate that
 some upper bounds that we~proved by~hand
 decades ago, nowadays can be~found automatically
@@ -34,31 +34,31 @@ in a~few seconds.
 
 
 \section{Boolean Circuits}
-A~Boolean \emph{straight line program} 
-of size~$r$ for input variables $(x_1, \dotsc, x_n)$ 
-is a~sequence of~$r$~instructions where each 
-instruction $g \gets h \circ k$ 
-applies a~binary Boolean operation~$\circ$ to 
-two operands $h,k$ each of which is either an~input bit 
-or the result of a~previous instruction. 
+A~Boolean \emph{straight line program}
+of size~$r$ for input variables $(x_1, \dotsc, x_n)$
+is a~sequence of~$r$~instructions where each
+instruction $g \gets h \circ k$
+applies a~binary Boolean operation~$\circ$ to
+two operands $h,k$ each of which is either an~input bit
+or the result of a~previous instruction.
 If $m$~instructions are designated as outputs,
-the straight line program computes a~function 
-$\{0,1\}^n \to \{0,1\}^m$ in a~natural way. 
+the straight line program computes a~function
+$\{0,1\}^n \to \{0,1\}^m$ in a~natural way.
 We denote the set of all such functions by $B_{n,m}$ and we let $B_n=B_{n,1}$.
-For 
+For
 a~Boolean function $f \colon \{0,1\}^n \to \{0,1\}^m$,
-by $\size(f)$ we denote the minimum size of 
+by $\size(f)$ we denote the minimum size of
 a~straight line program
-computing~$f$. A~Boolean \emph{circuit} 
+computing~$f$. A~Boolean \emph{circuit}
 shows a~flow graph of a~program.
 
 Figure~\ref{figure:sum23} gives an~example for
-the 
-$\SUM_n \colon \{0,1\}^n \to \{0,1\}^l$ function 
+the
+$\SUM_n \colon \{0,1\}^n \to \{0,1\}^l$ function
 that computes the binary representation of~the sum of~$n$~bits:
 \[\SUM_n(x_1, \dotsc, x_n)=(w_0, w_1, \dotsc, w_{l-1})\colon \sum_{i=1}^{n}x_i=\sum_{i=0}^{l-1}2^iw_i \text{, \, where } l=\lceil \log_2(n+1)\rceil \, .\]
-This function transforms $n$~bits 
-of weight~0 into $l$~bits 
+This function transforms $n$~bits
+of weight~0 into $l$~bits
 of~weights $(0,1,\dotsc,l-1)$.
 %
 \begin{figure}[t]
@@ -169,17 +169,17 @@ As the results of experiments, we show several circuits
 for which the approach described above leads to improved upper bounds. In particular, we support Knuth's conjecture~\eqref{conjecture} by~proving the matching upper bound.
 Also, we~present improvements for $\size(\SUM_n)$ for various small~$n$.
 Finally, we provide examples of~circuits that are
-optimal locally, but not globally: our program 
+optimal locally, but not globally: our program
 is~not able to~find a~(known) smaller circuit since
 it~is
 ``too different'' from the original circuit.
 
 \subsection*{Related work}
-The approach we~use in this paper follows the SAT-based 
+The approach we~use in this paper follows the SAT-based
 local improvement method (SLIM): to~improve an~existing
 discrete structure one goes through all its substructures
-of~size accessible to a~SAT-solver. 
-SLIM has been applied successfully to~the following 
+of~size accessible to a~SAT-solver.
+SLIM has been applied successfully to~the following
 structures:
 branchwidth~\cite{DBLP:journals/tocl/LodhaOS19},
 treewidth~\cite{DBLP:conf/sat/FichteLS17},
@@ -301,7 +301,7 @@ a~picture similar to~the one in~Figure~\ref{figure:sumfive}(b).
 
 \subsection{Finding Efficient Circuits}
 The class \mintinline{python}{CircuitFinder}
-allows to~check whether there exists a~circuit 
+allows to~check whether there exists a~circuit
 of~the required
 size for a~given Boolean function. For example,
 one may discover the full adder as follows. (The function
@@ -321,7 +321,7 @@ for $7 \le s \le 12$, it~may already take up~to
 several hours or days; for $s \ge 13$, it~becomes almost impractical. The running time may vary a~lot
 for inputs of the same length. In~particular,
 it usually takes much longer to~prove that
-the required circuit does not exist (by~proving that the corresponding formula is~unsatisfiable). Table~\ref{table:runningtimes} reports the running time 
+the required circuit does not exist (by~proving that the corresponding formula is~unsatisfiable). Table~\ref{table:runningtimes} reports the running time
 of~this approach on several datasets.
 
 \begin{table}[ht]
@@ -365,9 +365,9 @@ gives the circuit from Figure~\ref{figure:sumfive}(c)
 in~a~few seconds.
 %
 \inputminted[firstline=62,lastline=67]{python}{../tutorial.py}
-Table~\ref{table:improvementrunningtimes} shows the time 
-taken by~\texttt{improve\_circuit} to~improve some 
-of~the known circuits for $\SUM$ and $\MOD^3$. 
+Table~\ref{table:improvementrunningtimes} shows the time
+taken by~\texttt{improve\_circuit} to~improve some
+of~the known circuits for $\SUM$ and $\MOD^3$.
 
 \begin{table}[ht]
 \begin{center}
@@ -754,7 +754,7 @@ $r=2$
 as~follows: $\IN_k + m \times \MID_3 + \OUT_r^l$. For each
 pair $(n \mod 3, r)$ we show three things: the triple
 $(m, k, l)$; the sizes of~two blocks: $\size(\IN_k)$ and $\size(\OUT_r^l)$; the size of~the resulting circuit
-computed as $s=\size(\IN_k)+9m+\size(\OUT_r^l)$. For example, the top left cell is read as follows: when $r=0$ and $n=3t$, we set $k=4,m=t-2,l=2$; the resulting circuit 
+computed as $s=\size(\IN_k)+9m+\size(\OUT_r^l)$. For example, the top left cell is read as follows: when $r=0$ and $n=3t$, we set $k=4,m=t-2,l=2$; the resulting circuit
 is~then $\IN_4 + (t-2) \times \MID_3 + \OUT_0^2$; since $\size(\IN_4)=7$ and $\size(\OUT_0^2)=5$, the size of~the circuit is $7+9(t-2)+5=9t-6=3n-6$.}
 \label{table:parameters}
 \end{table}
@@ -767,9 +767,9 @@ is~known. The reason is that these two circuits are quite
 different. The function we are going to~consider is the threshold-2 function:
 \[\THR_n^2(x_1, \dotsc, x_n)=[x_1+\dotsb+x_n \ge 2] \, .\]
 Figures~\ref{figure:thr31} and~\ref{figure:thr29} show circuits of~size~$31$ and~$29$ for $\THR_{12}^2$.
-They are 
-quite different and our program is~not able to~find out 
-that the circuit 
+They are
+quite different and our program is~not able to~find out
+that the circuit
 of~size~$31$ is~suboptimal.
 One can construct the two circuits in~the program as~follows.
 
@@ -980,9 +980,9 @@ In~general, this leads to~a~circuit of~size $3n-5$.}
 \end{scope}
 
 \end{mypic}
-\caption{A~circuit of~size~$29$ for $\THR_{12}^2$: (a)~block structure and (b)~gate structure. It~implements a~clever trick by~Dunne~\cite{Dunne84}. Organize $12$~input bits 
-into a~$3 \times 4$ table. Compute disjunctions $r_1,r_2,r_3$ of~the rows and disjunctions $c_1,c_2,c_3,c_4$ of~the columns. Then, there are at least two~$1$'s among 
-$x_1, \dotsc, x_{12}$ if~and only if~there are at~least 
+\caption{A~circuit of~size~$29$ for $\THR_{12}^2$: (a)~block structure and (b)~gate structure. It~implements a~clever trick by~Dunne~\cite{Dunne84}. Organize $12$~input bits
+into a~$3 \times 4$ table. Compute disjunctions $r_1,r_2,r_3$ of~the rows and disjunctions $c_1,c_2,c_3,c_4$ of~the columns. Then, there are at least two~$1$'s among
+$x_1, \dotsc, x_{12}$ if~and only if~there are at~least
 two~$1$'s among either $r_1,r_2,r_3$ or $c_1,c_2,c_3,c_4$.
 This allows to~proceed recursively. In~general, it~leads
 to~a~circuit of~size $2n+o(n)$. (Sergeev~\cite{Sergeev2020} showed recently that the \emph{monotone} circuit size of $\THR_n^2$ is $2n+\Theta(\sqrt n)$.)}
@@ -990,11 +990,11 @@ to~a~circuit of~size $2n+o(n)$. (Sergeev~\cite{Sergeev2020} showed recently that
 \end{figure}
 
 \section{Further Directions}
-In~the paper, we~focus mainly on~proving asymptotic upper bounds for function families (that is, that work for every input size). 
-A~natural further step is~to~apply the program 
+In~the paper, we~focus mainly on~proving asymptotic upper bounds for function families (that is, upper bounds that hold for every input size).
+A~natural further step is~to~apply the program
 to~specific circuits that are used in~practice.
 
-It~would also be~interesting to~extend the program 
+It~would also be~interesting to~extend the program
 so~that it~is able to~discover the circuit from Figure~\ref{figure:thr29}.
 
 \bibliography{circuits}
