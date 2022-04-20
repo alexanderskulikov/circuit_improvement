@@ -1,3 +1,4 @@
+% !TeX spellcheck = en_US
 \maketitle
 
 \begin{abstract}
@@ -13,27 +14,28 @@ is~$s^{\Theta(s)}$, the number of~Boolean functions on~$n$ variables is~$2^{2^n}
 
 In~this paper, we~explore the following natural
 heuristic idea for decreasing the size of
-a~given circuit: go through all its subcircuits
+a~given circuit: go~through all its subcircuits
 of moderate size and check whether
-any of them can be improved by reducing to~SAT.
+any of~them can be~improved by~reducing to~SAT.
 This may be viewed
-as a~local search approach: we search for a~smaller
+as a~local search approach: we~search for a~smaller
 circuit in a~ball around a~given circuit.
 Through this approach, we~prove
 new upper bounds on the circuit size
-of~symmetric functions. We~also demonstrate that
-some upper bounds that we~proved by~hand
+of~various symmetric functions. We~also demonstrate that
+some upper bounds that were~proved by~hand
 decades ago, nowadays can be~found automatically
 in a~few seconds.
 \end{abstract}
 
 %\tableofcontents
-%\clearpage
-%\listoftodos
+
 
 
 
 \section{Boolean Circuits}
+\subsection{Exact Circuit Synthesis}
+
 A~Boolean \emph{straight line program}
 of size~$r$ for input variables $(x_1, \dotsc, x_n)$
 is a~sequence of~$r$~instructions where each
@@ -61,7 +63,7 @@ This function transforms $n$~bits
 of weight~0 into $l$~bits
 of~weights $(0,1,\dotsc,l-1)$.
 %
-\begin{figure}[t]
+\begin{figure}[!ht]
 \begin{minipage}{.28\textwidth}
 \inputminted[firstline=15,lastline=18]{python}{../tutorial.py}
 \end{minipage}
@@ -99,8 +101,9 @@ of~weights $(0,1,\dotsc,l-1)$.
 %
 The straight line
 programs are given
-in~\texttt{Python} programming language.
-This makes particularly easy to~verify their correctness.
+in~\texttt{Python} programming language
+so~that
+it~is particularly easy to~verify their correctness.
 For example, the program for $\SUM_3$ can be verified
 with just three lines of code:
 \inputminted[firstline=32,lastline=36]{python}{../tutorial.py}
@@ -140,15 +143,31 @@ of~finding a~circuit of~size~$s$ for a~function from~$B_n$
 is~difficult for SAT-solvers.
 We demonstrate the limits
 of~this approach on~\emph{counting} functions:
-\[\MOD_n^{m,r}=[x_1+\dotsb+x_n \equiv r \bmod m]\]
+\begin{equation}\label{eq:mod}
+    \MOD_n^{m,r}(x_1, \dotsc, x_n)=[x_1+\dotsb+x_n \equiv r \bmod m]
+\end{equation}
 (here, $[\cdot]$ is the Iverson bracket: $[S]$~is equal to~$1$ if $S$~is true and is equal to~$0$ otherwise).
 Using SAT-solvers, Knuth~\cite[solution to exercise~$480$]{Knuth:2015:ACP:2898950}
-found $\size(\MOD_n^{3,r})$ for all $3 \le n \le 5$ and all $0 \le r \le 2$. Based on the found numbers, he made the following conjecture:
+found $\size(\MOD_n^{3,r})$ for all $3 \le n \le 5$ and all $0 \le r \le 2$:
+\begin{center}
+    \begin{tabular}{lccc}
+        \toprule
+              & $r=0$ & $r=1$ & $r=2$\\
+        \midrule
+        $n=3$ & $3$ & $4$ & $4$\\
+        $n=4$ & $7$ & $7$ & $6$\\
+        $n=5$ & $10$ & $9$ & $10$\\
+        \bottomrule
+    \end{tabular}
+\end{center}
+Generalizing this pattern, he~made the following conjecture:
 \begin{equation}\label{conjecture}
 \size(\MOD_n^{3,r})=3n-5-[(n+r) \equiv 0\bmod 3] \text{ for all $n \ge 3$ and $r$.}
 \end{equation}
-He was also able to find the circuit size
-for the $n=6,r=0$ case and wrote: ``The case $n=6$ and $r \neq 0$, which lies tantalizingly close to the limits of
+He was also able to~prove (using SAT-solvers)
+that $\size(\MOD_6^{3,0})=12$
+and wrote:
+``The case $n=6$ and $r \neq 0$, which lies tantalizingly close to the limits of
 today's solvers, is still unknown.''
 
 To~summarize, our current abilities for checking whether there exists a~Boolean circuit of~size~$s$ are roughly the following:
@@ -159,22 +178,40 @@ be~done in a~few days;
 \item for $s \ge 13$, this is~out of~reach.
 \end{itemize}
 
-In~this paper, we explore the limits of the following natural idea: given a~circuit, try to~improve its size by~improving (using SAT-solvers, for example) the size
+\subsection{New Results}
+In~this paper, we~explore the limits of~the following natural idea: given a~circuit, try to~improve its size by~improving (using SAT-solvers, for example) the size
 of~its subcircuit of~size seven. This is a~kind of a~local search approach: we~have no~possibility to~go through the whole space of all circuits, but we can at~least
 search in a~neighborhood of a~given circuit.
 This allows~us to~work with circuits consisting
 of many gates.
 
-As the results of experiments, we show several circuits
-for which the approach described above leads to improved upper bounds. In particular, we support Knuth's conjecture~\eqref{conjecture} by~proving the matching upper bound.
-Also, we~present improvements for $\size(\SUM_n)$ for various small~$n$.
-Finally, we provide examples of~circuits that are
-optimal locally, but not globally: our program
-is~not able to~find a~(known) smaller circuit since
-it~is
-``too different'' from the original circuit.
+\todo[inline]{Danya, Nikita, I've rewritten the paragraph below. Please check it}
 
-\subsection*{Related work}
+As the results of experiments, we~show several circuits
+for which the approach described above leads to improved upper bounds.
+\begin{itemize}
+    \item We support Knuth's conjecture~\eqref{conjecture} for $\MOD_n^{3,r}$ by~proving the matching upper bound:
+    \[\size(\MOD_n^{3,r}) \le 3n-5-[(n+r) \equiv 0\bmod 3] \text{ for all $n \ge 3$ and $r$.}\]
+    This improves slightly the previously known upper bound $\size(\MOD_n^{3,r}) \le 3n-4$ by~Demenkov et al.~\cite{DBLP:journals/ipl/DemenkovKKY10}.
+    \item We~present improvements for $\size(\SUM_n)$ for various small~$n$ and show that some of~these circuits and their parts can be~used as~building blocks to~design efficient circuits for other functions in~semiautomatic fashion. In~particular, we~show that a~part of an~optimal circuit for $\SUM_5$ can be~used to~build optimal circuits of~size~$2.5n$ for $\MOD_n^{4,r}$~\cite{DBLP:journals/mst/Stockmeyer77} and best known circuits of~size~$4.5n+o(n)$ for $\SUM_n$~\cite{DBLP:journals/ipl/DemenkovKKY10}.
+    for $\SUM_n$. In~turn, an~efficient circuit for $\SUM_5$ can be~found
+    in a~few seconds if~one starts from a~standard circuit for $\SUM_5$ composed
+    out of~two full adders and one half adder.
+    \item We~get new upper bounds for the threshold function defined as~follows:
+    \[\THR_n^k(x_1, \dotsc, x_n)=[x_1+\dotsb+x_n \ge k] \, .\]
+    The best known circuits for $\THR$ are the following:
+    \begin{align*}
+        \size(\THR_n^k) &\le kn+o(n) \text{ for $2 \le k \le 4$~\cite{Dunne84} (see also~\cite[Theorem~2.3]{DBLP:books/teu/Wegener87}),}\\
+        \size(\THR_n^k) &\le 4.5n+o(n) \text{ for $5 \le k$~\cite{DBLP:journals/ipl/DemenkovKKY10}.}
+    \end{align*}
+    We~get the following improvements:
+    \begin{align*}
+        \size(\THR_n^4) &\le 3.5n+o(n),\\
+        \size(\THR_n^k) &\le (4.5-3/2^{\lceil \log_2k\rceil})n+o(n) \text{ for $5 \le k = O(1)$.}
+    \end{align*}
+\end{itemize}
+
+\subsection{Related work}
 The approach we~use in this paper follows the SAT-based
 local improvement method (SLIM): to~improve an~existing
 discrete structure one goes through all its substructures
@@ -322,9 +359,9 @@ several hours or days; for $s \ge 13$, it~becomes almost impractical. The runnin
 for inputs of the same length. In~particular,
 it usually takes much longer to~prove that
 the required circuit does not exist (by~proving that the corresponding formula is~unsatisfiable). Table~\ref{table:runningtimes} reports the running time
-of~this approach on several datasets.
+of~this approach on several datasets.\todo{Nikita, please add 3--6 new lines to this table~--- something about $\THR_n^4$ and, say, $\THR_n^8$?}
 
-\begin{table}[ht]
+\begin{table}[!ht]
 \begin{center}
 \begin{tabular}{lllr}
 \toprule
@@ -339,7 +376,6 @@ $\MOD_4^{3,1}$ & $7$ & SAT & 0.5\\
 $\MOD_4^{3,1}$ & $6$ & UNSAT & 60.2\\
 $\MOD_4^{3,2}$ & $6$ & SAT & 0.4\\
 $\MOD_4^{3,2}$ & $5$ & UNSAT & 0.7\\
-
 $\MOD_5^{3,0}$ & $10$ & SAT & 268.9\\
 $\MOD_5^{3,1}$ & $9$ & SAT & 102.1\\
 $\MOD_5^{3,2}$ & $10$ & SAT & 222.0\\
@@ -348,10 +384,6 @@ $\MOD_5^{3,2}$ & $10$ & SAT & 222.0\\
 \end{center}
 \caption{The running time of \texttt{CircuitFinder} on~various Boolean functions.} \label{table:runningtimes}
 \end{table}
-
-%The program allows to~predefine some of the gates and
-%wires of a~circuit. We~demonstrate this functionality
-%later in~the text.
 
 
 \subsection{Improving Circuits}
@@ -760,8 +792,19 @@ is~then $\IN_4 + (t-2) \times \MID_3 + \OUT_0^2$; since $\size(\IN_4)=7$ and $\s
 \end{table}
 \end{proof}
 
-\subsection{Threshold-2 Function}
-Here, we present an~example of a~reasonably small circuit
+\subsection{Threshold Function}
+\begin{theorem}
+    \begin{align*}
+        \size(\THR_n^4) &\le 3.5n+o(n),\\
+        \size(\THR_n^k) &\le (4.5-3/2^{\lceil \log_2k\rceil})n+o(n) \text{ for $5 \le k = O(1)$.}
+    \end{align*}
+\end{theorem}
+\begin{proof}
+    \todo[inline]{Danya, please prove it here}
+\end{proof}
+
+
+Below, we present an~example of a~reasonably small circuit
 that our program fails to~improve though a~better circuit
 is~known. The reason is that these two circuits are quite
 different. The function we are going to~consider is the threshold-2 function:
@@ -993,7 +1036,6 @@ to~a~circuit of~size $2n+o(n)$. (Sergeev~\cite{Sergeev2020} showed recently that
 In~the paper, we~focus mainly on~proving asymptotic upper bounds for function families (that is, upper bounds that hold for every input size).
 A~natural further step is~to~apply the program
 to~specific circuits that are used in~practice.
-
 It~would also be~interesting to~extend the program
 so~that it~is able to~discover the circuit from Figure~\ref{figure:thr29}.
 
