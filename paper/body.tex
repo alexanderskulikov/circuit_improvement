@@ -209,6 +209,16 @@ for which the approach described above leads to improved upper bounds.
     \end{align*}
     (in~particular, $\size(\THR_n^4) \le 3.5n+o(n)$).
 \end{itemize}
+The improved upper bounds are obtained in a~semiautomatic fashion:
+\begin{enumerate}
+    \item first, we~automatically improve a~given small circuit with a~fixed number of~inputs using SAT-solvers;
+    \item then, we~generalize~it to~every input size.
+\end{enumerate}
+For some function families,
+the second step is~already known (for example, given a~small circuit
+for $\SUM_5$, it is not difficult to~use~it as a~building block
+to~design an~efficient circuit for $\SUM_n$ for every~$n$; see Section~\ref{section:sum}), though in~general this still needs to~be
+done manually.
 
 \subsection{Related work}
 The approach we~use in this paper follows the SAT-based
@@ -346,8 +356,13 @@ one may discover the full adder as follows. (The function
 \inputminted[firstline=51,lastline=58]{python}{../tutorial.py}
 
 This is~done by~encoding the task as~a~CNF formula
-and invoking the PicoSAT solver~\cite{DBLP:journals/jsat/Biere08} (via the \texttt{pycosat} module~\cite{pycosat}). The reduction to~SAT is~described
-in~\cite{DBLP:conf/sat/KojevnikovKY09}.
+and invoking a~SAT-solver
+(via the \texttt{pysat} module~\cite{DBLP:conf/sat/IgnatievMM18}).{\todo{Nikita, update to~pysat here. Ensure that pysat works well in the cloud}}
+The reduction to~SAT is~described
+in~\cite{DBLP:conf/sat/KojevnikovKY09}. Basically, one translates
+a~statement ``there exists a~circuit of~size~$s$ comuting a~given function~$f \colon \{0,1\}^n \to \{0,1\}^m$'' to CNF-SAT. To~do this, one introduces many
+auxiliary variables: for example, for every $x \in \{0,1\}^n$ and every $1 \le i \le r$, one uses a~variable that is~responsible for the value of the $i$-th gate
+on an~input~$x$.
 
 As~mentioned in~the introduction, the limits
 of~applicability of~this approach (for finding a~circuit
@@ -433,7 +448,7 @@ of~$n$ variables is exponential ($\Theta(2^n/n)$), whereas any symmetric functio
 Despite simplicity of~symmetric functions, we still do~not
 know how optimal circuits look like for most of~them. Below, we~present new circuits for some of these functions.
 
-\subsection{Sum Function}
+\subsection{Sum Function}\label{section:sum}
 The $\SUM$ function is a~fundamental symmetric function: for any symmetric $f \in B_n$, $\size(f)\le \size(\SUM_n)+o(n)$. The reason for this is that any function from~$B_n$ can be~computed by a~circuit of size $O(2^n/n)$ by the results of Muller~\cite{M56} and Lupanov~\cite{Lup59}. This allows to compute any symmetric $f(x_1, \dotsc, x_n) \in B_n$ as follows: first, compute $\SUM_n(x_1, \dotsc, x_n)$ using $\size(\SUM_n)$ gates; then, compute the resulting bit using at most $O(2^{\log n}/\log n)=o(n)$ gates. For the same reason, any lower bound $\size(f) \ge \alpha$ for
 a~symmetric function~$f \in B_n$ implies a~lower bound $\size(\SUM_n) \ge \alpha-o(n)$. Currently, we know the following bounds for $\SUM_n$:
 \[2.5n-O(1) \le \size(\SUM_n) \le 4.5n+o(n) \, .\]
@@ -677,11 +692,15 @@ It~demonstrates two new useful features: fixing gates and forbidding wires betwe
 \inputminted[firstline=71,lastline=86]{python}{../tutorial.py}
 
 \subsubsection{Optimal Circuits for Counting Modulo~4}
-The optimal circuit for $\SUM_5$ can be used to construct
-an~optimal circuit of~size $2.5n+O(1)$ for $\MOD_4^n$ due
-to~Stockmeyer~\cite{DBLP:journals/mst/Stockmeyer77}.
+The optimal circuit for $\SUM_5$ can be~used to~construct
+an~optimal circuit of~size $2.5n+O(1)$ for $\MOD_{4,r}^n$ due
+to~Stockmeyer~\cite{DBLP:journals/mst/Stockmeyer77}
+(recall that $\MOD_n^{4,r}(x_1, \dotsc, x_n)=[x_1+\dotsb+x_n \equiv r \mod 4]$).
 To~do this, note that
-there is a~subcircuit (of the circuit at~Figure~\ref{figure:sumfive}(c)) of size~9 that computes the two least significant bits ($w_0,w_1$) of $x_1+\dotsb+x_5$ (one removes the gates $g_5, w_2$). To~compute $x_1+\dotsb+x_n \bmod 4$, one first applies $\frac n4$ such blocks and then computes the parity of~the resulting bits of weight~1. The total size is~$9 \cdot \frac n4 + \frac n4=2.5n$. Thus,
+there is a~subcircuit (of the circuit at~Figure~\ref{figure:sumfive}(c)) of size~9 that computes the two least significant bits ($w_0,w_1$) of $x_1+\dotsb+x_5$ (one removes the gates $g_5, w_2$). To~compute $x_1+\dotsb+x_n \bmod 4$, one first applies $\frac n4$ such blocks and then computes the parity of~the resulting bits of weight~$1$
+(every block takes four fresh inputs as~well as~one bit of~weight~$0$ from the previous block).
+The total size is~$9 \cdot \frac n4 + \frac n4=2.5n$.
+Thus,
 the circuit that Stockmeyer constructed in~1977 by~hand,
 nowadays can be~found automatically in~a~few seconds.
 
