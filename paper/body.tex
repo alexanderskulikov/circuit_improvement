@@ -205,7 +205,7 @@ for which the approach described above leads to improved upper bounds.
     We~get the following improvement:
     \begin{align*}
         %\size(\THR_n^4) &\le 3.5n+o(n),\\
-        \size(\THR_n^k) &\le (4.5-2^{2-\lceil\log_2k\rceil})n+o(n) \text{ for $3 \le k = O(1)$}
+        \size(\THR_n^k) &\le (4.5-2^{2-\lceil\log_2k\rceil})n+o(n) \text{ for $4 \le k = O(1)$}
     \end{align*}
     (in~particular, $\size(\THR_n^4) \le 3.5n+o(n)$).
 \end{itemize}
@@ -813,19 +813,28 @@ is~then $\IN_4 + (t-2) \times \MID_3 + \OUT_0^2$; since $\size(\IN_4)=7$ and $\s
 \subsection{Threshold Function}
 \begin{theorem}
     \begin{align*}
-        \size(\THR_n^k) &\le (4.5-2^{2-\lceil\log_2k\rceil})n+o(n) \text{ for $3 \le k = O(1)$}
+        \size(\THR_n^k) &\le (4.5-2^{2 - \lceil \log_2k\rceil})n+o(n) \text{ for $4 \le k = O(1)$.}
     \end{align*}
 \end{theorem}
 \begin{proof}
-    \todo[inline]{Danya, please prove it here}
+    % \todo[inline]{Danya, please prove it here}
+    Let's define a function $\MTHR_n^2$ that works the same way as $\THR_n^2$, except that it takes bits $x_1, x_2, x_3, x_4, \dotsb, x_{n-1}, x_n$ in MDFA format: $x_1, x_1 \oplus x_2, x_3, x_3 \oplus x_4, \dotsb, x_{n-1}, x_{n-1} \oplus x_n$. It is known that $\size(\THR_n^2) \le 2n+o(n)$. At first, we prove that $\size(\MTHR_n^2) \le 2n+o(n)$ too. If there is a pair ($x_i, x_{i+1}$) such that $x_i = x_{i+1} = 1$, then $\MTHR_n^2 = 1$. So, firstly the operation $x_i \wedge \overline{(x_i \oplus x_{i+1})}$ is applied to all pairs, then OR is applied to the results obtained and we have final bit $r_1$. It takes $\frac{n}{2} + \frac{n}{2} = n$ gates. If there are no such pairs, then it is necessary that among the bits of the format $x_i \oplus x_{i+1}$ at least two are equal to 1 (in case of two bits are not equal to 1 at the same time in all pairs, $x_i \oplus x_{i+1}$ is equivalent to $x_i \vee x_{i+1}$). It requires $\size(\THR_{n/2}^2) \le n+o(n/2) = n+o(n)$ gates to check and the resulting bit $r_2$ is obtained. Then $r_1 \vee r_2$ is calculated and we get the value of $\MTHR_n^2$, therefore $\size(\MTHR_n^2) \le n+n+o(n) = 2n+o(n)$.
+
+    Then we prove the following upper bound: $\size(\THR_n^{2^t}) \le (4.5-2^{2-t})n+o(n)$ for $2 \le t, 2^t = O(1)$. We construct the required circuit out of the first t-1 layers of the circuit for $\SUM_n$ made up from MDFA blocks. It takes $\frac{n}{2} + n\sum\limits_{i=1}^{t-1} 2^{2-i} = n/2 + n(\frac{2(1-1/2^{t-1})}{1-1/2}) = n(\frac{1}{2} + 4 - 8/2^t) = (4.5 - 8/2^t)n$ gates. It is easy to check that there are at least $2^t$ ones among the initial n bits if and only if there is at least two 1 among the output gates after the (t-1)-th layer. So, we apply MTHR circuit to obtained from (t-1)-th layer bits, it requires $\size(\MTHR_{n/2^{t-1}}^2) \le 2 \cdot n/2^{t-1}+o(n/2^{t-1}) = 4n/2^t+o(n)$ additional gates. In total, $\size(\THR_n^{2^t}) \le (4.5 - 8/2^t + 4/2^t)n+o(n) = (4.5-2^{2-t})n+o(n)$.
+
+    Finally, we prove the required upper bound by using the following idea: $[x_1+\dotsb+x_n \ge k] \Leftrightarrow [1+\dotsb+1+x_1+\dotsb+x_n = m+x_1+\dotsb+x_n \ge k+m]$. Let $m$ be $2^{\lceil \log_2k \rceil} - k$. Then we get the following chain: $\size(\THR_n^{k}) \le \size(\THR_{n + m}^{k + m}) = \size(\THR_{n + m}^{2^{\lceil \log_2k \rceil}}) \le (4.5 - 2^{2- \lceil \log_2k \rceil})(n + m) + o(n + m)$ (according to the proven above). Since $m = O(1)$, we continue the chain: $\size(\THR_n^{k}) \le (4.5 - 2^{2- \lceil \log_2k \rceil})(n + m) + o(n + m) = (4.5 - 2^{2- \lceil \log_2k \rceil})n + (4.5 - 2^{2- \lceil \log_2k \rceil})m + o(n) = (4.5 - 2^{2-\lceil \log_2k \rceil})n + O(1) + o(n) = (4.5 - 2^{2-\lceil \log_2k \rceil})n + o(n)$.
+
+    Note that in practice the circuit can be simplified by partial calculation since we know that $m$ input bits are equal to 1.
 \end{proof}
 
 
 Below, we present an~example of a~reasonably small circuit
 that our program fails to~improve though a~better circuit
 is~known. The reason is that these two circuits are quite
-different. The function we are going to~consider is the threshold-2 function:
-\[\THR_n^2(x_1, \dotsc, x_n)=[x_1+\dotsb+x_n \ge 2] \, .\]
+different.
+%Both circuits compute the function $\THR_{12}^2$.
+%The function we are going to~consider is the threshold-2 function:
+%\[\THR_n^2(x_1, \dotsc, x_n)=[x_1+\dotsb+x_n \ge 2] \, .\]
 Figures~\ref{figure:thr31} and~\ref{figure:thr29} show circuits of~size~$31$ and~$29$ for $\THR_{12}^2$.
 They are
 quite different and our program is~not able to~find out
