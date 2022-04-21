@@ -185,8 +185,6 @@ search in a~neighborhood of a~given circuit.
 This allows~us to~work with circuits consisting
 of many gates.
 
-\todo[inline]{Danya, Nikita, I've rewritten the paragraph below. Please check it}
-
 As the results of experiments, we~show several circuits
 for which the approach described above leads to improved upper bounds.
 \begin{itemize}
@@ -204,11 +202,12 @@ for which the approach described above leads to improved upper bounds.
         \size(\THR_n^k) &\le kn+o(n) \text{ for $2 \le k \le 4$~\cite{Dunne84} (see also~\cite[Theorem~2.3]{DBLP:books/teu/Wegener87}),}\\
         \size(\THR_n^k) &\le 4.5n+o(n) \text{ for $5 \le k$~\cite{DBLP:journals/ipl/DemenkovKKY10}.}
     \end{align*}
-    We~get the following improvements:
+    We~get the following improvement:
     \begin{align*}
-        \size(\THR_n^4) &\le 3.5n+o(n),\\
-        \size(\THR_n^k) &\le (4.5-3/2^{\lceil \log_2k\rceil})n+o(n) \text{ for $5 \le k = O(1)$.}
+        %\size(\THR_n^4) &\le 3.5n+o(n),\\
+        \size(\THR_n^k) &\le (4.5-2^{2-\lceil\log_2k\rceil})n+o(n) \text{ for $3 \le k = O(1)$}
     \end{align*}
+    (in~particular, $\size(\THR_n^4) \le 3.5n+o(n)$).
 \end{itemize}
 
 \subsection{Related work}
@@ -795,8 +794,7 @@ is~then $\IN_4 + (t-2) \times \MID_3 + \OUT_0^2$; since $\size(\IN_4)=7$ and $\s
 \subsection{Threshold Function}
 \begin{theorem}
     \begin{align*}
-        \size(\THR_n^4) &\le 3.5n+o(n),\\
-        \size(\THR_n^k) &\le (4.5-3/2^{\lceil \log_2k\rceil})n+o(n) \text{ for $5 \le k = O(1)$.}
+        \size(\THR_n^k) &\le (4.5-2^{2-\lceil\log_2k\rceil})n+o(n) \text{ for $3 \le k = O(1)$}
     \end{align*}
 \end{theorem}
 \begin{proof}
