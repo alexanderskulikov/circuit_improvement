@@ -413,7 +413,12 @@ in~a~few seconds.
 \inputminted[firstline=62,lastline=67]{python}{../tutorial.py}
 Table~\ref{table:improvementrunningtimes} shows the time
 taken by~\texttt{improve\_circuit} to~improve some
-of~the known circuits for $\SUM$ and $\MOD^3$.
+of~the known circuits for $\SUM$, $\MOD^3$, and $\THR^4$.
+For $\SUM$, we~start from known circuits of size about $5n$
+(composed out of~full adders and half adders). For $\MOD^3$,
+we start from circuits of size $3n-4$ presented by~Demenkov et al.~\cite{DBLP:journals/ipl/DemenkovKKY10}. For $\THR^4$, we start from circuits of
+size about~$5n$ (the start by~computing $\SUM_n$ and then compare the
+resulting $\log n$-bit integer to~$4$).
 
 \begin{table}[ht]
 \begin{center}
@@ -423,12 +428,18 @@ function & circuit size & time (sec.)\\
 \midrule
 $\SUM_5$ & $12 \to 11$ & 7.3\\
 $\SUM_7$ & $20 \to 19$ & 7.0\\
+\midrule
 $\MOD_6^{3,0}$ & $15 \to 14$ & 22.0\\
 $\MOD_6^{3,1}$ & $15 \to 14$ & 22.5\\
 $\MOD_6^{3,2}$ & $14 \to 13$ & 21.7\\
 $\MOD_7^{3,0}$ & $17 \to 16$ & 41.1\\
 $\MOD_7^{3,1}$ & $17 \to 16$ & 42.6\\
 $\MOD_7^{3,2}$ & $16 \to 15$ & 43.0\\
+\midrule
+$\THR^4_5$ & $23 \to 10$ & $38.6$\\
+$\THR^4_6$ & $28 \to 14$ & $42.1$\\
+$\THR^4_7$ & $31 \to 17$ & $43.8$\\
+$\THR^4_8$ & $40 \to 22$ & $55.1$\\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -774,7 +785,6 @@ inequalities above are in fact equalities.)
 %
 Table~\ref{table:parameters} shows how to~combine
 the blocks to~get a~circuit computing~$\MOD_n^{3,r}$ of the required size.
-\todo[inline]{Nikita, please add six circuits ($\MOD_n^{3,r}$ for all $n=3,4$ and $r=0,1,2$) to the appendix}
 
 \begin{table}[!ht]
 \begin{center}
@@ -803,9 +813,12 @@ $r=2$
 \caption{Choosing parameters $k, m, l$ depending on $n \bmod 3$ and~$r$. The circuit is composed out of~blocks
 as~follows: $\IN_k + m \times \MID_3 + \OUT_r^l$. For each
 pair $(n \bmod 3, r)$ we show three things: the triple
-$(m, k, l)$; the sizes of~two blocks: $\size(\IN_k)$ and $\size(\OUT_r^l)$; the size of~the resulting circuit
+$(k, m, l)$; the sizes of~two blocks: $\size(\IN_k)$ and $\size(\OUT_r^l)$; the size of~the resulting circuit
 computed as $s=\size(\IN_k)+9m+\size(\OUT_r^l)$. For example, the top left cell is read as follows: when $r=0$ and $n=3t$, we set $k=4,m=t-2,l=2$; the resulting circuit
-is~then $\IN_4 + (t-2) \times \MID_3 + \OUT_0^2$; since $\size(\IN_4)=7$ and $\size(\OUT_0^2)=5$, the size of~the circuit is $7+9(t-2)+5=9t-6=3n-6$. It~is not difficult to~see, that, for $n \ge 5$, the number~$k$ of~$\MID$ blocks is non-negative and hence the construction is well-defined. For $n=3,4$ (and every $r=0,1,2$) the corresponding circuits are given in the~Appendix.}
+is~then $\IN_4 + (t-2) \times \MID_3 + \OUT_0^2$; since $\size(\IN_4)=7$ and $\size(\OUT_0^2)=5$, the size of~the circuit is $7+9(t-2)+5=9t-6=3n-6$.
+There are three corners cases that are not well-defined as~they require the
+number of~$\MID$ blocks to~be negative ($k=t-2$): $(n=3,r=0)$, $(n=3,r=2)$, and $(n=4, r=2)$. The corresponding circuits are
+given in the~Appendix.}
 \label{table:parameters}
 \end{table}
 \end{proof}
