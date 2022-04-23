@@ -695,7 +695,7 @@ It~demonstrates two new useful features: fixing gates and forbidding wires betwe
 The optimal circuit for $\SUM_5$ can be~used to~construct
 an~optimal circuit of~size $2.5n+O(1)$ for $\MOD_{4,r}^n$ due
 to~Stockmeyer~\cite{DBLP:journals/mst/Stockmeyer77}
-(recall that $\MOD_n^{4,r}(x_1, \dotsc, x_n)=[x_1+\dotsb+x_n \equiv r \mod 4]$).
+(recall that $\MOD_n^{4,r}(x_1, \dotsc, x_n)=[x_1+\dotsb+x_n \equiv r \bmod 4]$).
 To~do this, note that
 there is a~subcircuit (of the circuit at~Figure~\ref{figure:sumfive}(c)) of size~9 that computes the two least significant bits ($w_0,w_1$) of $x_1+\dotsb+x_5$ (one removes the gates $g_5, w_2$). To~compute $x_1+\dotsb+x_n \bmod 4$, one first applies $\frac n4$ such blocks and then computes the parity of~the resulting bits of weight~$1$
 (every block takes four fresh inputs as~well as~one bit of~weight~$0$ from the previous block).
@@ -757,7 +757,7 @@ we~construct the required circuit out of~constant size blocks. Schematically, th
 %
 Here, the $n$~input bits are passed from above.
 What is passed from block to block (from left to~right)
-is the pair of bits $(r_0, r_1)$ encoding the current remainder~$r$ modulo~$3$ as~follows: if $r=0$, then $(r_0,r_1)=(0,0)$; if $r=1$, then $(r_0,r_1)=(0,1)$; if $r=2$, then $r_0=1$. The first block $\IN_k$ takes the first $k$~input bits and computes the remainder of their sum modulo~$3$. It is followed by a~number of~$\MID_3$ blocks each of which takes the current remainder and three new input bits and computes the new remainder. Finally, the block~$\OUT_l^r$ takes the remainder and the last~$l$ input bits and outputs $\MOD_n^{3,r}$. The integers $k,l$ take values in~$\{2,3,4\}$ and $\{1,2,3\}$, respectively. Their exact values depend on~$r$ and $n \mod 3$ as~described below.
+is the pair of bits $(r_0, r_1)$ encoding the current remainder~$r$ modulo~$3$ as~follows: if $r=0$, then $(r_0,r_1)=(0,0)$; if $r=1$, then $(r_0,r_1)=(0,1)$; if $r=2$, then $r_0=1$. The first block $\IN_k$ takes the first $k$~input bits and computes the remainder of their sum modulo~$3$. It is followed by a~number of~$\MID_3$ blocks each of which takes the current remainder and three new input bits and computes the new remainder. Finally, the block~$\OUT_l^r$ takes the remainder and the last~$l$ input bits and outputs $\MOD_n^{3,r}$. The integers $k,l$ take values in~$\{2,3,4\}$ and $\{1,2,3\}$, respectively. Their exact values depend on~$r$ and $n \bmod 3$ as~described below.
 
 The theorem follows from the following upper bounds
 on~the circuit size of the just introduced functions:
@@ -771,12 +771,12 @@ $\size(\OUT_3^2) \le 8$.
 The corresponding circuits are presented in the Appendix
 by a~straightforward \texttt{Python} code that verifies their correctness. (The presented code proves the mentioned upper bounds by~providing explicit circuits. We~have also verified that no~smaller circuits exist meaning that the
 inequalities above are in fact equalities.)
-
+%
 Table~\ref{table:parameters} shows how to~combine
-the blocks
-to~get a~circuit computing~$\MOD_n^{3,r}$ of the required size. (Technically, it requires $n$~to~be at~least~$4$. For $n=3$, the corresponding circuits are easy to~construct.)
+the blocks to~get a~circuit computing~$\MOD_n^{3,r}$ of the required size.
+\todo[inline]{Nikita, please add six circuits ($\MOD_n^{3,r}$ for all $n=3,4$ and $r=0,1,2$) to the appendix}
 
-\begin{table}
+\begin{table}[!ht]
 \begin{center}
 \begin{tabular}{cccc}
 \toprule
@@ -800,12 +800,12 @@ $r=2$
 \bottomrule
 \end{tabular}
 \end{center}
-\caption{Choosing parameters $k, m, l$ depending on $n \mod 3$ and~$r$. The circuit is composed out of~blocks
+\caption{Choosing parameters $k, m, l$ depending on $n \bmod 3$ and~$r$. The circuit is composed out of~blocks
 as~follows: $\IN_k + m \times \MID_3 + \OUT_r^l$. For each
-pair $(n \mod 3, r)$ we show three things: the triple
+pair $(n \bmod 3, r)$ we show three things: the triple
 $(m, k, l)$; the sizes of~two blocks: $\size(\IN_k)$ and $\size(\OUT_r^l)$; the size of~the resulting circuit
 computed as $s=\size(\IN_k)+9m+\size(\OUT_r^l)$. For example, the top left cell is read as follows: when $r=0$ and $n=3t$, we set $k=4,m=t-2,l=2$; the resulting circuit
-is~then $\IN_4 + (t-2) \times \MID_3 + \OUT_0^2$; since $\size(\IN_4)=7$ and $\size(\OUT_0^2)=5$, the size of~the circuit is $7+9(t-2)+5=9t-6=3n-6$.}
+is~then $\IN_4 + (t-2) \times \MID_3 + \OUT_0^2$; since $\size(\IN_4)=7$ and $\size(\OUT_0^2)=5$, the size of~the circuit is $7+9(t-2)+5=9t-6=3n-6$. It~is not difficult to~see, that, for $n \ge 5$, the number~$k$ of~$\MID$ blocks is non-negative and hence the construction is well-defined. For $n=3,4$ (and every $r=0,1,2$) the corresponding circuits are given in the~Appendix.}
 \label{table:parameters}
 \end{table}
 \end{proof}
