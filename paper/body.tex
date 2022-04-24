@@ -610,18 +610,68 @@ for $\SUM_5$ computes $\MDFA$.}
 Its specification~is: $x_1+\dotsb+x_5=b_0+2(a_1+b_1)$, its size is~equal to~10. One can construct a~similar block, called MDFA (for modified double full adder), of size~8, whose specification is
 \[\MDFA(x_1 \oplus x_2, x_2, x_3, x_4, x_4 \oplus x_5)=(b_0, a_1, a_1 \oplus b_1) \, ,\]
 see Figure~\ref{figure:mdfa}(b).
+
 The fact that $\MDFA$ uses the encoding $(p, p \oplus q)$ for pairs of bits $(p,q)$, allows to use~it recursively
-to~compute $\SUM_n$: first, compute $x_1 \oplus x_2, x_3 \oplus x_4, \dotsc, x_{n-1} \oplus x_n$ ($n/2$ gates); then,
-apply~$n/2$ $\MDFA$ blocks ($4n$ gates).
+to~compute $\SUM_n$. As~the original construction is~presented in~\cite{DBLP:journals/ipl/DemenkovKKY10}, below we~give a~sketch
+only.
+\begin{enumerate}
+    \item Compute $x_2 \oplus x_3, x_4 \oplus x_5, \dotsc, x_{n-1} \oplus x_n$ ($n/2$ gates).
+    \item Apply at~most~$n/2$ $\MDFA$ blocks (no~more than $4n$~gates).
+    \item The last MDFA block outputs two bits: $a$~and~$a\oplus b$. Instead of~them, one needs to~compute $a \oplus b$ and $a \land b$. To~achieve this,
+    it~suffices to apply $x>y=(x \land \overline{y})$ operation:
+    \[a \land b = a>(a \oplus b)\, .\]
+\end{enumerate}
+Figure~\ref{figure:sum17} shows an~example for $n=17$.
+
+\begin{figure}[!ht]
+    \begin{center}
+        \begin{tikzpicture}[xscale=0.75, yscale=.6]
+            \foreach \n in {2,...,17}
+            \node[input] (\n) at (\n,6) {$x_{\n}$};
+            \foreach \i in {1,...,8} {
+                \tikzmath{\k=int(2*\i); \j=int(2*\i+1);}
+                \node[gate] (a) at (\j,5) {$\oplus$};
+                \draw[->] (\k) -- (a); \draw[->] (\j) -- (a);
+                \draw[->] (a) -- (\j,4); \draw[->] (\k) -- (\k,4);
+            }
+            \foreach \x/\y/\w in {2/4/3, 6/4/3, 10/4/3, 14/4/3, 2/2.5/7, 10/2.5/7, 2/1/15} {
+                \draw (\x-0.15,\y) rectangle (\x+\w+0.15,\y-1);
+                \node at (\x+\w/2,\y-0.5) {MDFA};
+            }
+            \foreach \y/\l/\w in {3.5/x_1/w_0, 2/0/w_1, 0.5/0/w_2} {
+                \node[input] (b) at (1,\y) {$\l$};
+                \draw[->] (b) -- (1.85,\y);
+                \node[input] (c) at (18,\y) {$\w$};
+                \draw[->] (17.15,\y) -- (c);
+            }
+            \foreach \x in {3, 4, 7, 8, 11, 12, 15, 16}
+            \draw[->] (\x,3) -- (\x,2.5);
+            \foreach \x in {4, 7, 12, 15}
+            \draw[->] (\x,1.5) -- (\x,1);
+            \foreach \x/\y in {5/3.5, 9/3.5, 13/3.5, 9/2}
+            \draw[->] (\x+0.15,\y) -- (\x+0.85,\y);
+
+            \node[input] (w3) at (12,-2) {$w_3$};
+            \draw[->] (12,0) -- (w3);
+            \node[gate] (x) at (7,-1) {$>$};
+            \draw[->] (7,0) -- (x);
+            \node[input] (w4) at (7,-2) {$w_4$};
+            \draw[->] (x) -- (w4);
+            \path (12,0) edge[->,out=-135,in=0] (x);
+        \end{tikzpicture}
+    \end{center}
+    \caption{A~circuit computing $\SUM_{17}$ composed out of~MDFA blocks.}
+    \label{figure:sum17}
+\end{figure}
+
 The $\MDFA$ block was constructed by~Demenkov et al.~\cite{DBLP:journals/ipl/DemenkovKKY10} in~a~semiautomatic
 manner. And it turns out that $\MDFA$ is just a~subcircuit of the optimal circuit for $\SUM_5$! See Figure~\ref{figure:mdfa}(c).
-
 
 \subsubsection{Best Known Circuits for SUM with New Structure}
 
 For many upper bounds from the bottom row of~Table~\ref{table:sum}, we found circuits with the following interesting structure: the first thing the circuit computes is $x_1 \oplus x_2 \oplus \dotsb \oplus x_n$; moreover the variables $x_2, \dotsc, x_n$ are used for this only. This is best illustrated by an~example~--- see Figure~\ref{figure:xorsum}.
 
-\begin{figure}[t]
+\begin{figure}[!ht]
 \begin{mypic}
 \begin{scope}[scale=.9]
 %\draw[help lines] (0,-5) grid (16,6);
@@ -825,29 +875,63 @@ given in the~Appendix.}
 
 \subsection{Threshold Function}
 \begin{theorem}
-    \begin{align*}
-        \size(\THR_n^k) &\le (4.5-2^{2 - \lceil \log_2k\rceil})n+o(n) \text{ for $4 \le k = O(1)$.}
-    \end{align*}
+    For any $4 \le k = O(1)$,
+    \[
+        \size(\THR_n^k) \le (4.5-2^{2 - \lceil \log_2k\rceil})n+o(n) \, .
+    \]
 \end{theorem}
 \begin{proof}
-    % \todo[inline]{Danya, please prove it here}
-    Let's define a function $\MTHR_n^2$ that works the same way as $\THR_n^2$, except that it takes bits $x_1, x_2, x_3, x_4, \dotsb, x_{n-1}, x_n$ in MDFA format: $x_1, x_1 \oplus x_2, x_3, x_3 \oplus x_4, \dotsb, x_{n-1}, x_{n-1} \oplus x_n$. It is known that $\size(\THR_n^2) \le 2n+o(n)$. At first, we prove that $\size(\MTHR_n^2) \le 2n+o(n)$ too. If there is a pair ($x_i, x_{i+1}$) such that $x_i = x_{i+1} = 1$, then $\MTHR_n^2 = 1$. So, firstly the operation $x_i \wedge \overline{(x_i \oplus x_{i+1})}$ is applied to all pairs, then OR is applied to the results obtained and we have final bit $r_1$. It takes $\frac{n}{2} + \frac{n}{2} = n$ gates. If there are no such pairs, then it is necessary that among the bits of the format $x_i \oplus x_{i+1}$ at least two are equal to 1 (in case of two bits are not equal to 1 at the same time in all pairs, $x_i \oplus x_{i+1}$ is equivalent to $x_i \vee x_{i+1}$). It requires $\size(\THR_{n/2}^2) \le n+o(n/2) = n+o(n)$ gates to check and the resulting bit $r_2$ is obtained. Then $r_1 \vee r_2$ is calculated and we get the value of $\MTHR_n^2$, therefore $\size(\MTHR_n^2) \le n+n+o(n) = 2n+o(n)$.
+    For a~sequence of~$2m$ formal variables $y_1, z_1, \dotsc, y_m, z_m$,
+    consider a~function $g \in B_{2m}$ that takes
+    \[y_1, y_1 \oplus z_1, y_2, y_2 \oplus z_2, \dotsc, y_m, y_m \oplus z_m\]
+    as~input and outputs $\THR_{2m}^2(y_1, z_1, \dotsc, y_m, z_m)$.
+    %We~show that $\size(g) \le 4m+o(m)$.
+    Note that $\THR_m^2(y_1, z_1, \dotsc, y_m, z_m)=1$ iff there is
+    a~pair containing two~$1$'s or there are two pairs each containing at~least one~$1$: $\THR_m^2(y_1, z_1, \dotsc, y_m z_m)=1$ iff there exists
+    $1 \le i \le m$ such that $y_i=z_i=1$ or $\THR_{2m}^2(y_1 \oplus z_1, \dotsc, y_m \oplus z_m)$. The condition $y_i=z_i=1$ can be~computed
+    through $y_i$ and $y_i \oplus z_i$ using a~single binary gate:
+    \[(y_i \land z_i)=(y_i \land \overline{(y_i \oplus z_i)}) \, .\]
+    Thus,
+    \[g(y_1, y_1 \oplus z_1,\dotsc, y_m, y_m \oplus z_m)=\THR_m^2(y_1 \oplus z_1, \dotsc, y_m \oplus z_m) \lor \bigvee_{i=1}^{m}(y_i \land \overline{(y_i \oplus z_i)}) \, .\]
+    Now, $\size(\THR_m^2) \le 2m+o(m)$ as~shown by~Dunne~\cite{Dunne84}.
+    Also, clearly,
+    \[\size\left(\bigvee_{i=1}^{m}(y_i \land \overline{(y_i \oplus z_i)}) \right)\le 2m-1 \, .\]
+    Thus,
+    \begin{equation}\label{eq:g}
+        \size(g) \le 4m+o(m) \, .
+    \end{equation}
 
-    Then we prove the following upper bound: $\size(\THR_n^{2^t}) \le (4.5-2^{2-t})n+o(n)$ for $2 \le t, 2^t = O(1)$. We construct the required circuit out of the first t-1 layers of the circuit for $\SUM_n$ made up from MDFA blocks. It takes $\frac{n}{2} + n\sum\limits_{i=1}^{t-1} 2^{2-i} = n/2 + n(\frac{2(1-1/2^{t-1})}{1-1/2}) = n(\frac{1}{2} + 4 - 8/2^t) = (4.5 - 8/2^t)n$ gates. It is easy to check that there are at least $2^t$ ones among the initial n bits if and only if there is at least two 1 among the output gates after the (t-1)-th layer. So, we apply MTHR circuit to obtained from (t-1)-th layer bits, it requires $\size(\MTHR_{n/2^{t-1}}^2) \le 2 \cdot n/2^{t-1}+o(n/2^{t-1}) = 4n/2^t+o(n)$ additional gates. In total, $\size(\THR_n^{2^t}) \le (4.5 - 8/2^t + 4/2^t)n+o(n) = (4.5-2^{2-t})n+o(n)$.
 
-    Finally, we prove the required upper bound by using the following idea: $[x_1+\dotsb+x_n \ge k] \Leftrightarrow [1+\dotsb+1+x_1+\dotsb+x_n = m+x_1+\dotsb+x_n \ge k+m]$. Let $m$ be $2^{\lceil \log_2k \rceil} - k$. Then we get the following chain: $\size(\THR_n^{k}) \le \size(\THR_{n + m}^{k + m}) = \size(\THR_{n + m}^{2^{\lceil \log_2k \rceil}}) \le (4.5 - 2^{2- \lceil \log_2k \rceil})(n + m) + o(n + m)$ (according to the proven above). Since $m = O(1)$, we continue the chain: $\size(\THR_n^{k}) \le (4.5 - 2^{2- \lceil \log_2k \rceil})(n + m) + o(n + m) = (4.5 - 2^{2- \lceil \log_2k \rceil})n + (4.5 - 2^{2- \lceil \log_2k \rceil})m + o(n) = (4.5 - 2^{2-\lceil \log_2k \rceil})n + O(1) + o(n) = (4.5 - 2^{2-\lceil \log_2k \rceil})n + o(n)$.
+    First, consider the case $k=2^t$ where $t \ge 2$ is an~integer.
+    To~construct a~circuit for $\THR_n^k$, we~first apply $t-1$
+    layers of~$\MDFA$'s. It~takes
+    \[\frac{n}{2} + n\sum\limits_{i=1}^{t-1} 2^{2-i}=(4.5 - 2^{3-t})n\] gates.
+    As a~result, we get bits \[w_0, \dotsc, w_{t-2}, a_1, a_1 \oplus b_1, \dotsc, a_m, a_m \oplus b_m \,, \]
+    where $m=n/2^t$,
+    such that
+    \[x_1+\dotsb+x_n=w_0+2w_1+\dotsb+2^{t-2}w_{t-2}+2^{t-1}(a_1+b_1+\dotsb+a_m+b_m) \, .\]
+    Note that $w_0+2w_1+\dotsb+2^{t-2}w_{t-2} < 2^{t-1}$. Hence,
+    \[[x_1+\dotsb+x_n \ge 2^t]=[a_1+b_1+\dotsb+a_m+b_m \ge 2]\,.\]
+    Thus, it~remains to~compute the function~$g$
+    given $2m$~bits $a_1, a_1 \oplus b_1, \dotsc, a_m, a_m \oplus b_m$.
+    By~\eqref{eq:g}, it takes $4m+o(m)=2^{2-t}n+o(n)$ gates.
+    The total size of the constructed circuit~is
+    \[(4.5-2^{3-t}+2^{2-t})n+o(n)=(4.5-2^{2-t})n+o(n) \, .\]
 
-    Note that in practice the circuit can be simplified by partial calculation since we know that $m$ input bits are equal to 1.
+    Now, assume that $2^{t-1}<k<2^t$. Then, $\lceil \log_2k \rceil = t$
+    and $2^t<2k=O(1)$. Clearly,
+    \[[x_1+\dotsb+x_n \ge k]=[(2^t-k)+x_1+\dotsb+x_n \ge 2^t] \, .\]
+    By~the previous argument, there exists a~circuit~$C$ computing $\THR_{n+(2^t-k)}^{2^t}$ of~size
+    \[(4.5-2^{2-t})(n+(2^t-k))+o(n)=(4.5-2^{2-t})n+o(n) \, .\]
+    By~replacing arbitrary $(2^t-k)$ inputs of~$C$ by~$1$'s,
+    one gets a~circuit of~the required size computing~$\THR_n^k$.
 \end{proof}
 
 
-Below, we present an~example of a~reasonably small circuit
+We~conclude by~presenting an~example of a~reasonably small circuit
 that our program fails to~improve though a~better circuit
 is~known. The reason is that these two circuits are quite
 different.
-%Both circuits compute the function $\THR_{12}^2$.
-%The function we are going to~consider is the threshold-2 function:
-%\[\THR_n^2(x_1, \dotsc, x_n)=[x_1+\dotsb+x_n \ge 2] \, .\]
 Figures~\ref{figure:thr31} and~\ref{figure:thr29} show circuits of~size~$31$ and~$29$ for $\THR_{12}^2$.
 They are
 quite different and our program is~not able to~find out
