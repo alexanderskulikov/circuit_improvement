@@ -904,7 +904,7 @@ given in the~Appendix.}
 
     First, consider the case $k=2^t$ where $t \ge 2$ is an~integer.
     To~construct a~circuit for $\THR_n^k$, we~first apply $t-1$
-    layers of~$\MDFA$'s. It~takes
+    layers of~$\MDFA$'s (as~in Figure~\ref{figure:sum17}). It~takes
     \[\frac{n}{2} + n\sum\limits_{i=1}^{t-1} 2^{2-i}=(4.5 - 2^{3-t})n\] gates.
     As a~result, we get bits \[w_0, \dotsc, w_{t-2}, a_1, a_1 \oplus b_1, \dotsc, a_m, a_m \oplus b_m \,, \]
     where $m=n/2^t$,
