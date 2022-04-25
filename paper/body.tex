@@ -886,9 +886,9 @@ given in the~Appendix.}
     \[y_1, y_1 \oplus z_1, y_2, y_2 \oplus z_2, \dotsc, y_m, y_m \oplus z_m\]
     as~input and outputs $\THR_{2m}^2(y_1, z_1, \dotsc, y_m, z_m)$.
     %We~show that $\size(g) \le 4m+o(m)$.
-    Note that $\THR_m^2(y_1, z_1, \dotsc, y_m, z_m)=1$ iff there is
-    a~pair containing two~$1$'s or there are two pairs each containing at~least one~$1$: $\THR_m^2(y_1, z_1, \dotsc, y_m z_m)=1$ iff there exists
-    $1 \le i \le m$ such that $y_i=z_i=1$ or $\THR_{2m}^2(y_1 \oplus z_1, \dotsc, y_m \oplus z_m)$. The condition $y_i=z_i=1$ can be~computed
+    Note that $\THR_{2m}^2(y_1, z_1, \dotsc, y_m, z_m)=1$ iff there is
+    a~pair containing two~$1$'s or there are two pairs each containing at~least one~$1$: $\THR_{2m}^2(y_1, z_1, \dotsc, y_m, z_m)=1$ iff there exists
+    $1 \le i \le m$ such that $y_i=z_i=1$ or $\THR_m^2(y_1 \oplus z_1, \dotsc, y_m \oplus z_m)=1$. The condition $y_i=z_i=1$ can be~computed
     through $y_i$ and $y_i \oplus z_i$ using a~single binary gate:
     \[(y_i \land z_i)=(y_i \land \overline{(y_i \oplus z_i)}) \, .\]
     Thus,
