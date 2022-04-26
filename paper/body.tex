@@ -357,7 +357,7 @@ one may discover the full adder as follows. (The function
 
 This is~done by~encoding the task as~a~CNF formula
 and invoking a~SAT-solver
-(via the \texttt{pysat} module~\cite{DBLP:conf/sat/IgnatievMM18}).{\todo{Nikita, update to~pysat here. Ensure that pysat works well in the cloud}}
+(via the \texttt{pysat} module~\cite{DBLP:conf/sat/IgnatievMM18}).
 The reduction to~SAT is~described
 in~\cite{DBLP:conf/sat/KojevnikovKY09}. Basically, one translates
 a~statement ``there exists a~circuit of~size~$s$ comuting a~given function~$f \colon \{0,1\}^n \to \{0,1\}^m$'' to CNF-SAT. To~do this, one introduces many
@@ -373,7 +373,7 @@ several hours or days; for $s \ge 13$, it~becomes almost impractical. The runnin
 for inputs of the same length. In~particular,
 it usually takes much longer to~prove that
 the required circuit does not exist (by~proving that the corresponding formula is~unsatisfiable). Table~\ref{table:runningtimes} reports the running time
-of~this approach on several datasets.\todo{Nikita, please add 3--6 new lines to this table~--- something about $\THR_n^4$ and, say, $\THR_n^8$?}
+of~this approach on several datasets.
 
 \begin{table}[!ht]
 \begin{center}
