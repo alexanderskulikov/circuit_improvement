@@ -3,10 +3,10 @@
 
 \begin{abstract}
 Finding exact circuit size
-is a~notorious optimization
-problem in practice. Whereas modern computers
+is~notoriously hard.
+Whereas modern computers
 and algorithmic techniques allow to~find a~circuit
-of~size seven in~blink of an~eye, it~may take more
+of~size seven in~the blink of an~eye, it~may take more
 than a~week to~search for a~circuit of~size thirteen.
 One of the reasons of~this behavior is~that the search
 space is~enormous: the number of~circuits of size~$s$
@@ -24,7 +24,7 @@ Through this approach, we~prove
 new upper bounds on the circuit size
 of~various symmetric functions. We~also demonstrate that
 some upper bounds that were~proved by~hand
-decades ago, nowadays can be~found automatically
+decades ago, can nowadays be~found automatically
 in a~few seconds.
 \end{abstract}
 
@@ -34,7 +34,7 @@ in a~few seconds.
 
 
 \section{Boolean Circuits}
-\subsection{Exact Circuit Synthesis}
+%\subsection{Exact Circuit Synthesis}
 
 A~Boolean \emph{straight line program}
 of size~$r$ for input variables $(x_1, \dotsc, x_n)$
@@ -52,7 +52,9 @@ a~Boolean function $f \colon \{0,1\}^n \to \{0,1\}^m$,
 by $\size(f)$ we denote the minimum size of
 a~straight line program
 computing~$f$. A~Boolean \emph{circuit}
-shows a~flow graph of a~program.
+shows a~graph of a~program: for every instruction $g \gets h \circ k$,
+there is a~node~$g$ with two directed incoming edges from nodes~$h$
+and~$k$.
 
 Figure~\ref{figure:sum23} gives an~example for
 the
@@ -101,7 +103,7 @@ of~weights $(0,1,\dotsc,l-1)$.
 %
 The straight line
 programs are given
-in~\texttt{Python} programming language
+in~\texttt{Python}
 so~that
 it~is particularly easy to~verify their correctness.
 For example, the program for $\SUM_3$ can be verified
@@ -128,26 +130,26 @@ is~already a~difficult computational task for modern
 computers and techniques. One approach
 is~to~translate a~statement ``there exists a~circuit
 of~size~$s$ computing~$f$'' to a~Boolean formula and
-to~pass~it to~a~SAT-solver. Then, if the formula
+to~pass~it to~a~SAT solver. Then, if the formula
 is~satisfiable, one decodes a~circuit from its satisfying
 assignment; otherwise, one gets a~(computer generated) proof of a~lower bound $\size(f) > s$. This circuit synthesis approach was proposed
 by~Kojevnikov et al.~\cite{DBLP:conf/sat/KojevnikovKY09}
 and, since then, has been used in various circuit synthesis programs (\texttt{abc}~\cite{abc}, \texttt{mockturtle}~\cite{EPFLLibraries}, \texttt{sat-chains}~\cite{knuthreduction}).
 
-The state-of-the-art SAT-solvers are surprisingly efficient and allow to~handle
+State-of-the-art SAT solvers are surprisingly efficient and allow to~handle
 various practically important problems (with millions
 of~variables) and even help to~resolve open
-problems~\cite{DBLP:conf/cade/BrakensiekHMN20}.
+problems in~mathematics~\cite{DBLP:conf/cade/BrakensiekHMN20}.
 Still, already for small values of $n$~and~$s$ the problem
 of~finding a~circuit of~size~$s$ for a~function from~$B_n$
-is~difficult for SAT-solvers.
+is~difficult for SAT solvers.
 We demonstrate the limits
 of~this approach on~\emph{counting} functions:
 \begin{equation}\label{eq:mod}
     \MOD_n^{m,r}(x_1, \dotsc, x_n)=[x_1+\dotsb+x_n \equiv r \bmod m]
 \end{equation}
 (here, $[\cdot]$ is the Iverson bracket: $[S]$~is equal to~$1$ if $S$~is true and is equal to~$0$ otherwise).
-Using SAT-solvers, Knuth~\cite[solution to exercise~$480$]{Knuth:2015:ACP:2898950}
+Using SAT solvers, Knuth~\cite[solution to exercise~$480$]{Knuth:2015:ACP:2898950}
 found $\size(\MOD_n^{3,r})$ for all $3 \le n \le 5$ and all $0 \le r \le 2$:
 \begin{center}
     \begin{tabular}{lccc}
@@ -164,7 +166,7 @@ Generalizing this pattern, he~made the following conjecture:
 \begin{equation}\label{conjecture}
 \size(\MOD_n^{3,r})=3n-5-[(n+r) \equiv 0\bmod 3] \text{ for all $n \ge 3$ and $r$.}
 \end{equation}
-He was also able to~prove (using SAT-solvers)
+He was also able to~prove (using SAT solvers)
 that $\size(\MOD_6^{3,0})=12$
 and wrote:
 ``The case $n=6$ and $r \neq 0$, which lies tantalizingly close to the limits of
@@ -179,7 +181,7 @@ be~done in a~few days;
 \end{itemize}
 
 \subsection{New Results}
-In~this paper, we~explore the limits of~the following natural idea: given a~circuit, try to~improve its size by~improving (using SAT-solvers, for example) the size
+In~this paper, we~explore the limits of~the following natural idea: given a~circuit, try to~improve its size by~improving (using SAT solvers, for example) the size
 of~its subcircuit of~size seven. This is a~kind of a~local search approach: we~have no~possibility to~go through the whole space of all circuits, but we can at~least
 search in a~neighborhood of a~given circuit.
 This allows~us to~work with circuits consisting
@@ -211,7 +213,7 @@ for which the approach described above leads to improved upper bounds.
 \end{itemize}
 The improved upper bounds are obtained in a~semiautomatic fashion:
 \begin{enumerate}
-    \item first, we~automatically improve a~given small circuit with a~fixed number of~inputs using SAT-solvers;
+    \item first, we~automatically improve a~given small circuit with a~fixed number of~inputs using SAT solvers;
     \item then, we~generalize~it to~every input size.
 \end{enumerate}
 For some function families,
@@ -224,7 +226,7 @@ done manually.
 The approach we~use in this paper follows the SAT-based
 local improvement method (SLIM): to~improve an~existing
 discrete structure one goes through all its substructures
-of~size accessible to a~SAT-solver.
+of~size accessible to a~SAT solver.
 SLIM has been applied successfully to~the following
 structures:
 branchwidth~\cite{DBLP:journals/tocl/LodhaOS19},
@@ -356,7 +358,7 @@ one may discover the full adder as follows. (The function
 \inputminted[firstline=51,lastline=58]{python}{../tutorial.py}
 
 This is~done by~encoding the task as~a~CNF formula
-and invoking a~SAT-solver
+and invoking a~SAT solver
 (via the \texttt{pysat} module~\cite{DBLP:conf/sat/IgnatievMM18}).
 The reduction to~SAT is~described
 in~\cite{DBLP:conf/sat/KojevnikovKY09}. Basically, one translates
@@ -866,7 +868,7 @@ pair $(n \bmod 3, r)$ we show three things: the triple
 $(k, m, l)$; the sizes of~two blocks: $\size(\IN_k)$ and $\size(\OUT_r^l)$; the size of~the resulting circuit
 computed as $s=\size(\IN_k)+9m+\size(\OUT_r^l)$. For example, the top left cell is read as follows: when $r=0$ and $n=3t$, we set $k=4,m=t-2,l=2$; the resulting circuit
 is~then $\IN_4 + (t-2) \times \MID_3 + \OUT_0^2$; since $\size(\IN_4)=7$ and $\size(\OUT_0^2)=5$, the size of~the circuit is $7+9(t-2)+5=9t-6=3n-6$.
-There are three corners cases that are not well-defined as~they require the
+There are three corner cases that are not well-defined as~they require the
 number of~$\MID$ blocks to~be negative ($k=t-2$): $(n=3,r=0)$, $(n=3,r=2)$, and $(n=4, r=2)$. The corresponding circuits are
 given in the~Appendix.}
 \label{table:parameters}
