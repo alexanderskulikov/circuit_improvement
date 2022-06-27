@@ -877,11 +877,12 @@ given in the~Appendix.}
 
 \subsection{Threshold Function}
 \begin{theorem}
-    For any $4 \le k = O(1)$,
+    For any $k \ge 4$,
     \[
-        \size(\THR_n^k) \le (4.5-2^{2 - \lceil \log_2k\rceil})n+o(n) \, .
+        \size(\THR_n^k) \le (4.5-2^{2-{{\lceil \log_2k \rceil}}})(n+2^{\lceil \log_2k \rceil}-k)+o(n) \, .
     \]
 \end{theorem}
+
 \begin{proof}
     For a~sequence of~$2m$ formal variables $y_1, z_1, \dotsc, y_m, z_m$,
     consider a~function $g \in B_{2m}$ that takes
@@ -920,14 +921,20 @@ given in the~Appendix.}
     The total size of the constructed circuit~is
     \[(4.5-2^{3-t}+2^{2-t})n+o(n)=(4.5-2^{2-t})n+o(n) \, .\]
 
-    Now, assume that $2^{t-1}<k<2^t$. Then, $\lceil \log_2k \rceil = t$
-    and $2^t<2k=O(1)$. Clearly,
+    Now, assume that $2^{t-1}<k<2^t$ (hence $\lceil \log_2k \rceil = t$).
+    %and $2^t<2k=O(1)$. 
+    Clearly,
     \[[x_1+\dotsb+x_n \ge k]=[(2^t-k)+x_1+\dotsb+x_n \ge 2^t] \, .\]
     By~the previous argument, there exists a~circuit~$C$ computing $\THR_{n+(2^t-k)}^{2^t}$ of~size
-    \[(4.5-2^{2-t})(n+(2^t-k))+o(n)=(4.5-2^{2-t})n+o(n) \, .\]
+    \[(4.5-2^{2-t})(n+(2^t-k))+o(n)=(4.5-2^{2-{{\lceil \log_2k \rceil}}})(n+2^{\lceil \log_2k \rceil}-k)+o(n) \, .\]
     By~replacing arbitrary $(2^t-k)$ inputs of~$C$ by~$1$'s,
     one gets a~circuit of~the required size computing~$\THR_n^k$.
 \end{proof}
+
+\begin{corollary}
+	For $4 \le k =O(1)$, $\size(\THR_n^k) \le (4.5-2^{2-{{\lceil \log_2k \rceil}}})n+o(n)$. In~particular, $\size(\THR_n^4) \le 3.5n+o(n)$ and 
+	$\size(\THR_n^k) \le 4n+o(n)$ for $5 \le k \le 8$.
+\end{corollary}
 
 
 We~conclude by~presenting an~example of a~reasonably small circuit
