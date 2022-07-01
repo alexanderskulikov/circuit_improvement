@@ -70,7 +70,7 @@ of~weights $(0,1,\dotsc,l-1)$.
 \inputminted[firstline=15,lastline=18]{python}{../tutorial.py}
 \end{minipage}
 \begin{minipage}{.18\textwidth}
-\begin{tikzpicture}[label distance=-.9mm,scale=.9]
+\begin{tikzpicture}[label distance=-.9mm,scale=.8]
 \foreach \n/\x/\y in {1/0/1, 2/1/1}
   \node[input] (x\n) at (\x, \y) {$x_{\n}$};
 \node[gate, label=left:$w_1$] (g1) at (0,0) {$\land$};
@@ -84,7 +84,7 @@ of~weights $(0,1,\dotsc,l-1)$.
 \end{minipage}
 \begin{minipage}{.18\textwidth}
 ~
-\begin{tikzpicture}[label distance=-.9mm,scale=.9]
+\begin{tikzpicture}[label distance=-.9mm,scale=.8]
 \foreach \n/\x/\y in {1/0/3, 2/1/3, 3/2/3}
   \node[input] (x\n) at (\x, \y) {$x_{\n}$};
 \node[gate,label=left:$a$] (g1) at (0.5,2) {$\oplus$};
@@ -119,7 +119,7 @@ Known lower bounds are far from being satisfactory:
 the strongest known lower bound for a~function family
 in~NP is~$(3+1/86)n-o(n)$~\cite{DBLP:conf/focs/FindGHK16}.
 Here, by a~\emph{function family} we mean an~infinite sequence of~functions $\{f_n\}_{n=1}^{\infty}$ where $f_n \in B_n$.
-
+%
 Even proving lower bounds for specific functions (rather than function families) is~difficult. Brute force approaches become impractical quickly: $|B_n|=2^{2^n}$, hence already for $n=6$, one cannot just enumerate all
 functions from~$B_n$; also, the number of~circuits
 of~size~$s$ is $s^{\Theta(s)}$, hence checking all circuits of size~$s$ takes reasonable time for small values of~$s$ only.
@@ -145,40 +145,49 @@ of~finding a~circuit of~size~$s$ for a~function from~$B_n$
 is~difficult for SAT solvers.
 We demonstrate the limits
 of~this approach on~\emph{counting} functions:
-\begin{equation}\label{eq:mod}
-    \MOD_n^{m,r}(x_1, \dotsc, x_n)=[x_1+\dotsb+x_n \equiv r \bmod m]
-\end{equation}
+%\begin{equation}\label{eq:mod}
+    $\MOD_n^{m,r}(x_1, \dotsc, x_n)=[x_1+\dotsb+x_n \equiv r \bmod m]$
+%\end{equation}
 (here, $[\cdot]$ is the Iverson bracket: $[S]$~is equal to~$1$ if $S$~is true and is equal to~$0$ otherwise).
 Using SAT solvers, Knuth~\cite[solution to exercise~$480$]{Knuth:2015:ACP:2898950}
-found $\size(\MOD_n^{3,r})$ for all $3 \le n \le 5$ and all $0 \le r \le 2$:
-\begin{center}
-    \begin{tabular}{lccc}
-        \toprule
-              & $r=0$ & $r=1$ & $r=2$\\
-        \midrule
-        $n=3$ & $3$ & $4$ & $4$\\
-        $n=4$ & $7$ & $7$ & $6$\\
-        $n=5$ & $10$ & $9$ & $10$\\
-        \bottomrule
-    \end{tabular}
-\end{center}
-Generalizing this pattern, he~made the following conjecture:
+found $\size(\MOD_n^{3,r})$ for all $3 \le n \le 5$ and all $0 \le r \le 2$.
+%
+%\begin{center}
+%    \begin{tabular}{lccc}
+%        \toprule
+%              & $r=0$ & $r=1$ & $r=2$\\
+%        \midrule
+%        $n=3$ & $3$ & $4$ & $4$\\
+%        $n=4$ & $7$ & $7$ & $6$\\
+%        $n=5$ & $10$ & $9$ & $10$\\
+%        \bottomrule
+%    \end{tabular}
+%\end{center}
+Generalizing the found values, he~made the following conjecture:
 \begin{equation}\label{conjecture}
 \size(\MOD_n^{3,r})=3n-5-[(n+r) \equiv 0\bmod 3] \text{ for all $n \ge 3$ and $r$.}
 \end{equation}
 He was also able to~prove (using SAT solvers)
 that $\size(\MOD_6^{3,0})=12$
 and wrote:
-``The case $n=6$ and $r \neq 0$, which lies tantalizingly close to the limits of
-today's solvers, is still unknown.''
+``The case $n=6$ and $r \neq 0$, which lies tantalizingly close to~the limits of
+today's solvers, is~still unknown.'' 
+
+Knuth also describes various symmetry breaking heuristics and shows which of~them give a~significant speedup. 
+Haaswijk et al.~\cite{DBLP:conf/dac/HaaswijkMSM18}
+show another way of~speeding~up the SAT-based approach for circuit synthesis:
+first, generate all possible circuit topologies, then, for each topology check using SAT solvers whether one can assign Boolean operation to~the gates so~that the resulting circuit computes a~given function.
 
 To~summarize, our current abilities for checking whether there exists a~Boolean circuit of~size~$s$ are roughly the following:
-\begin{itemize}
-\item for $s \le 6$, this can be~done in a~few seconds;
-\item for $7 \le s \le 12$, this can (sometimes)
+%\begin{itemize}
+%\item 
+for $s \le 6$, this can be~done in a~few seconds;
+%\item 
+for $7 \le s \le 12$, this can (sometimes)
 be~done in a~few days;
-\item for $s \ge 13$, this is~out of~reach.
-\end{itemize}
+%\item 
+for $s \ge 13$, this is~out of~reach.
+%\end{itemize}
 
 \subsection{New Results}
 In~this paper, we~explore the limits of~the following natural idea: given a~circuit, try to~improve its size by~improving (using SAT solvers, for example) the size
@@ -193,6 +202,10 @@ for which the approach described above leads to improved upper bounds.
     \item We support Knuth's conjecture~\eqref{conjecture} for $\MOD_n^{3,r}$ by~proving the matching upper bound:
     \[\size(\MOD_n^{3,r}) \le 3n-5-[(n+r) \equiv 0\bmod 3] \text{ for all $n \ge 3$ and $r$.}\]
     This improves slightly the previously known upper bound $\size(\MOD_n^{3,r}) \le 3n-4$ by~Demenkov et al.~\cite{DBLP:journals/ipl/DemenkovKKY10}.
+    To~prove Knuth's conjecture, one also needs to~prove a~lower bound 
+    on~$\size(\MOD_n^{3,r})$. The currently strongest known lower bound for $\size(\MOD_n^{3,r})$
+    is~$2.5n-O(1)$ due to~Stockmeyer~\cite{DBLP:journals/mst/Stockmeyer77}.
+    %(and no~stronger lower bound is~known for any other symmetric function).
     \item We~present improvements for $\size(\SUM_n)$ for various small~$n$ and show that some of~these circuits and their parts can be~used as~building blocks to~design efficient circuits for other functions in~semiautomatic fashion. In~particular, we~show that a~part of an~optimal circuit for $\SUM_5$ can be~used to~build optimal circuits of~size~$2.5n$ for $\MOD_n^{4,r}$~\cite{DBLP:journals/mst/Stockmeyer77} and best known circuits of~size~$4.5n+o(n)$ for $\SUM_n$~\cite{DBLP:journals/ipl/DemenkovKKY10}.
     In~turn, an~efficient circuit for $\SUM_5$ can be~found
     in a~few seconds if~one starts from a~standard circuit for $\SUM_5$ composed
@@ -205,17 +218,19 @@ for which the approach described above leads to improved upper bounds.
         \size(\THR_n^k) &\le 4.5n+o(n) \text{ for $5 \le k$~\cite{DBLP:journals/ipl/DemenkovKKY10}.}
     \end{align*}
     We~get the following improvement:
-    \begin{align*}
+    %\begin{align*}
         %\size(\THR_n^4) &\le 3.5n+o(n),\\
-        \size(\THR_n^k) &\le (4.5-2^{2-\lceil\log_2k\rceil})n+o(n) \text{ for $4 \le k = O(1)$.}
-    \end{align*}
+        $\size(\THR_n^k) \le (4.5-2^{2-\lceil\log_2k\rceil})n+o(n)$ for $4 \le k = O(1)$.
+    %\end{align*}
     In~particular, $\size(\THR_n^4) \le 3.5n+o(n)$ and $\size(\THR_n^k) \le 4n+o(n)$ for $5 \le k \le 8$.
 \end{itemize}
 The improved upper bounds are obtained in a~semiautomatic fashion:
-\begin{enumerate}
-    \item first, we~automatically improve a~given small circuit with a~fixed number of~inputs using SAT solvers;
-    \item then, we~generalize~it to~every input size.
-\end{enumerate}
+%\begin{enumerate}
+    %\item 
+    first, we~automatically improve a~given small circuit with a~fixed number of~inputs using SAT solvers;
+    %\item 
+    then, we~generalize~it to~every input size.
+%\end{enumerate}
 For some function families,
 the second step is~already known (for example, given a~small circuit
 for $\SUM_5$, it is not difficult to~use~it as a~building block
@@ -362,9 +377,10 @@ and invoking a~SAT solver
 (via the \texttt{pysat} module~\cite{DBLP:conf/sat/IgnatievMM18}).
 The reduction to~SAT is~described
 in~\cite{DBLP:conf/sat/KojevnikovKY09}. Basically, one translates
-a~statement ``there exists a~circuit of~size~$s$ comuting a~given function~$f \colon \{0,1\}^n \to \{0,1\}^m$'' to CNF-SAT. To~do this, one introduces many
+a~statement ``there exists a~circuit of~size~$s$ comuting a~given function
+$f \colon \{0,1\}^n \to \{0,1\}^m$'' to CNF-SAT. To~do this, one introduces many
 auxiliary variables: for example, for every $x \in \{0,1\}^n$ and every $1 \le i \le r$, one uses a~variable that is~responsible for the value of the $i$-th gate
-on an~input~$x$.
+on the~input~$x$.
 
 As~mentioned in~the introduction, the limits
 of~applicability of~this approach (for finding a~circuit
@@ -419,10 +435,10 @@ of~the known circuits for $\SUM$, $\MOD^3$, and $\THR^4$.
 For $\SUM$, we~start from known circuits of size about $5n$
 (composed out of~full adders and half adders). For $\MOD^3$,
 we start from circuits of size $3n-4$ presented by~Demenkov et al.~\cite{DBLP:journals/ipl/DemenkovKKY10}. For $\THR^4$, we start from circuits of
-size about~$5n$ (the start by~computing $\SUM_n$ and then compare the
+size about~$5n$ (we~start by~computing $\SUM_n$ and then compare the
 resulting $\log n$-bit integer to~$4$).
 
-\begin{table}[ht]
+\begin{table}[!ht]
 \begin{center}
 \begin{tabular}{llr}
 \toprule
@@ -464,18 +480,18 @@ know how optimal circuits look like for most of~them. Below, we~present new circ
 \subsection{Sum Function}\label{section:sum}
 The $\SUM$ function is a~fundamental symmetric function: for any symmetric $f \in B_n$, $\size(f)\le \size(\SUM_n)+o(n)$. The reason for this is that any function from~$B_n$ can be~computed by a~circuit of size $O(2^n/n)$ by the results of Muller~\cite{M56} and Lupanov~\cite{Lup59}. This allows to compute any symmetric $f(x_1, \dotsc, x_n) \in B_n$ as follows: first, compute $\SUM_n(x_1, \dotsc, x_n)$ using $\size(\SUM_n)$ gates; then, compute the resulting bit using at most $O(2^{\log n}/\log n)=o(n)$ gates. For the same reason, any lower bound $\size(f) \ge \alpha$ for
 a~symmetric function~$f \in B_n$ implies a~lower bound $\size(\SUM_n) \ge \alpha-o(n)$. Currently, we know the following bounds for $\SUM_n$:
-\[2.5n-O(1) \le \size(\SUM_n) \le 4.5n+o(n) \, .\]
+\(2.5n-O(1) \le \size(\SUM_n) \le 4.5n+o(n)\).
 The lower bound is~due to~Stockmeyer~\cite{DBLP:journals/mst/Stockmeyer77}, the upper bound is~due to~Demenkov et al.~\cite{DBLP:journals/ipl/DemenkovKKY10}.
 
 A~circuit for $\SUM_n$ can~be constructed from circuits for $\SUM_k$ for some small~$k$. For example,
 using full and half adders as~building blocks, one can compute $\SUM_n$ (for any~$n$) by a~circuit of size $5n$ as~follows. Start from $n$~bits $(x_1, \dotsc, x_n)$ of~weight~$0$. While there are three bits of the same weight~$k$, replace them by~two bits of weights~$k$ and~$k+1$ using a~full adder. This way, one gets at~most two bits of~each weight $0,1,\dotsc,l-1$ ($l=\lceil \log_2(n+1)\rceil$) in at most $5(n-l)$ gates (as each full adder reduces the number of~bits). To~leave exactly one bit
 of~each weight, it suffices to use at~most~$l$ half
 or~full adders ($o(n)$ gates). Let~us denote the
-size of the resulting circuit by~$s(n)$. The second row
+size of the resulting circuit by~$s(n)$. The first row
 of~Table~\ref{table:sum} shows the values of~$s(n)$ for
 some $n \le 15$ (see~(28) in~\cite{Knuth:2008:ACP:1377542}).
 
-\begin{table}
+\begin{table}{!ht}
 \begin{center}
 \begin{tabular}{lrrrrrrrrrrrrrrrrrrrrrr}
 \toprule
@@ -493,8 +509,8 @@ $\size(\SUM_n)$ & $2$ & $5$ & $9$ & $11$
 \bottomrule
 \end{tabular}
 \end{center}
-\caption{The first line shows the value of~$n$. The second line gives the size $s(n)$ of~a~circuit for $\SUM_n$
-composed out~of half and full adders. The third row shows known bounds for $\size(\SUM_n)$.}
+\caption{The first row gives the size $s(n)$ of~a~circuit for $\SUM_n$
+composed out~of half and full adders, the second row shows known upper bounds for $\size(\SUM_n)$ (all of~them were known before our work, see~(28) in~\cite{Knuth:2008:ACP:1377542}).}
 \label{table:sum}
 \end{table}
 
@@ -505,13 +521,13 @@ In a~similar fashion, one can get an~upper bound (see Theorem~1 in~\cite{DBLP:co
 This motivates the search for efficient circuits
 for $\SUM_k$ for small values of~$k$. The bottom row
 of~Table~\ref{table:sum} gives upper bounds that
-we~were able to~find using the program
-(the upper bounds for $n \le 7$ were found
-by~Knuth~\cite{Knuth:2008:ACP:1377542}).
+we~were able to~find using the program.
+%(the upper bounds for $n \le 7$ were found
+%by~Knuth~\cite{Knuth:2008:ACP:1377542}).
 The table shows that the first value where $s(n)$ is not
 optimal is $n=5$. The best upper bound for $\SUM_n$ given
-by~\eqref{eq:sumupper} is $4.75n+o(n)$ for $n=7$. The upper
-bound for $n=15$ is $53n/11+o(n)$ which is worse than the
+by~\eqref{eq:sumupper} is $4.75n+o(n)$ for $k=7$. The upper
+bound for $k=15$ is $53n/11+o(n)$ which is worse than the
 previous upper bound. But if it~turned out that
 $\size(\SUM_{15}) \le 52$,
 it~would give a~better upper bound.
@@ -609,7 +625,12 @@ for $\SUM_5$ computes $\MDFA$.}
 \label{figure:mdfa}
 \end{figure}
 %
-Its specification~is: $x_1+\dotsb+x_5=b_0+2(a_1+b_1)$, its size is~equal to~10. One can construct a~similar block, called MDFA (for modified double full adder), of size~8, whose specification is
+They compute a~function $\DFA(x_1,x_2,x_3,x_4,x_5)=(b_0, b_1, a_1)$
+(for double full adder)
+such that, for every $x_1, \dotsc, x_5 \in \{0,1\}$,
+$x_1+\dotsb+x_5=b_0+2(b_1+a_1)$.
+Figure~\ref{figure:mdfa}(a) shows that $\size(\DFA) \le 10$.
+One can construct a~similar block, called MDFA (for modified double full adder), such that
 \[\MDFA(x_1 \oplus x_2, x_2, x_3, x_4, x_4 \oplus x_5)=(b_0, a_1, a_1 \oplus b_1) \, ,\]
 see Figure~\ref{figure:mdfa}(b).
 
@@ -621,7 +642,7 @@ only.
     \item Apply at~most~$n/2$ $\MDFA$ blocks (no~more than $4n$~gates).
     \item The last MDFA block outputs two bits: $a$~and~$a\oplus b$. Instead of~them, one needs to~compute $a \oplus b$ and $a \land b$. To~achieve this,
     it~suffices to apply $x>y=(x \land \overline{y})$ operation:
-    \[a \land b = a>(a \oplus b)\, .\]
+    \(a \land b = a>(a \oplus b)\).
 \end{enumerate}
 Figure~\ref{figure:sum17} shows an~example for $n=17$.
 
@@ -670,12 +691,12 @@ The $\MDFA$ block was constructed by~Demenkov et al.~\cite{DBLP:journals/ipl/Dem
 manner. And it turns out that $\MDFA$ is just a~subcircuit of the optimal circuit for $\SUM_5$! See Figure~\ref{figure:mdfa}(c).
 
 \subsubsection{Best Known Circuits for SUM with New Structure}
-
-For many upper bounds from the bottom row of~Table~\ref{table:sum}, we found circuits with the following interesting structure: the first thing the circuit computes is $x_1 \oplus x_2 \oplus \dotsb \oplus x_n$; moreover the variables $x_2, \dotsc, x_n$ are used for this only. This is best illustrated by an~example~--- see Figure~\ref{figure:xorsum}.
+\label{sec:strange}
+For many upper bounds from the bottom row of~Table~\ref{table:sum}, we found circuits with the following interesting structure: the first thing the circuit computes is $x_1 \oplus x_2 \oplus \dotsb \oplus x_n$; moreover the variables $x_2, \dotsc, x_n$ are used for this only. This is best illustrated by an~example, see Figure~\ref{figure:xorsum}.
 
 \begin{figure}[!ht]
 \begin{mypic}
-\begin{scope}[scale=.9]
+\begin{scope}[scale=.8]
 %\draw[help lines] (0,-5) grid (16,6);
 \begin{scope}[xshift=20mm, yshift=30mm]
 %\draw[help lines] (0,-3) grid (4,4);
@@ -760,11 +781,11 @@ an~optimal circuit of~size $2.5n+O(1)$ for $\MOD_{4,r}^n$ due
 to~Stockmeyer~\cite{DBLP:journals/mst/Stockmeyer77}
 (recall that $\MOD_n^{4,r}(x_1, \dotsc, x_n)=[x_1+\dotsb+x_n \equiv r \bmod 4]$).
 To~do this, note that
-there is a~subcircuit (of the circuit at~Figure~\ref{figure:sumfive}(c)) of size~9 that computes the two least significant bits ($w_0,w_1$) of $x_1+\dotsb+x_5$ (one removes the gates $g_5, w_2$). To~compute $x_1+\dotsb+x_n \bmod 4$, one first applies $\frac n4$ such blocks and then computes the parity of~the resulting bits of weight~$1$
+there is a~subcircuit (of~the circuit in~Figure~\ref{figure:sumfive}(c)) of size~9 that computes the two least significant bits ($w_0,w_1$) of $x_1+\dotsb+x_5$ (one removes the gates $g_5, w_2$). To~compute $x_1+\dotsb+x_n \bmod 4$, one first applies $\frac n4$ such blocks and then computes the parity of~the resulting bits of weight~$1$
 (every block takes four fresh inputs as~well as~one bit of~weight~$0$ from the previous block).
 The total size is~$9 \cdot \frac n4 + \frac n4=2.5n$.
 Thus,
-the circuit that Stockmeyer constructed in~1977 by~hand,
+block that Stockmeyer constructed by~hand in~1977 to~compute $\MOD_n^4$
 nowadays can be~found automatically in~a~few seconds.
 
 
@@ -780,10 +801,6 @@ Using our program, we~proved the conjectured upper bound for all~$n$.
 For all $n \ge 3$ and all $r \in \{0,1,2\}$,
 \[\size(\MOD_n^{3,r}) \le 3n-5-[(n+r) \equiv 0\bmod 3] \,. \]
 \end{theorem}
-
-To~prove Knuth's conjecture, one also needs to~prove a~lower bound on $\size(\MOD_n^{3,r})$. The currently strongest known lower bound for $\size(\MOD_n^{3,r})$
-is~$2.5n-O(1)$ due to~Stockmeyer~\cite{DBLP:journals/mst/Stockmeyer77}
-(and no~stronger lower bound is known for any other symmetric function).
 
 \begin{proof}
 As~in~\cite{DBLP:conf/sat/KojevnikovKY09},
@@ -831,7 +848,8 @@ $\size(\MID_3) \le 9$,
 $\size(\OUT_2^0) \le 5$,
 $\size(\OUT_1^1) \le 2$,
 $\size(\OUT_3^2) \le 8$.
-The corresponding circuits are presented in the Appendix
+The corresponding circuits are presented in~\cite{DBLP:journals/corr/abs-2102-12579}
+%Appendix
 by a~straightforward \texttt{Python} code that verifies their correctness. (The presented code proves the mentioned upper bounds by~providing explicit circuits. We~have also verified that no~smaller circuits exist meaning that the
 inequalities above are in fact equalities.)
 %
@@ -876,6 +894,7 @@ given in the~Appendix.}
 \end{proof}
 
 \subsection{Threshold Function}
+Recall that $\THR_n^2(x_1, \dotsc, x_n)=[x_1+\dotsb+x_n \ge 2]$.
 \begin{theorem}
     For any $k \ge 4$,
     \[
@@ -886,14 +905,14 @@ given in the~Appendix.}
 \begin{proof}
     For a~sequence of~$2m$ formal variables $y_1, z_1, \dotsc, y_m, z_m$,
     consider a~function $g \in B_{2m}$ that takes
-    \[y_1, y_1 \oplus z_1, y_2, y_2 \oplus z_2, \dotsc, y_m, y_m \oplus z_m\]
+    \(y_1, y_1 \oplus z_1, y_2, y_2 \oplus z_2, \dotsc, y_m, y_m \oplus z_m\)
     as~input and outputs $\THR_{2m}^2(y_1, z_1, \dotsc, y_m, z_m)$.
     %We~show that $\size(g) \le 4m+o(m)$.
     Note that $\THR_{2m}^2(y_1, z_1, \dotsc, y_m, z_m)=1$ iff there is
     a~pair containing two~$1$'s or there are two pairs each containing at~least one~$1$: $\THR_{2m}^2(y_1, z_1, \dotsc, y_m, z_m)=1$ iff there exists
     $1 \le i \le m$ such that $y_i=z_i=1$ or $\THR_m^2(y_1 \oplus z_1, \dotsc, y_m \oplus z_m)=1$. The condition $y_i=z_i=1$ can be~computed
     through $y_i$ and $y_i \oplus z_i$ using a~single binary gate:
-    \[(y_i \land z_i)=(y_i \land \overline{(y_i \oplus z_i)}) \, .\]
+    \((y_i \land z_i)=(y_i \land \overline{(y_i \oplus z_i)}) \, .\)
     Thus,
     \[g(y_1, y_1 \oplus z_1,\dotsc, y_m, y_m \oplus z_m)=\THR_m^2(y_1 \oplus z_1, \dotsc, y_m \oplus z_m) \lor \bigvee_{i=1}^{m}(y_i \land \overline{(y_i \oplus z_i)}) \, .\]
     Now, $\size(\THR_m^2) \le 2m+o(m)$ as~shown by~Dunne~\cite{Dunne84}.
@@ -903,13 +922,12 @@ given in the~Appendix.}
     \begin{equation}\label{eq:g}
         \size(g) \le 4m+o(m) \, .
     \end{equation}
-
-
-    First, consider the case $k=2^t$ where $t \ge 2$ is an~integer.
-    To~construct a~circuit for $\THR_n^k$, we~first apply $t-1$
+%
+    To~construct a~circuit for $\THR_n^k$, first, consider the case $k=2^t$ where $t \ge 2$ is an~integer.
+    Apply $t-1$
     layers of~$\MDFA$'s (as~in Figure~\ref{figure:sum17}). It~takes
     \[\frac{n}{2} + n\sum\limits_{i=1}^{t-1} 2^{2-i}=(4.5 - 2^{3-t})n\] gates.
-    As a~result, we get bits \[w_0, \dotsc, w_{t-2}, a_1, a_1 \oplus b_1, \dotsc, a_m, a_m \oplus b_m \,, \]
+    As a~result, we get bits \(w_0, \dotsc, w_{t-2}, a_1, a_1 \oplus b_1, \dotsc, a_m, a_m \oplus b_m \,, \)
     where $m=n/2^t$,
     such that
     \[x_1+\dotsb+x_n=w_0+2w_1+\dotsb+2^{t-2}w_{t-2}+2^{t-1}(a_1+b_1+\dotsb+a_m+b_m) \, .\]
@@ -920,7 +938,7 @@ given in the~Appendix.}
     By~\eqref{eq:g}, it takes $4m+o(m)=2^{2-t}n+o(n)$ gates.
     The total size of the constructed circuit~is
     \[(4.5-2^{3-t}+2^{2-t})n+o(n)=(4.5-2^{2-t})n+o(n) \, .\]
-
+	%
     Now, assume that $2^{t-1}<k<2^t$ (hence $\lceil \log_2k \rceil = t$).
     %and $2^t<2k=O(1)$. 
     Clearly,
@@ -928,7 +946,7 @@ given in the~Appendix.}
     By~the previous argument, there exists a~circuit~$C$ computing $\THR_{n+(2^t-k)}^{2^t}$ of~size
     \[(4.5-2^{2-t})(n+(2^t-k))+o(n)=(4.5-2^{2-{{\lceil \log_2k \rceil}}})(n+2^{\lceil \log_2k \rceil}-k)+o(n) \, .\]
     By~replacing arbitrary $(2^t-k)$ inputs of~$C$ by~$1$'s,
-    one gets a~circuit of~the required size computing~$\THR_n^k$.
+    one gets a~circuit computing~$\THR_n^k$.
 \end{proof}
 
 \begin{corollary}
@@ -946,11 +964,12 @@ They are
 quite different and our program is~not able to~find out
 that the circuit
 of~size~$31$ is~suboptimal.
-One can construct the two circuits in~the program as~follows.
+The code below shows how one 
+can construct the two circuits in~the program.
 
 \inputminted[firstline=90,lastline=96]{python}{../tutorial.py}
 
-\begin{figure}[t]
+\begin{figure}[!ht]
 \begin{mypic}
 \begin{scope}[scale=.6]
 %\draw[help lines] (0,-5) grid (16,6);
@@ -1046,11 +1065,11 @@ In~general, this leads to~a~circuit of~size $3n-5$.}
 \end{figure}
 
 
-\begin{figure}[t]
+\begin{figure}[!ht]
 \begin{mypic}
-\begin{scope}[xscale=.75,yscale=.7]
+\begin{scope}[xscale=.75,yscale=.6]
 %\draw[help lines] (0,-5) grid (16,6);
-\begin{scope}[xshift=20mm, yshift=40mm]
+\begin{scope}[xshift=20mm, yshift=60mm]
 %\draw[help lines] (0,-3) grid (4,4);
 
 \node[input] (x5) at (2, 7) {$x_5$};
@@ -1076,6 +1095,7 @@ In~general, this leads to~a~circuit of~size $3n-5$.}
 \node[input] (x8) at (7, 5) {$x_8$};
 \node[input] (x4) at (8, 5) {$x_4$};
 \node[gate] (g1) at (9,5) {$\lor$};
+
 
 \node[gate] (g22) at (1.5,4) {$\land$};
 \node[gate] (g21) at (2.5,4) {$\lor$};
@@ -1151,9 +1171,7 @@ In~general, this leads to~a~circuit of~size $3n-5$.}
 \node[gate] (g) at (7, 2) {$\lor$};
 \draw[->] (4.5,2)--(g);
 \draw[->] (7,4.5)--(g);
-
 \end{scope}
-
 \end{mypic}
 \caption{A~circuit of~size~$29$ for $\THR_{12}^2$: (a)~block structure and (b)~gate structure. It~implements a~clever trick by~Dunne~\cite{Dunne84}. Organize $12$~input bits
 into a~$3 \times 4$ table. Compute disjunctions $r_1,r_2,r_3$ of~the rows and disjunctions $c_1,c_2,c_3,c_4$ of~the columns. Then, there are at least two~$1$'s among
@@ -1165,16 +1183,21 @@ to~a~circuit of~size $2n+o(n)$. (Sergeev~\cite{Sergeev2020} showed recently that
 \end{figure}
 
 \section{Further Directions}
-In~the paper, we~focus mainly on~proving asymptotic upper bounds for function families (that is, upper bounds that hold for every input size).
+We~focus mainly on~proving asymptotic upper bounds for symmetric function families (that~is, upper bounds that hold for every input size).
 A~natural further step is~to~apply the program
 to~specific circuits that are used in~practice.
 It~would also be~interesting to~extend the program
 so~that it~is able to~discover the circuit from Figure~\ref{figure:thr29}.
+Finally, it~would be~interesting to~generalize circuits for $\SUM_n$
+presented in~Section~\ref{sec:strange}.
 
-\bibliography{circuits}
+\section*{Acknowledgments}
+We~are grateful to~anonymous reviewers for many useful suggestions.
 
-\appendix
-\section{Blocks for the Modulo~3 Function}
-The following code justifies the existence of~circuits needed in the proof of Theorem~\ref{theorem:mod3upper}.
-\inputminted{python}{mod3_check.py}
+
+
+%\appendix
+%\section{Blocks for the Modulo~3 Function}
+%The following code justifies the existence of~circuits needed in the proof of Theorem~\ref{theorem:mod3upper}.
+%\inputminted{python}{mod3_check.py}
 
