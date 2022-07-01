@@ -777,7 +777,7 @@ It~demonstrates two new useful features: fixing gates and forbidding wires betwe
 
 \subsubsection{Optimal Circuits for Counting Modulo~4}
 The optimal circuit for $\SUM_5$ can be~used to~construct
-an~optimal circuit of~size $2.5n+O(1)$ for $\MOD_{4,r}^n$ due
+an~optimal circuit of~size $2.5n+O(1)$ for $\MOD_n^{4,r}$ due
 to~Stockmeyer~\cite{DBLP:journals/mst/Stockmeyer77}
 (recall that $\MOD_n^{4,r}(x_1, \dotsc, x_n)=[x_1+\dotsb+x_n \equiv r \bmod 4]$).
 To~do this, note that
@@ -887,8 +887,7 @@ $(k, m, l)$; the sizes of~two blocks: $\size(\IN_k)$ and $\size(\OUT_r^l)$; the 
 computed as $s=\size(\IN_k)+9m+\size(\OUT_r^l)$. For example, the top left cell is read as follows: when $r=0$ and $n=3t$, we set $k=4,m=t-2,l=2$; the resulting circuit
 is~then $\IN_4 + (t-2) \times \MID_3 + \OUT_0^2$; since $\size(\IN_4)=7$ and $\size(\OUT_0^2)=5$, the size of~the circuit is $7+9(t-2)+5=9t-6=3n-6$.
 There are three corner cases that are not well-defined as~they require the
-number of~$\MID$ blocks to~be negative ($k=t-2$): $(n=3,r=0)$, $(n=3,r=2)$, and $(n=4, r=2)$. The corresponding circuits are
-given in the~Appendix.}
+number of~$\MID$ blocks to~be negative ($k=t-2$): $(n=3,r=0)$, $(n=3,r=2)$, and $(n=4, r=2)$.}
 \label{table:parameters}
 \end{table}
 \end{proof}
