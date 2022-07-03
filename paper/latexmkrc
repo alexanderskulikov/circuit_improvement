@@ -2,4 +2,4 @@ $pdflatex = 'pdflatex  %O  --shell-escape %S';
 $xelatex = 'xelatex %O --shell-escape %S';
 $makeindex  = 'makeindex -s style_ind.ist %O -o %D %S';
 $bibtex_use = 2;
-$clean_ext = "tdo synctex.gz cls.bak bak vtc out.ps tex.bak run.xml ptc ind.bak bib.bak";
+$clean_ext = 'pygtex pygstyle tdo synctex.gz cls.bak bak vtc out.ps tex.bak run.xml ptc ind.bak bib.bak';
