@@ -227,12 +227,11 @@ class Circuit:
                     a.get_node(g).attr['style'] = 'filled'
                     a.get_node(g).attr['fillcolor'] = 'coral'
 
-
-
         a.layout(prog='dot')
+
         file_name = project_directory + '/circuits/.images/' + file_name + '.png'
         a.draw(file_name)
-        print(f'Circuit is drawn to {file_name}')
+        print(f'Circuit image: {file_name}')
 
     def get_truth_tables(self):
         truth_tables = {}
