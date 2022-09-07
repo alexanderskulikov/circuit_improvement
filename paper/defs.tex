@@ -1,6 +1,5 @@
 %%%%% TIKZ GRAPHICS
 \usepackage{tikz}
-%\usepackage{pgffor}
 \usetikzlibrary{math}
 
 \tikzstyle{input}=[draw=none, inner sep=.2mm]
@@ -18,12 +17,13 @@
 
 %%%%% PACKAGES
 \usepackage{booktabs}
-\usepackage[color=red!5,colorinlistoftodos]{todonotes}
+%\usepackage[color=red!5,colorinlistoftodos]{todonotes}
 \usepackage{url}
 \usepackage{booktabs}
 
 %%%%% LISTINGS
-\usepackage[frozencache,cachedir=.]{minted} % play with flags [frozencache,cachedir=.] when submitting to arXiv
+% before submitting to archive: https://arxiv.org/help/faq/mistakes#minted
+\usepackage[finalizecache=true, cachedir=minted-cache]{minted}
 \setminted{bgcolor=gray!10}
 
 
