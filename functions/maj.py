@@ -1,4 +1,4 @@
-from circuit import Circuit
+from core.circuit import Circuit
 from itertools import product
 
 

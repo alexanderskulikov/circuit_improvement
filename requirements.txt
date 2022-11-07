@@ -1,3 +1,7 @@
+python-sat~=0.1.7.dev11
+networkx~=2.6.3
+shapely~=1.8.0
+sympy~=1.9
+pyeda~=0.28.0
+pygraphviz~=1.7
 pycosat~=0.6.3
-setuptools~=45.2.0
-networkx~=2.6.2

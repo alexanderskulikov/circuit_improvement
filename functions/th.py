@@ -1,4 +1,4 @@
-from circuit import Circuit
+from core.circuit import Circuit
 from itertools import product
 from functions.sum import add_sum4, add_sum5, add_sum6, add_sum7
 from functions.sum import add_sumn, add_sumn_mdfa
@@ -350,7 +350,7 @@ def add_cmpn(circuit, input_labels, th):
     return result
 
 
-def add_thn(circuit, input_labels, th, is5n=True):
+def add_thn(circuit, input_labels, th=4, is5n=True):
     w = add_sumn(circuit, input_labels) if is5n else add_sumn_mdfa(circuit, input_labels)
     tharr = [int(x) for x in list('{0:0b}'.format(th))]
 
@@ -386,6 +386,8 @@ def check_2th_circuit(circuit, k):
 def run(fun, size, k):
     c = Circuit(input_labels=[f'x{i}' for i in range(1, size + 1)], gates={})
     c.outputs = fun(c, c.input_labels, k)
+    print(c)
+    c.save_to_file("thr4_6")
     check_th_circuit(c, k)
 
 

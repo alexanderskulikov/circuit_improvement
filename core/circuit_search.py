@@ -1,6 +1,6 @@
 from circuit import Circuit
 from itertools import combinations, product
-from functions import BooleanFunction
+from functions2 import BooleanFunction
 import os
 import pycosat
 import sys
@@ -50,6 +50,7 @@ class CircuitFinder:
         self.input_truth_tables = input_truth_tables
         self.number_of_gates = number_of_gates
         self.is_normal = all(table[0] != '1' for table in self.output_truth_tables)
+        self.is_normal = False
 
         assert all(len(table) == 1 << dimension for table in self.output_truth_tables)
         assert all(all(symbol in "01*" for symbol in table) for table in self.output_truth_tables)
@@ -115,9 +116,15 @@ class CircuitFinder:
         for h in range(len(self.outputs)):
             self.clauses += exactly_one_of([self.output_gate_variable(h, gate) for gate in self.internal_gates])
 
+        a=1
+
         # truth values for inputs
         for input_gate in self.input_gates:
             for t in range(1 << self.dimension):
+                col = [''.join(map(str, [self.output_truth_tables[g][t] for g in range(len(self.output_truth_tables))]))][0]
+                if col.count('*') == len(col):
+                    continue
+
                 if self.input_truth_tables[input_gate][t] == '1':
                     self.clauses += [[self.gate_value_variable(input_gate, t)]]
                 else:
@@ -129,6 +136,10 @@ class CircuitFinder:
             for first_pred, second_pred in combinations(range(gate), 2):
                 for a, b, c in product(range(2), repeat=3):
                     for t in range(1 << self.dimension):
+                        col = [''.join(map(str, [self.output_truth_tables[g][t] for g in range(len(self.output_truth_tables))]))][0]
+                        if col.count('*') == len(col):
+                            continue
+
                         self.clauses += [[
                             -self.predecessors_variable(gate, first_pred, second_pred),
                             (-1 if a else 1) * self.gate_value_variable(gate, t),
@@ -198,14 +209,14 @@ class CircuitFinder:
             if result == 'UNSAT':
                 return False
         elif solver == 'minisat':
-            cnf_file_name = 'tmp.cnf'
+            cnf_file_name = '../tmp.cnf'
             self.save_cnf_formula_to_file(cnf_file_name)
             # TODO: complete
             assert False
         elif solver == 'pysat':
-            cnf_file_name = 'tmp.cnf'
+            cnf_file_name = '../tmp.cnf'
             self.save_cnf_formula_to_file(cnf_file_name)
-            f1 = CNF(from_file='tmp.cnf')
+            f1 = CNF(from_file='../tmp.cnf')
             s = Solver()
             s.append_formula(f1.clauses)
             s.solve()

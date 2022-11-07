@@ -29,10 +29,28 @@ class Circuit:
         '1101': '<=',
     }
 
-    def __init__(self, input_labels=None, gates=None, outputs=None, fn=None):
+    gate_bench_types = {
+        'XOR': '0110',
+        'OR': '0111',
+        'AND': '0001',
+        'NOT': '1100',
+        'NAND': '1110',
+        'NOR': '1000',
+
+
+        '1001': '=',
+        '0010': '>',
+        '0100': '<',
+        '1011': '>=',
+        '1101': '<=',
+    }
+
+    def __init__(self, input_labels=None, gates=None, outputs=None, fn=None, graph=None):
         self.input_labels = input_labels or []
         self.gates = gates or {}
         self.outputs = outputs or []
+        if graph is not None and input_labels is not None and outputs is not None:
+            self.__get_from_graph(graph)
         if fn is not None:
             self.load_from_file(fn)
 
@@ -44,7 +62,18 @@ class Circuit:
         s += 'Outputs: ' + ' '.join(map(str, self.outputs))
         return s
 
-    def load_from_string(self, string):
+    @staticmethod
+    def find_file(filename):
+        fname = []
+        for root, d_names, f_names in os.walk(project_directory):
+            for f in f_names:
+                if f == filename:
+                    fname.append(os.path.join(root, f))
+
+        assert len(fname) == 1
+        return fname[0]
+
+    def __load_from_string_ckt(self, string):
         lines = string.splitlines()
         number_of_inputs, number_of_gates, number_of_outputs = \
             list(map(int, lines[0].strip().split()))
@@ -54,55 +83,66 @@ class Circuit:
         self.gates = {}
         for i in range(number_of_gates):
             gate, first, second, gate_type = lines[i + 2].strip().split()
-            # assert first in self.gates or first in self.input_labels
-            # assert second in self.gates or second in self.input_labels
             self.gates[gate] = (first, second, gate_type)
 
         self.outputs = lines[number_of_gates + 2].strip().split()
         assert len(self.outputs) == number_of_outputs
 
-    def load_from_file(self, file_name):
-        with open(project_directory + '/circuits/' + file_name + '.ckt') as circuit_file:
-            self.load_from_string(circuit_file.read())
+    # TODO: handle multiply gates
+    def __load_from_string_bench(self, string):
+        lines = string.splitlines()
 
-    def save_to_file_verilog(self, file_name):
-        with open(file_name, 'w') as circuit_file:
-            gate_list = ', '.join([
-                gate for gate in self.gates if gate not in self.outputs
-            ])
-            input_labels_list = ', '.join(self.input_labels)
-            output_labels_list = ', '.join(self.outputs)
+        self.input_labels = []
+        self.outputs = []
+        self.gates = {}
 
-            circuit_file.write(f'module circuit('
-                               f'{input_labels_list}, '
-                               f'{output_labels_list});\n')
-            circuit_file.write(f'  input {input_labels_list};\n')
-            circuit_file.write(f'  output {output_labels_list};\n')
-            circuit_file.write(f'  wire {gate_list};\n')
-
-            for gate in self.gates:
-                circuit_file.write(f'\n  assign {gate} = ')
-                first, second, gate_type = self.gates[gate]
-                if gate_type == '0001':
-                    circuit_file.write(f'{first} & {second}')
-                elif gate_type == '0111':
-                    circuit_file.write(f'{first} | {second}')
-                elif gate_type == '0110':
-                    circuit_file.write(f'{first} ^ {second}')
+        for line in lines:
+            if len(line) == 0 or line.startswith('#'):
+                continue
+            elif line.startswith('INPUT'):
+                self.input_labels.append(line[6:-1])
+            elif line.startswith('OUTPUT'):
+                self.outputs.append(line[7:-1])
+            else:
+                nls = line.replace(" ", "").replace("=", ",").replace("(", ",").replace(")", "").split(",")
+                if len(nls) == 4:
+                    self.gates[nls[0]] = (nls[2], nls[3], self.gate_bench_types[nls[1]])
                 else:
-                    assert False, 'not yet implemented'
-                circuit_file.write(';')
+                    self.gates[nls[0]] = (nls[2], nls[2], self.gate_bench_types[nls[1]])
 
-            circuit_file.write('\nendmodule')
+    def load_from_file(self, file_name, extension='ckt'):
+        with open(Circuit.find_file(file_name + '.' + extension)) as circuit_file:
+            if extension == 'ckt':
+                self.__load_from_string_ckt(circuit_file.read())
 
-    def save_to_file(self, file_name):
-        with open(project_directory + '/circuits/' + file_name + '.ckt', 'w') as circuit_file:
-            circuit_file.write(f'{len(self.input_labels)} {len(self.gates)} {len(self.outputs)}\n')
-            circuit_file.write(' '.join(self.input_labels))
-            for gate in self.gates:
-                first, second, gate_type = self.gates[gate]
-                circuit_file.write(f'\n{gate} {first} {second} {gate_type}')
-            circuit_file.write('\n' + ' '.join(self.outputs))
+            if extension == 'bench':
+                self.__load_from_string_bench(circuit_file.read())
+
+    def __save_to_ckt(self):
+        file_data = ''
+        file_data += f'{len(self.input_labels)} {len(self.gates)} {len(self.outputs)}\n'
+        file_data += ' '.join(self.input_labels)
+
+        for gate in self.gates:
+            first, second, gate_type = self.gates[gate]
+            file_data += f'\n{gate} {first} {second} {gate_type}'
+        file_data += '\n' + ' '.join([str(i) for i in self.outputs])
+        return file_data
+
+    # TODO: write this method
+    def __save_to_bench(self):
+        return 'lol'
+
+    def save_to_file(self, file_name, extension='ckt'):
+        file_data = ''
+        if extension == 'ckt':
+            file_data = self.__save_to_ckt()
+
+        if extension == 'bench':
+            file_data = self.__save_to_bench()
+
+        with open(Circuit.find_file(file_name + '.' + extension), 'w') as circuit_file:
+            circuit_file.write(file_data)
 
     def construct_graph(self, detailed_labels=True):
         circuit_graph = nx.DiGraph()
@@ -119,47 +159,15 @@ class Circuit:
 
         return circuit_graph
 
-    @staticmethod
-    def make_circuit(graph, input_gates, output_gates):
-        circuit = Circuit(input_labels=input_gates, gates={}, outputs=list(output_gates))
+    def __get_from_graph(self, graph):
         for gate in graph.pred:
-            if gate in input_gates:
+            if gate in self.input_labels:
                 continue
             operation = (graph.nodes[gate]['label']).split()[2]
-            bit_operation = list(circuit.gate_types.keys())[list(circuit.gate_types.values()).index(operation)]
-            circuit.gates[gate] = ((graph.nodes[gate]['label']).split()[1], (graph.nodes[gate]['label']).split()[3], bit_operation)
+            bit_operation = list(self.gate_types.keys())[list(self.gate_types.values()).index(operation)]
+            self.gates[gate] = ((graph.nodes[gate]['label']).split()[1], (graph.nodes[gate]['label']).split()[3], bit_operation)
 
-        return circuit
-
-    @staticmethod
-    def make_code(filename_in, filename_out):
-        result = ''
-        with open(project_directory + '/circuits/' + filename_in + '.ckt') as circuit_file:
-            number_of_inputs, number_of_gates, number_of_outputs = \
-                list(map(int, circuit_file.readline().strip().split()))
-
-            input_labels = circuit_file.readline().strip().split()
-            result += f'['
-            for i in range(number_of_inputs):
-                result += f'{input_labels[i]}'
-                if i != number_of_inputs - 1:
-                    result += ', '
-            result += '] = input_labels\n'
-            for _ in range(number_of_gates):
-                gate, first, second, gate_type = circuit_file.readline().strip().split()
-                result += f"{gate} = circuit.add_gate({first}, {second}, '{gate_type}')\n"
-
-            outputs = circuit_file.readline().strip().split()
-            result += f'\nreturn '
-            for i in range(number_of_outputs):
-                result += f'{outputs[i]}'
-                if i != number_of_outputs - 1:
-                    result += ', '
-            result += '\n'
-
-        with open(project_directory + '/circuits/' + filename_out + '.ckt', 'w') as file:
-            file.write(result)
-
+    # TODO: check this method
     def replace_subgraph(self, improved_circuit, subcircuit, subcircuit_outputs):
         circuit_graph = self.construct_graph()
         replaced_graph = self.construct_graph()
@@ -199,6 +207,7 @@ class Circuit:
                                                                   improved_circuit.outputs[i])
         return replaced_graph
 
+    # TODO: check this method
     def draw(self, file_name='circuit', detailed_labels=True, experimental=False):
         circuit_graph = self.construct_graph(detailed_labels)
         a = nx.nx_agraph.to_agraph(circuit_graph)
@@ -262,7 +271,22 @@ class Circuit:
         if not gate_label:
             gate_label = f'z{len(self.gates)}'
         assert gate_label not in self.gates and gate_label not in self.input_labels
-
         self.gates[gate_label] = (first_predecessor, second_predecessor, operation)
-
         return gate_label
+
+    def change_gates(self, list_before, list_after):
+        new_input_labels = []
+        for gate in self.input_labels:
+            new_input_labels.append(list_after[list_before.index(gate)] if gate in list_before else gate)
+        self.input_labels = new_input_labels
+
+        new_output_labels = []
+        for gate in self.outputs:
+            new_output_labels.append(list_after[list_before.index(gate)] if gate in list_before else gate)
+        self.outputs = new_output_labels
+
+        new_gates = {}
+        for gate in self.gates:
+            value = self.gates[gate]
+            new_gates[list_after[list_before.index(gate)] if gate in list_before else gate] = (list_after[list_before.index(value[0])] if value[0] in list_before else value[0], list_after[list_before.index(value[1])] if value[1] in list_before else value[1], value[2])
+        self.gates = new_gates

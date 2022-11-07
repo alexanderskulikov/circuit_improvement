@@ -1,5 +1,5 @@
-from circuit import Circuit
-from itertools import product, permutations
+from core.circuit import Circuit
+from itertools import product
 
 
 def add_ex3_3(circuit, input_labels):

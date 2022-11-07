@@ -1,6 +1,6 @@
-from circuit_search_for_improvement import find_circuit
+from circuit_search import find_circuit
 from circuit import Circuit
-from itertools import combinations
+from itertools import combinations, product
 import networkx as nx
 from timeit import default_timer as timer
 import random
@@ -16,7 +16,7 @@ def correct_subcircuit_count(circuit, subcircuit_size=7, connected=True):
     return count
 
 
-def make_truth_tables(circuit, subcircuit_inputs, subcircuit_outputs):
+def make_output_truth_tables(circuit, subcircuit_inputs, subcircuit_outputs):
     sub_input_truth_table = {}
     sub_output_truth_table = {}
     truth_tables = circuit.get_truth_tables()
@@ -27,11 +27,23 @@ def make_truth_tables(circuit, subcircuit_inputs, subcircuit_outputs):
         if len(sub_input_truth_table) == 1 << len(subcircuit_inputs):
             break
     sub_input_truth_table = {value: key for key, value in sub_input_truth_table.items()}
+    sub_input_truth_table2 = {value: key for key, value in sub_input_truth_table.items()}
 
     for i in sub_input_truth_table:
         str_out = [''.join(map(str, [truth_tables[g][i] for g in subcircuit_outputs]))][0]
         sub_output_truth_table[i] = str_out
-    return sub_input_truth_table, sub_output_truth_table
+
+    sub_output_truth_table2 = [''] * len(subcircuit_outputs)
+    for bits in product([0, 1], repeat=len(subcircuit_inputs)):
+        row = "".join(str(bit) for bit in bits)
+        if row not in sub_input_truth_table2:
+            for j in range(len(subcircuit_outputs)):
+                sub_output_truth_table2[j] += '*'
+        else:
+            for j in range(len(subcircuit_outputs)):
+                sub_output_truth_table2[j] += sub_output_truth_table[sub_input_truth_table2[row]][j]
+
+    return sub_output_truth_table2
 
 
 def make_improved_circuit_outputs(cir_out, sub_out, imp_out):
@@ -80,17 +92,22 @@ def improve_circuit(circuit, subcircuit_size=5, connected=True):
         print(f'\n{subcircuit_size}: {current}/{total} ({100 * current // total}%) ', end='', flush=True)
 
         random.shuffle(subcircuit_inputs)
-        sub_in_tt, sub_out_tt = make_truth_tables(circuit, subcircuit_inputs, subcircuit_outputs)
-        improved_circuit = find_circuit(subcircuit_inputs, subcircuit_size - 1, sub_in_tt, sub_out_tt)
+        output_truth_tables = make_output_truth_tables(circuit, subcircuit_inputs, subcircuit_outputs)
+        improved_circuit = find_circuit(dimension=len(subcircuit_inputs),
+                                        number_of_gates=subcircuit_size - 1,
+                                        output_truth_tables=output_truth_tables,
+                                        input_labels=subcircuit_inputs,
+                                        input_truth_tables=None)
 
         if isinstance(improved_circuit, Circuit):
             replaced_graph = circuit.replace_subgraph(improved_circuit, subcircuit, subcircuit_outputs)
             if nx.is_directed_acyclic_graph(replaced_graph):
                 print('\nCircuit Improved!\n', end='', flush=True)
-                improved_full_circuit = Circuit.make_circuit(replaced_graph, circuit.input_labels,
-                                                             make_improved_circuit_outputs(circuit.outputs,
-                                                                                           subcircuit_outputs,
-                                                                                           improved_circuit.outputs))
+                improved_full_circuit = Circuit(input_labels=circuit.input_labels,
+                                                outputs=make_improved_circuit_outputs(circuit.outputs,
+                                                                                      subcircuit_outputs,
+                                                                                      improved_circuit.outputs),
+                                                graph=replaced_graph)
                 return improved_full_circuit
 
         stop = timer()

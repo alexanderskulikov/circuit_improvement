@@ -3,12 +3,12 @@
 # and run the notebook.
 
 
-from circuit import Circuit
+from core.circuit import Circuit
 from math import ceil, log2
 from functions.sum import add_sum2, add_sum3, check_sum_circuit, add_sum5_suboptimal
 from functions.th import add_naive_thr2_circuit, add_efficient_thr2_circuit
-from circuit_search import CircuitFinder
-from circuit_improvement import improve_circuit
+from core.circuit_search import CircuitFinder
+from core.circuit_improvement import improve_circuit
 
 
 # Straight line program computing the binary representation of x1+x2
