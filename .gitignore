@@ -27,6 +27,7 @@ __pycache__/
 # Distribution / packaging
 .Python
 build/
+huawei/
 develop-eggs/
 dist/
 downloads/

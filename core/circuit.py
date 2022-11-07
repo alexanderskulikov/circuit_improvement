@@ -141,7 +141,7 @@ class Circuit:
         if extension == 'bench':
             file_data = self.__save_to_bench()
 
-        with open(Circuit.find_file(file_name + '.' + extension), 'w') as circuit_file:
+        with open(project_directory + '/circuits/' + file_name + '.' + extension, 'w') as circuit_file:
             circuit_file.write(file_data)
 
     def construct_graph(self, detailed_labels=True):

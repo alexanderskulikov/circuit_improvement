@@ -28,9 +28,12 @@ if __name__ == '__main__':
     command = 'r'
 
     if command == 'r':
+        start = timer()
         improved_circuit = run_improve_circuit(add_sum5_suboptimal, 5, subcircuit_size=5, connected=True)
-        print(improved_circuit)
-        improved_circuit.draw('sum5')
+        print(timer() - start)
+        if improved_circuit is not None:
+            print(improved_circuit)
+            improved_circuit.save_to_file('thr4_8')
     elif command == 'rf':
         run_file_improve_circuit('sum/sum7_sub', subcircuit_size=5, connected=True)
     elif command == 'mc':

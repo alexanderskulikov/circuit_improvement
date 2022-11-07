@@ -1,4 +1,4 @@
-from circuit import Circuit
+from core.circuit import Circuit
 from itertools import product
 
 
@@ -305,7 +305,7 @@ def add_mdfa_cut(circuit, input_labels):
     return g9, g5, g10
 
 
-def add_sum15_using_mdfa(circuit, input_labels):
+def add_sum15(circuit, input_labels):
     assert len(input_labels) == 15
     for input_label in input_labels:
         assert input_label in circuit.input_labels or input_label in circuit.gates
@@ -315,64 +315,14 @@ def add_sum15_using_mdfa(circuit, input_labels):
     a0, a1 = add_sum3(circuit, [x1, x2, x3])
     x4_xor_x5 = circuit.add_gate(x4, x5, '0110')
     x6_xor_x7 = circuit.add_gate(x6, x7, '0110')
-    b0, e1, e1_xor_f1 = add_mdfa(circuit, [x4_xor_x5, x4, a0, x6, x6_xor_x7])
+    b0, e1, e1_xor_f1 = add_mdfa(circuit, [x4, x4_xor_x5, a0, x6, x6_xor_x7])
     x8_xor_x9 = circuit.add_gate(x8, x9, '0110')
     x10_xor_x11 = circuit.add_gate(x10, x11, '0110')
-    c0, g1, g1_xor_h1 = add_mdfa(circuit, [x8_xor_x9, x8, b0, x10, x10_xor_x11])
+    c0, g1, g1_xor_h1 = add_mdfa(circuit, [x8, x8_xor_x9, b0, x10, x10_xor_x11])
     x12_xor_x13 = circuit.add_gate(x12, x13, '0110')
     x14_xor_x15 = circuit.add_gate(x14, x15, '0110')
-    w0, i1, i1_xor_j1 = add_mdfa(circuit, [x12_xor_x13, x12, c0, x14, x14_xor_x15])
-    n1, k2, k2_xor_l2 = add_mdfa(circuit, [e1_xor_f1, e1, a1, g1, g1_xor_h1])
-    w1, m2 = add_stockmeyers_block(circuit, [i1_xor_j1, i1, n1])
-    w2, w3 = add_stockmeyers_block(circuit, [k2_xor_l2, k2, m2])
-
-    return w0, w1, w2, w3
-
-
-def add_sum15_51(circuit, input_labels):
-    assert len(input_labels) == 15
-    for input_label in input_labels:
-        assert input_label in circuit.input_labels or input_label in circuit.gates
-
-    [x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15] = input_labels
-
-    a0, a1 = add_sum3(circuit, [x1, x2, x3])
-    x4_xor_x5 = circuit.add_gate(x4, x5, '0110')
-    x6_xor_x7 = circuit.add_gate(x6, x7, '0110')
-    b0, e1, e1_xor_f1 = add_mdfa(circuit, [x4_xor_x5, x4, a0, x6, x6_xor_x7])
-    x8_xor_x9 = circuit.add_gate(x8, x9, '0110')
-    x10_xor_x11 = circuit.add_gate(x10, x11, '0110')
-    c0, g1, g1_xor_h1 = add_mdfa(circuit, [x8_xor_x9, x8, b0, x10, x10_xor_x11])
-    x12_xor_x13 = circuit.add_gate(x12, x13, '0110')
-    x14_xor_x15 = circuit.add_gate(x14, x15, '0110')
-    w0, i1, i1_xor_j1 = add_mdfa(circuit, [x12_xor_x13, x12, c0, x14, x14_xor_x15])
-    n1, k2, k2_xor_l2 = add_mdfa(circuit, [e1_xor_f1, e1, a1, g1, g1_xor_h1])
-    w1, m2 = add_stockmeyers_block(circuit, [i1_xor_j1, i1, n1])
-    w2, w3 = add_stockmeyers_block(circuit, [k2_xor_l2, k2, m2])
-
-    return w0, w1, w2, w3
-
-
-def add_sum15_using_mdfa2(circuit, input_labels):
-    assert len(input_labels) == 15
-    for input_label in input_labels:
-        assert input_label in circuit.input_labels or input_label in circuit.gates
-
-    [x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15] = input_labels
-
-    a0, a1 = add_sum3(circuit, [x1, x2, x3])
-    x4_xor_x5 = circuit.add_gate(x4, x5, '0110')
-    x6_xor_x7 = circuit.add_gate(x6, x7, '0110')
-    x8_xor_x9 = circuit.add_gate(x8, x9, '0110')
-    x10_xor_x11 = circuit.add_gate(x10, x11, '0110')
-
-    b0, e1, e1_xor_f1 = add_mdfa(circuit, [x4_xor_x5, x4, a0, x6, x6_xor_x7])
-    c0, g1, g1_xor_h1 = add_mdfa(circuit, [x8_xor_x9, x8, b0, x10, x10_xor_x11])
-    n1, k2, k2_xor_l2 = add_mdfa(circuit, [e1_xor_f1, e1, a1, g1, g1_xor_h1])
-
-    x12_xor_x13 = circuit.add_gate(x12, x13, '0110')
-    x14_xor_x15 = circuit.add_gate(x14, x15, '0110')
-    w0, i1, i1_xor_j1 = add_mdfa(circuit, [x12_xor_x13, x12, c0, x14, x14_xor_x15])
+    w0, i1, i1_xor_j1 = add_mdfa(circuit, [x12, x12_xor_x13, c0, x14, x14_xor_x15])
+    n1, k2, k2_xor_l2 = add_mdfa(circuit, [e1, e1_xor_f1, a1, g1, g1_xor_h1])
     w1, m2 = add_stockmeyers_block(circuit, [i1_xor_j1, i1, n1])
     w2, w3 = add_stockmeyers_block(circuit, [k2_xor_l2, k2, m2])
 
@@ -385,12 +335,16 @@ def add_stockmeyers_block(circuit, input_labels):
         assert input_label in circuit.input_labels or input_label in circuit.gates
 
     [x2, x1_xor_x2, x3] = input_labels
-    g2 = circuit.add_gate(x2, x3, '0110')
-    g3 = circuit.add_gate(x1_xor_x2, g2, '0111')
-    g4 = circuit.add_gate(x1_xor_x2, x3, '0110')
-    g5 = circuit.add_gate(g3, g4, '0110')
+    g2 = circuit.add_gate(x2, x1_xor_x2, '0110')
+    g3 = circuit.add_gate(x2, x3, '0110')
+    sum = circuit.add_gate(g2, x3, '0110')
+    sum_xor_carry = circuit.add_gate(g2, g3, '0111')
+    # g2 = circuit.add_gate(x2, x3, '0110')
+    # g3 = circuit.add_gate(x1_xor_x2, g2, '0111')
+    # g4 = circuit.add_gate(x1_xor_x2, x3, '0110')
+    # g5 = circuit.add_gate(g3, g4, '0110')
 
-    return g4, g5
+    return sum, sum_xor_carry
 
 
 def add_stockmeyers_block_cut(circuit, input_labels):
@@ -431,7 +385,7 @@ def add_sumn(circuit, input_labels):
     n = len(input_labels)
     output = []
     if n == 1:
-        return input_labels[0]
+        return [input_labels[0]]
     assert len(input_labels) == n
     for input_label in input_labels:
         assert input_label in circuit.input_labels or input_label in circuit.gates
@@ -457,7 +411,7 @@ def add_sumn_mdfa(circuit, input_labels, is_first=True):
     n = len(input_labels)
     output = []
     if n == 1:
-        return input_labels[0]
+        return [input_labels[0]]
     assert len(input_labels) == n
     for input_label in input_labels:
         assert input_label in circuit.input_labels or input_label in circuit.gates
@@ -516,6 +470,7 @@ def check_sum_circuit(circuit):
 def run(fun, size):
     c = Circuit(input_labels=[f'x{i}' for i in range(1, size + 1)], gates={})
     c.outputs = fun(c, c.input_labels)
+    tt = c.get_truth_tables()
     check_sum_circuit(c)
     # c.save_to_file(f'sum/sum{len(c.input_labels)}_size{len(c.gates)}')
 
