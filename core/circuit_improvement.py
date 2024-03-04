@@ -1,5 +1,5 @@
-from circuit_search import find_circuit
-from circuit import Circuit
+from core.circuit_search import find_circuit
+from core.circuit import Circuit
 from itertools import combinations, product
 import networkx as nx
 from timeit import default_timer as timer
