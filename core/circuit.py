@@ -224,7 +224,7 @@ class Circuit:
                                                                   improved_circuit.outputs[i])
         return replaced_graph
 
-    # TODO: check this method
+
     def draw(self, file_name='circuit', detailed_labels=True, experimental=False):
         circuit_graph = self.construct_graph(detailed_labels)
         a = nx.nx_agraph.to_agraph(circuit_graph)
