@@ -231,7 +231,23 @@ def add_sum10_suboptimal(circuit, input_labels):
     return w0, w1, w2, w3
 
 
-def add_sum15(circuit, input_labels):
+def add_sum11_size36(circuit, input_labels):
+    assert len(input_labels) == 11
+    for input_label in input_labels:
+        assert input_label in circuit.input_labels or input_label in circuit.gates
+
+    [x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11] = input_labels
+
+    a0, a1, a2 = add_sum7(circuit, [x1, x2, x3, x4, x5, x6, x7])
+    b0, b1 = add_sum3(circuit, [a0, x8, x9])
+    w0, c1 = add_sum3(circuit, [b0, x10, x11])
+    w1, d2 = add_sum3(circuit, [a1, b1, c1])
+    w2, w3 = add_sum2(circuit, [a2, d2])
+
+    return w0, w1, w2, w3
+
+
+def add_sum15_size53(circuit, input_labels):
     assert len(input_labels) == 15
     for input_label in input_labels:
         assert input_label in circuit.input_labels or input_label in circuit.gates
@@ -305,7 +321,7 @@ def add_mdfa_cut(circuit, input_labels):
     return g9, g5, g10
 
 
-def add_sum15(circuit, input_labels):
+def add_sum15_size51(circuit, input_labels):
     assert len(input_labels) == 15
     for input_label in input_labels:
         assert input_label in circuit.input_labels or input_label in circuit.gates
@@ -480,6 +496,7 @@ def check_various_sum_circuits():
     # run(add_sumn, 15)
     for n in range(2, 16):
         # run(add_sumn_mdfa, 5)
+        print(f'Checking SUM{n}')
         run(add_sumn_mdfa, n)
     # run(add_sumn_mdfa, 4)
     # run(add_sumn_mdfa, 3)
