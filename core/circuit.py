@@ -132,7 +132,7 @@ class Circuit:
     def __save_to_bench(self):
         file_data = '\n'.join(f'INPUT({l})' for l in self.input_labels) + '\n'
 
-        neg_counter = 1
+        neg_prefix, neg_counter = 'tmpneg', 1
         for gate in self.gates:
             first, second, gate_type = self.gates[gate]
             if gate_type == '0110':
@@ -141,8 +141,14 @@ class Circuit:
                 file_data += f'\n{gate}=AND({first}, {second})'
             elif gate_type == '0111':
                 file_data += f'\n{gate}=OR({first}, {second})'
+            elif gate_type == '0010':
+                new_var = f'{neg_prefix}{neg_counter}'
+                neg_counter += 1
+
+                file_data += f'\n{new_var}=NOT({second})'
+                file_data += f'\n{gate}=AND({first}, {new_var})'
             else:
-                assert 'Not implemented', gate_type
+                assert False, f'Gate type not yet supported: {gate_type}'
 
         file_data += '\n\n' + '\n'.join(f'OUTPUT({l})' for l in self.outputs)
 
