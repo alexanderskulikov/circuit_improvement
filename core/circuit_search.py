@@ -50,7 +50,7 @@ class CircuitFinder:
         self.input_truth_tables = input_truth_tables
         self.number_of_gates = number_of_gates
         self.is_normal = all(table[0] != '1' for table in self.output_truth_tables)
-        self.is_normal = False
+        # self.is_normal = False
 
         assert all(len(table) == 1 << dimension for table in self.output_truth_tables)
         assert all(all(symbol in "01*" for symbol in table) for table in self.output_truth_tables)

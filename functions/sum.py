@@ -77,7 +77,6 @@ def add_sum5(circuit, input_labels):
     g10 = circuit.add_gate(g3, g8, '0110')
     g11 = circuit.add_gate(g5, g10, '0010')
 
-    print(g9,g10,g11)
     return g9, g10, g11
 
 
@@ -386,7 +385,23 @@ def add_sum10_suboptimal(circuit, input_labels):
     return w0, w1, w2, w3
 
 
-def add_sum15(circuit, input_labels):
+def add_sum11_size36(circuit, input_labels):
+    assert len(input_labels) == 11
+    for input_label in input_labels:
+        assert input_label in circuit.input_labels or input_label in circuit.gates
+
+    [x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11] = input_labels
+
+    a0, a1, a2 = add_sum7(circuit, [x1, x2, x3, x4, x5, x6, x7])
+    b0, b1 = add_sum3(circuit, [a0, x8, x9])
+    w0, c1 = add_sum3(circuit, [b0, x10, x11])
+    w1, d2 = add_sum3(circuit, [a1, b1, c1])
+    w2, w3 = add_sum2(circuit, [a2, d2])
+
+    return w0, w1, w2, w3
+
+
+def add_sum15_size53(circuit, input_labels):
     assert len(input_labels) == 15
     for input_label in input_labels:
         assert input_label in circuit.input_labels or input_label in circuit.gates

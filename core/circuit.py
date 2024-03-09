@@ -139,7 +139,7 @@ class Circuit:
     def __save_to_ckt(self):
         file_data = ''
         file_data += f'{len(self.input_labels)} {len(self.gates)} {len(self.outputs)}\n'
-        file_data += ' '.join(self.input_labels)
+        file_data += ' '.join(map(str, self.input_labels))
 
         for gate in self.gates:
             first, second, gate_type = self.gates[gate]
@@ -147,9 +147,30 @@ class Circuit:
         file_data += '\n' + ' '.join([str(i) for i in self.outputs])
         return file_data
 
-    # TODO: write this method
     def __save_to_bench(self):
-        return 'lol'
+        file_data = '\n'.join(f'INPUT({l})' for l in self.input_labels) + '\n'
+
+        neg_prefix, neg_counter = 'tmpneg', 1
+        for gate in self.gates:
+            first, second, gate_type = self.gates[gate]
+            if gate_type == '0110':
+                file_data += f'\n{gate}=XOR({first}, {second})'
+            elif gate_type == '0001':
+                file_data += f'\n{gate}=AND({first}, {second})'
+            elif gate_type == '0111':
+                file_data += f'\n{gate}=OR({first}, {second})'
+            elif gate_type == '0010':
+                new_var = f'{neg_prefix}{neg_counter}'
+                neg_counter += 1
+
+                file_data += f'\n{new_var}=NOT({second})'
+                file_data += f'\n{gate}=AND({first}, {new_var})'
+            else:
+                assert False, f'Gate type not yet supported: {gate_type}'
+
+        file_data += '\n\n' + '\n'.join(f'OUTPUT({l})' for l in self.outputs)
+
+        return file_data
 
     def save_to_file(self, file_name, extension='ckt'):
         file_data = ''
@@ -159,8 +180,10 @@ class Circuit:
         if extension == 'bench':
             file_data = self.__save_to_bench()
 
-        with open(project_directory + '/circuits/' + file_name + '.' + extension, 'w') as circuit_file:
+        path = project_directory + '/circuits/' + file_name + '.' + extension
+        with open(path, 'w') as circuit_file:
             circuit_file.write(file_data)
+        print(f'Circuit file: {path}')
 
     def construct_graph(self, detailed_labels=True):
         circuit_graph = nx.DiGraph()
@@ -225,7 +248,7 @@ class Circuit:
                                                                   improved_circuit.outputs[i])
         return replaced_graph
 
-    # TODO: check this method
+
     def draw(self, file_name='circuit', detailed_labels=True, experimental=False):
         circuit_graph = self.construct_graph(detailed_labels)
         a = nx.nx_agraph.to_agraph(circuit_graph)
