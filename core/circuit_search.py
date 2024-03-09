@@ -1,6 +1,6 @@
-from circuit import Circuit
+from core.circuit import Circuit
 from itertools import combinations, product, permutations
-from functions2 import BooleanFunction
+from core.functions2 import BooleanFunction
 import os
 import pycosat
 import sys
