@@ -21,13 +21,20 @@ def add_sum3(circuit, input_labels):
 
     [x1, x2, x3] = input_labels
 
-    g1 = circuit.add_gate(x1, x2, '0110')
-    g2 = circuit.add_gate(x2, x3, '0110')
-    g3 = circuit.add_gate(g1, g2, '0111')
-    g4 = circuit.add_gate(g1, x3, '0110')
-    g5 = circuit.add_gate(g3, g4, '0110')
+    # g1 = circuit.add_gate(x1, x2, '0110')
+    # g2 = circuit.add_gate(x2, x3, '0110')
+    # g3 = circuit.add_gate(g1, g2, '0111')
+    # g4 = circuit.add_gate(g1, x3, '0110')
+    # g5 = circuit.add_gate(g3, g4, '0110')
+    # return g4, g5
 
-    return g4, g5
+    g1 = circuit.add_gate(x1, x2, '0110')
+    g2 = circuit.add_gate(g1, x3, '0110')
+
+    g3 = circuit.add_gate(x1, x2, '0001')
+    g4 = circuit.add_gate(g1, x3, '0001')
+    g5 = circuit.add_gate(g3, g4, '0110')
+    return g2, g5
 
 
 def add_sum4(circuit, input_labels):
