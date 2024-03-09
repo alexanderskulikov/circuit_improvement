@@ -2,7 +2,12 @@ from itertools import product
 import networkx as nx
 import os
 
-project_directory = os.path.dirname(os.path.abspath("path"))
+project_directory = os.path.dirname(os.path.abspath("path")) + '/../'
+
+
+def ch(string):
+    string = str(string)
+    return "ch" + string if string.isnumeric() else string
 
 
 class Circuit:
@@ -36,6 +41,7 @@ class Circuit:
         'NOT': '1100',
         'NAND': '1110',
         'NOR': '1000',
+        'NXOR': '1001',
 
 
         '1001': '=',
@@ -100,15 +106,27 @@ class Circuit:
             if len(line) == 0 or line.startswith('#'):
                 continue
             elif line.startswith('INPUT'):
-                self.input_labels.append(line[6:-1])
+                self.input_labels.append(ch(line[6:-1]))
             elif line.startswith('OUTPUT'):
-                self.outputs.append(line[7:-1])
+                self.outputs.append(ch(line[7:-1]))
             else:
                 nls = line.replace(" ", "").replace("=", ",").replace("(", ",").replace(")", "").split(",")
                 if len(nls) == 4:
-                    self.gates[nls[0]] = (nls[2], nls[3], self.gate_bench_types[nls[1]])
+                    self.gates[ch(nls[0])] = (ch(nls[2]), ch(nls[3]), self.gate_bench_types[nls[1]])
+                elif len(nls) == 3:
+                    self.gates[ch(nls[0])] = (ch(nls[2]), ch(nls[2]), self.gate_bench_types[nls[1]])
                 else:
-                    self.gates[nls[0]] = (nls[2], nls[2], self.gate_bench_types[nls[1]])
+                    gatename = ch(nls[0])
+                    opername = nls[1]
+                    nls = nls[2:]
+                    prev = nls[0] + "plus" + gatename
+                    self.gates[prev] = (ch(nls[0]), ch(nls[1]), self.gate_bench_types[opername])
+                    for i in range(2, len(nls)):
+                        neww = nls[i] + "plus" + gatename
+                        if i == len(nls) - 1:
+                            neww = gatename
+                        self.gates[neww] = (prev, ch(nls[i]), self.gate_bench_types[opername])
+                        prev = neww
 
     def load_from_file(self, file_name, extension='ckt'):
         with open(Circuit.find_file(file_name + '.' + extension)) as circuit_file:
