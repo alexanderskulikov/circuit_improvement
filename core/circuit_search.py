@@ -1,6 +1,6 @@
-from core.circuit import Circuit
-from itertools import combinations, product
-from core.functions2 import BooleanFunction
+from circuit import Circuit
+from itertools import combinations, product, permutations
+from functions2 import BooleanFunction
 import os
 import pycosat
 import sys
@@ -63,6 +63,12 @@ class CircuitFinder:
         self.gates = list(range(number_of_input_gates + number_of_gates))
         self.outputs = list(range(number_of_outputs))
 
+        # if all(str(gate) not in self.input_labels for gate in self.internal_gates):
+        #     a = 0
+        # else:
+        #     print(self.input_labels)
+        #     print(self.internal_gates)
+        #     print(self)
         assert all(str(gate) not in self.input_labels for gate in self.internal_gates)
 
         self.forbidden_operations = forbidden_operations or []
@@ -103,6 +109,24 @@ class CircuitFinder:
         assert gate in self.gates
         assert 0 <= t < 1 << self.dimension
         return self.variable_number(f'x_{gate}_{t}')
+
+    # def getSeveralClauses(self, list, t):
+    #     for (gate1, gate2, gate3) in product(self.internal_gates, repeat=3):
+    #         acc1 = -self.output_gate_variable(self.outputs[0], gate1)
+    #         acc2 = -self.output_gate_variable(self.outputs[1], gate2)
+    #         acc3 = -self.output_gate_variable(self.outputs[2], gate3)
+    #         g1 = self.gate_value_variable(gate1, t)
+    #         g2 = self.gate_value_variable(gate2, t)
+    #         g3 = self.gate_value_variable(gate3, t)
+    #         if list == ['001', '010', '110']:
+    #             self.clauses += [[acc1, acc2, acc3, -g1, -g3]]
+    #             self.clauses += [[acc1, acc2, acc3, -g2, -g3]]
+    #             self.clauses += [[acc1, acc2, acc3, g2, g3]]
+    #         if list == ['111', '011', '100']:
+    #             self.clauses += [[acc1, acc2, acc3, g1, g2]]
+    #             self.clauses += [[acc1, acc2, acc3, -g2, g3]]
+    #             self.clauses += [[acc1, acc2, acc3, g2, -g3]]
+
 
     def init_default_cnf_formula(self):
         def exactly_one_of(literals):
@@ -149,6 +173,30 @@ class CircuitFinder:
                         ]]
 
         # each output h computes the right value
+        # equmap = {}
+        # equmap['001'] = ['001', '010', '110']
+        # equmap['111'] = ['111', '011', '100']
+        #
+        # for t in range(1 << self.dimension):
+        #     rowtt = ''
+        #     for h in self.outputs:
+        #         rowtt += self.output_truth_tables[h][t]
+        #
+        #     if rowtt in equmap:
+        #         self.getSeveralClauses(equmap[rowtt], t)
+        #         continue
+        #
+        #     for i in range(len(self.outputs)):
+        #         h = self.outputs[i]
+        #         if self.output_truth_tables[h][t] == '*':
+        #             continue
+        #
+        #         for gate in self.internal_gates:
+        #             self.clauses += [[
+        #                 -self.output_gate_variable(h, gate),
+        #                 (1 if self.output_truth_tables[h][t] == '1' else -1) * self.gate_value_variable(gate, t)
+        #             ]]
+
         for h in self.outputs:
             for t in range(1 << self.dimension):
                 if self.output_truth_tables[h][t] == '*':
@@ -300,12 +348,13 @@ class CircuitFinder:
                 self.clauses += [[-self.predecessors_variable(to_gate, min(other, from_gate), max(other, from_gate))]]
 
 
-def find_circuit(dimension, number_of_gates, input_labels, input_truth_tables, output_truth_tables):
+def find_circuit(dimension, number_of_gates, input_labels, input_truth_tables, output_truth_tables, forbidden_operations):
     circuit_finder = CircuitFinder(dimension=dimension,
                                    number_of_gates=number_of_gates,
                                    input_labels=input_labels,
                                    input_truth_tables=input_truth_tables,
-                                   output_truth_tables=output_truth_tables)
+                                   output_truth_tables=output_truth_tables,
+                                   forbidden_operations=forbidden_operations)
     return circuit_finder.solve_cnf_formula(solver=None, verbose=0)
 
 
@@ -324,7 +373,8 @@ if __name__ == '__main__':
                            number_of_gates=number_of_gates,
                            output_truth_tables=output_truth_tables,
                            input_labels=None,
-                           input_truth_tables=None)
+                           input_truth_tables=None,
+                           forbidden_operations=None)
     end = timer()
 
     if not circuit:

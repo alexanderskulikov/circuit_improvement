@@ -74,6 +74,16 @@ def get_inputs_and_outputs(circuit, circuit_graph, subcircuit):
     return subcircuit_inputs, subcircuit_outputs
 
 
+def convert_keys_to_strings(dictionary):
+    new_dict = {}
+    for key, value in dictionary.items():
+        if isinstance(key, int):
+            new_key = str(key)
+        else:
+            new_key = key
+        new_dict[new_key] = value
+    return new_dict
+
 def improve_circuit(circuit, subcircuit_size=5, connected=True):
     print('Trying to improve a circuit of size', len(circuit.gates), flush=True)
     circuit_graph = circuit.construct_graph()
@@ -97,7 +107,8 @@ def improve_circuit(circuit, subcircuit_size=5, connected=True):
                                         number_of_gates=subcircuit_size - 1,
                                         output_truth_tables=output_truth_tables,
                                         input_labels=subcircuit_inputs,
-                                        input_truth_tables=None)
+                                        input_truth_tables=None,
+                                        forbidden_operations=[])
 
         if isinstance(improved_circuit, Circuit):
             replaced_graph = circuit.replace_subgraph(improved_circuit, subcircuit, subcircuit_outputs)
@@ -108,6 +119,8 @@ def improve_circuit(circuit, subcircuit_size=5, connected=True):
                                                                                       subcircuit_outputs,
                                                                                       improved_circuit.outputs),
                                                 graph=replaced_graph)
+
+                improved_full_circuit.gates = convert_keys_to_strings(improved_full_circuit.gates)
                 return improved_full_circuit
 
         stop = timer()

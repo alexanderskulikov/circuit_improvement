@@ -1,4 +1,5 @@
 from circuit_improvement import *
+from circuit_pair_finder import *
 from functions.ex3 import *
 from functions.ex2 import *
 from functions.sum import *
@@ -11,7 +12,9 @@ from functions.th import *
 def run_file_improve_circuit(filename, subcircuit_size=5, connected=True):
     print(f'Run {filename}...')
     circuit = Circuit()
-    circuit.load_from_file(filename)
+    circuit.load_from_file(filename, extension='ckt')
+    if isinstance(circuit.outputs, str):
+        circuit.outputs = [circuit.outputs]
     return improve_circuit(circuit, subcircuit_size, connected)
 
 
@@ -21,21 +24,27 @@ def run_improve_circuit(fun, input_size, subcircuit_size=5, connected=True):
     circuit.outputs = fun(circuit, circuit.input_labels)
     if isinstance(circuit.outputs, str):
         circuit.outputs = [circuit.outputs]
-    return improve_circuit(circuit, subcircuit_size, connected)
+    return improve_circuit(circuit)
 
 
 if __name__ == '__main__':
-    command = 'r'
+    command = 'rf'
 
     if command == 'r':
         start = timer()
-        improved_circuit = run_improve_circuit(add_sum5_suboptimal, 5, subcircuit_size=5, connected=True)
+        improved_circuit = run_improve_circuit(add_sum7_exp, 7, subcircuit_size=6, connected=True)
         print(timer() - start)
         if improved_circuit is not None:
             print(improved_circuit)
-            improved_circuit.save_to_file('thr4_8')
+            improved_circuit.save_to_file('sum7_min')
     elif command == 'rf':
-        run_file_improve_circuit('sum/sum7_sub', subcircuit_size=5, connected=True)
+        start = timer()
+        filename = "sum7_min_B"
+        improved_circuit = run_file_improve_circuit(filename, subcircuit_size=7, connected=True)
+        print(timer() - start)
+        if improved_circuit is not None:
+            print(improved_circuit)
+            improved_circuit.save_to_file('sum7_min_B')
     elif command == 'mc':
         Circuit.make_code('ex/ex2_over1_size13', 'code')
     elif command == 'd':

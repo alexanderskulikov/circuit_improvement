@@ -123,26 +123,28 @@ def add_maj7(circuit, input_labels):
         assert input_label in circuit.input_labels or input_label in circuit.gates
 
     [x1, x2, x3, x4, x5, x6, x7] = input_labels
+
     z0 = circuit.add_gate(x1, x2, '0110')
     z1 = circuit.add_gate(x2, x3, '0110')
     z2 = circuit.add_gate(z0, z1, '0111')
     z3 = circuit.add_gate(z0, x3, '0110')
     z4 = circuit.add_gate(z2, z3, '0110')
+
     z5 = circuit.add_gate(x4, z3, '0110')
     z6 = circuit.add_gate(x4, x5, '0110')
     z7 = circuit.add_gate(z5, z6, '0010')
     z8 = circuit.add_gate(z3, z6, '0110')
     z9 = circuit.add_gate(z2, z7, '0110')
     z10 = circuit.add_gate(z4, z9, '0010')
-    z11 = circuit.add_gate(z8, x6, '0110')
-    z12 = circuit.add_gate(x6, x7, '0110')
-    z13 = circuit.add_gate(z11, z12, '0111')
-    z14 = circuit.add_gate(z11, x7, '0110')
-    z15 = circuit.add_gate(z13, z14, '0110')
-    z17 = circuit.add_gate(z9, z15, '0001')
-    z18 = circuit.add_gate(z10, z17, '0110')
 
-    return z18
+    a3 = circuit.add_gate(x7, z8, '0001')
+    a4 = circuit.add_gate(x7, z8, '1000')
+    a5 = circuit.add_gate(x6, a4, '0010')
+    a6 = circuit.add_gate(a3, a5, '0111')
+    z16 = circuit.add_gate(z9, a6, '0001')
+    z17 = circuit.add_gate(z10, z16, '0110')
+
+    return z17
 
 
 def add_op36(circuit, input_labels):
