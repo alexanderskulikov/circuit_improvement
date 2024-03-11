@@ -256,7 +256,6 @@ def add_sum7_exp2(circuit, input_labels):
     return r6, g8, g10
 
 
-
 def add_sum7_suboptimal(circuit, input_labels):
     assert len(input_labels) == 7
     for input_label in input_labels:
@@ -270,6 +269,7 @@ def add_sum7_suboptimal(circuit, input_labels):
     d1, d2 = add_sum3(circuit, [a1, b1, c1])
 
     return c0, d1, d2
+
 
 def add_sum7_suboptimal_n(circuit, input_labels):
     assert len(input_labels) == 7
@@ -408,6 +408,20 @@ def add_sum11_size36(circuit, input_labels):
     return w0, w1, w2, w3
 
 
+def add_sum13_size45(circuit, input_labels):
+    assert len(input_labels) == 13
+    for input_label in input_labels:
+        assert input_label in circuit.input_labels or input_label in circuit.gates
+
+    x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13 = input_labels
+    a0, a1, a2 = add_sum7(circuit, [x1, x2, x3, x4, x5, x6, x7])
+    w0, b1, b2 = add_sum7(circuit, [a0, x8, x9, x10, x11, x12, x13])
+    w1, c2 = add_sum2(circuit, [a1, b1])
+    w2, w3 = add_sum3(circuit, [a2, b2, c2])
+
+    return w0, w1, w2, w3
+
+
 def add_sum15_size53(circuit, input_labels):
     assert len(input_labels) == 15
     for input_label in input_labels:
@@ -522,7 +536,8 @@ def add_sum8_mdfa(circuit, input_labels):
     return w0, w1, w2, w3
 
 
-def add_sum15(circuit, input_labels):
+# incorrect circuit! TODO: fix it
+def add_sum15_size51(circuit, input_labels):
     assert len(input_labels) == 15
     for input_label in input_labels:
         assert input_label in circuit.input_labels or input_label in circuit.gates
@@ -862,7 +877,7 @@ def check_sum_circuit(circuit):
 def run(fun, size):
     c = Circuit(input_labels=[f'x{i}' for i in range(1, size + 1)], gates={})
     c.outputs = fun(c, c.input_labels)
-    tt = c.get_truth_tables()
+    # tt = c.get_truth_tables()
     check_sum_circuit(c)
     # c.save_to_file(f'sum/sum{len(c.input_labels)}_size{len(c.gates)}')
 
@@ -1097,6 +1112,7 @@ def check_various_sum_circuits():
     run(add_sum9, 9)
     run(add_sum10, 10)
     run(add_sum10_suboptimal, 10)
+
 
 if __name__ == '__main__':
     check_various_sum_circuits()
