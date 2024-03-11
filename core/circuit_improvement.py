@@ -84,11 +84,12 @@ def convert_keys_to_strings(dictionary):
         new_dict[new_key] = value
     return new_dict
 
+
 def improve_circuit(circuit, subcircuit_size=5, connected=True):
     print('Trying to improve a circuit of size', len(circuit.gates), flush=True)
     circuit_graph = circuit.construct_graph()
     total, current, time = correct_subcircuit_count(circuit, subcircuit_size, connected=connected), 0, 0
-    print(f'\nEnumerating subcircuits of size {subcircuit_size} (total={total})...')
+    print(f'\nEnumerating subcircuits of size {subcircuit_size} (total={total})...', flush=True)
     for graph in (circuit_graph.subgraph(selected_nodes) for selected_nodes in
                   combinations(circuit.gates, subcircuit_size)):
         if connected and not nx.is_weakly_connected(graph):
