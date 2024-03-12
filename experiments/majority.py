@@ -4,10 +4,10 @@ from core.circuit_search import *
 
 
 def verify_majority_circuit(circuit):
-    n = len(circuit.input_labels)
     table = circuit.get_truth_tables()[circuit.outputs[0]]
-    for value, x in enumerate(product(range(2), repeat=n)):
+    for value, x in enumerate(product(range(2), repeat=len(circuit.input_labels))):
         assert (table[value] == 1) == (sum(x) > n / 2)
+
 
 
 def synthesize_maj_circuit_via_sum(n):
@@ -49,10 +49,3 @@ def f(x):
 
 finder = CircuitFinder(dimension=5, function=f, number_of_gates=7)
 print(finder.solve_cnf_formula(verbose=True))
-
-
-
-
-
-
-
