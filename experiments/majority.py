@@ -1,5 +1,6 @@
 from core.circuit_improvement import improve_circuit
 from functions.sum import *
+from core.circuit_search import *
 
 
 def verify_majority_circuit(circuit):
@@ -9,7 +10,7 @@ def verify_majority_circuit(circuit):
         assert (table[value] == 1) == (sum(x) > n / 2)
 
 
-def get_best_known_majority_circuit(n):
+def synthesize_maj_circuit_via_sum(n):
     circuit = Circuit(input_labels=[f'x{i}' for i in range(1, n + 1)])
 
     if n == 9:
@@ -41,6 +42,17 @@ def get_best_known_majority_circuit(n):
     return circuit
 
 
-maj_circuit = get_best_known_majority_circuit(11)
-maj_circuit.save_to_file('maj11_size36', extension='bench')
+def f(x):
+    b2, b1, a0, x8, x9 = x
+    return [1 if 4 * b2 + 2 * b1 + a0 + x8 + x9 >= 5 else 0, ]
+
+
+finder = CircuitFinder(dimension=5, function=f, number_of_gates=7)
+print(finder.solve_cnf_formula(verbose=True))
+
+
+
+
+
+
 
