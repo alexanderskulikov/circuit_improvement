@@ -4,17 +4,17 @@ from core.circuit_search import *
 
 
 def verify_majority_circuit(circuit):
+    n = len(circuit.input_labels)
     table = circuit.get_truth_tables()[circuit.outputs[0]]
-    for value, x in enumerate(product(range(2), repeat=len(circuit.input_labels))):
+    for value, x in enumerate(product(range(2), repeat=n)):
         assert (table[value] == 1) == (sum(x) > n / 2)
-
 
 
 def synthesize_maj_circuit_via_sum(n):
     circuit = Circuit(input_labels=[f'x{i}' for i in range(1, n + 1)])
 
     if n == 9:
-        w0, w1, w2, w3 = add_sum9(circuit, circuit.input_labels)
+        w0, w1, w2, w3 = add_sum9_size27(circuit, circuit.input_labels)
         y1 = circuit.add_gate(w0, w1, '0111')
         y2 = circuit.add_gate(y1, w2, '0001')
         y3 = circuit.add_gate(y2, w3, '0111')
@@ -26,8 +26,8 @@ def synthesize_maj_circuit_via_sum(n):
         circuit.outputs = [y2, ]
     elif n == 13:
         x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13 = circuit.input_labels
-        a0, a1, a2 = add_sum7(circuit, [x1, x2, x3, x4, x5, x6, x7])
-        w0, b1, b2 = add_sum7(circuit, [a0, x8, x9, x10, x11, x12, x13])
+        a0, a1, a2 = add_sum7_size19(circuit, [x1, x2, x3, x4, x5, x6, x7])
+        w0, b1, b2 = add_sum7_size19(circuit, [a0, x8, x9, x10, x11, x12, x13])
         w1, c2 = add_sum2(circuit, [a1, b1])
         w2, w3 = add_sum3(circuit, [a2, b2, c2])
         y1 = circuit.add_gate(w0, w1, '0001')
@@ -35,7 +35,7 @@ def synthesize_maj_circuit_via_sum(n):
         y3 = circuit.add_gate(y2, w3, '0111')
         circuit.outputs = [y3, ]
     elif n == 15:
-        w0, w1, w2, w3 = add_sum15_size53(circuit, circuit.input_labels)
+        w0, w1, w2, w3 = add_sum15_size51(circuit, circuit.input_labels)
         circuit.outputs = [w3]
 
     verify_majority_circuit(circuit)
@@ -43,9 +43,18 @@ def synthesize_maj_circuit_via_sum(n):
 
 
 def f(x):
-    b2, b1, a0, x8, x9 = x
-    return [1 if 4 * b2 + 2 * b1 + a0 + x8 + x9 >= 5 else 0, ]
+    b0, b1, b2, x8, x9 = x
+    return [1 if 4 * b2 + 2 * b1 + b0 + x8 + x9 >= 5 else 0, ]
 
 
-finder = CircuitFinder(dimension=5, function=f, number_of_gates=7)
-print(finder.solve_cnf_formula(verbose=True))
+# sum7 = Circuit(input_labels=[f'x{i}' for i in range(1, 8)])
+# b0, b1, b2 = add_sum7_size19(sum7, sum7.input_labels)
+# sum7.save_to_file('test239', extension='ckt')
+#
+# finder = CircuitFinder(dimension=5, function=f, number_of_gates=8, input_labels=[b0, b1, b2, 'x8', 'x9'])
+# block = finder.solve_cnf_formula(verbose=True)
+# block.save_to_file('block', extension='ckt')
+
+circuit = Circuit()
+circuit.load_from_file('maj09_size27')
+verify_majority_circuit(circuit)
