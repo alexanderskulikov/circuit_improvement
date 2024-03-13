@@ -165,6 +165,12 @@ class Circuit:
 
                 file_data += f'\n{new_var}=NOT({second})'
                 file_data += f'\n{gate}=AND({first}, {new_var})'
+            elif gate_type == '0100':
+                new_var = f'{neg_prefix}{neg_counter}'
+                neg_counter += 1
+
+                file_data += f'\n{new_var}=NOT({first})'
+                file_data += f'\n{gate}=AND({new_var}, {second})'
             elif gate_type == '1000':
                 file_data += f'\n{gate}=NOR({first}, {second})'
             else:
