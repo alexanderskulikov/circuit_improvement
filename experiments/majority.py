@@ -40,21 +40,3 @@ def synthesize_maj_circuit_via_sum(n):
 
     verify_majority_circuit(circuit)
     return circuit
-
-
-def f(x):
-    b0, b1, b2, x8, x9 = x
-    return [1 if 4 * b2 + 2 * b1 + b0 + x8 + x9 >= 5 else 0, ]
-
-
-# sum7 = Circuit(input_labels=[f'x{i}' for i in range(1, 8)])
-# b0, b1, b2 = add_sum7_size19(sum7, sum7.input_labels)
-# sum7.save_to_file('test239', extension='ckt')
-#
-# finder = CircuitFinder(dimension=5, function=f, number_of_gates=8, input_labels=[b0, b1, b2, 'x8', 'x9'])
-# block = finder.solve_cnf_formula(verbose=True)
-# block.save_to_file('block', extension='ckt')
-
-circuit = Circuit()
-circuit.load_from_file('maj09_size27')
-verify_majority_circuit(circuit)
