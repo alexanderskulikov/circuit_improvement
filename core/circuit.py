@@ -2,7 +2,7 @@ from itertools import product
 import networkx as nx
 import os
 
-project_directory = os.path.dirname(os.path.abspath("path")) + '/../'
+project_directory = os.path.dirname(os.path.abspath("path"))
 
 
 def ch(string):
@@ -155,6 +155,8 @@ class Circuit:
             first, second, gate_type = self.gates[gate]
             if gate_type == '0110':
                 file_data += f'\n{gate}=XOR({first}, {second})'
+            elif gate_type == '1001':
+                file_data += f'\n{gate}=NXOR({first}, {second})'
             elif gate_type == '0001':
                 file_data += f'\n{gate}=AND({first}, {second})'
             elif gate_type == '0111':
@@ -162,15 +164,18 @@ class Circuit:
             elif gate_type == '0010':
                 new_var = f'{neg_prefix}{neg_counter}'
                 neg_counter += 1
-
                 file_data += f'\n{new_var}=NOT({second})'
                 file_data += f'\n{gate}=AND({first}, {new_var})'
             elif gate_type == '0100':
                 new_var = f'{neg_prefix}{neg_counter}'
                 neg_counter += 1
-
                 file_data += f'\n{new_var}=NOT({first})'
                 file_data += f'\n{gate}=AND({new_var}, {second})'
+            elif gate_type == '1011':
+                new_var = f'{neg_prefix}{neg_counter}'
+                neg_counter += 1
+                file_data += f'\n{new_var}=NOT({second})'
+                file_data += f'\n{gate}=OR({first}, {new_var})'
             elif gate_type == '1000':
                 file_data += f'\n{gate}=NOR({first}, {second})'
             else:
