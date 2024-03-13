@@ -1,9 +1,11 @@
 from core.circuit_search import find_circuit
 from core.circuit import Circuit
+from datetime import datetime
 from itertools import combinations, product
 import networkx as nx
-from timeit import default_timer as timer
 import random
+from string import ascii_lowercase
+from timeit import default_timer as timer
 
 
 def correct_subcircuit_count(circuit, subcircuit_size=7, connected=True):
@@ -85,6 +87,21 @@ def convert_keys_to_strings(dictionary):
     return new_dict
 
 
+def fix_internal_gates_names(circuit):
+    random.seed(datetime.now().timestamp())
+    prefix = ''.join(random.choice(ascii_lowercase) for _ in range(5))
+    new_gates = dict()
+
+    def new_name(old_name):
+        return old_name if not str(old_name).isnumeric() else prefix + str(old_name)
+
+    for gate in circuit.gates:
+        first, second, gate_type = circuit.gates[gate]
+        new_gates[new_name(gate)] = new_name(first), new_name(second), gate_type
+
+    circuit.gates = new_gates
+
+
 def improve_circuit(circuit, subcircuit_size=5, connected=True):
     print('Trying to improve a circuit of size', len(circuit.gates), flush=True)
     circuit_graph = circuit.construct_graph()
@@ -121,7 +138,8 @@ def improve_circuit(circuit, subcircuit_size=5, connected=True):
                                                                                       improved_circuit.outputs),
                                                 graph=replaced_graph)
 
-                improved_full_circuit.gates = convert_keys_to_strings(improved_full_circuit.gates)
+                # improved_full_circuit.gates = convert_keys_to_strings(improved_full_circuit.gates)
+                fix_internal_gates_names(improved_full_circuit)
                 return improved_full_circuit
 
         stop = timer()
