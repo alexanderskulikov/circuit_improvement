@@ -240,7 +240,7 @@ def add_sum10_suboptimal(circuit, input_labels):
 
     [x1, x2, x3, x4, x5, x6, x7, x8, x9, x10] = input_labels
 
-    a0, a1, a2 = add_sum6(circuit, [x1, x2, x3, x4, x5, x6])
+    a0, a1, a2 = add_sum6_size16(circuit, [x1, x2, x3, x4, x5, x6])
     w0, b1, b2 = add_sum5_size11(circuit, [a0, x7, x8, x9, x10])
     w1, c1 = add_sum2(circuit, [b1, a1])
     w2, w3 = add_sum3(circuit, [a2, b2, c1])
@@ -402,6 +402,6 @@ def check_sum_circuit(circuit):
 
 
 if __name__ == '__main__':
-    circuit = Circuit(input_labels=[f'x{i}' for i in range(8)])
-    circuit.outputs = add_sum8_size23(circuit, circuit.input_labels)
-    check_sum_circuit(circuit)
+    ckt = Circuit(input_labels=[f'x{i}' for i in range(8)])
+    ckt.outputs = add_sum8_size23(ckt, ckt.input_labels)
+    check_sum_circuit(ckt)
