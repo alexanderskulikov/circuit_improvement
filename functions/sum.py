@@ -111,7 +111,7 @@ def add_sum5_size12(circuit, input_labels):
     return w0, w1, w2
 
 
-def add_sum6(circuit, input_labels):
+def add_sum6_size16(circuit, input_labels):
     assert len(input_labels) == 6
     for input_label in input_labels:
         assert input_label in circuit.input_labels or input_label in circuit.gates
@@ -156,6 +156,22 @@ def add_sum7_size20(circuit, input_labels):
     return c0, d1, d2
 
 
+def add_sum8_size23(circuit, input_labels):
+    assert len(input_labels) == 8
+    for input_label in input_labels:
+        assert input_label in circuit.input_labels or input_label in circuit.gates
+
+    x1, x2, x3, x4, x5, x6, x7, x8 = input_labels
+
+    a0, a1, a2 = add_sum5_size11(circuit, [x1, x2, x3, x4, x5])
+    b0, b1 = add_sum3(circuit, [a0, x6, x7])
+    w0, c1 = add_sum2(circuit, [b0, x8])
+    w1, d2 = add_sum3(circuit, [a1, b1, c1])
+    w2, w3 = add_sum2(circuit, [a2, d2])
+
+    return w0, w1, w2, w3
+
+
 def add_sum9_size27(circuit, input_labels):
     assert len(input_labels) == 9
     for input_label in input_labels:
@@ -175,7 +191,7 @@ def add_sum9_size27(circuit, input_labels):
     return w0, w1, d3, d4
 
 
-def add_sum10(circuit, input_labels):
+def add_sum10_size32(circuit, input_labels):
     assert len(input_labels) == 10
     for input_label in input_labels:
         assert input_label in circuit.input_labels or input_label in circuit.gates
@@ -386,6 +402,6 @@ def check_sum_circuit(circuit):
 
 
 if __name__ == '__main__':
-    circuit = Circuit(input_labels=[f'x{i}' for i in range(15)])
-    circuit.outputs = add_sum15_size51(circuit, circuit.input_labels)
+    circuit = Circuit(input_labels=[f'x{i}' for i in range(8)])
+    circuit.outputs = add_sum8_size23(circuit, circuit.input_labels)
     check_sum_circuit(circuit)
