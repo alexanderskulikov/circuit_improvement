@@ -178,6 +178,8 @@ class Circuit:
                 file_data += f'\n{gate}=OR({first}, {new_var})'
             elif gate_type == '1000':
                 file_data += f'\n{gate}=NOR({first}, {second})'
+            elif gate_type == '1110':
+                file_data += f'\n{gate}=NAND({first}, {second})'
             else:
                 assert False, f'Gate type not yet supported: {gate_type}'
 
