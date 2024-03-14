@@ -101,6 +101,9 @@ def fix_internal_gates_names(circuit):
 
     circuit.gates = new_gates
 
+    new_outputs = [new_name(g) for g in circuit.outputs]
+    circuit.outputs = new_outputs
+
 
 def improve_circuit(circuit, subcircuit_size=5, connected=True):
     print('Trying to improve a circuit of size', len(circuit.gates), flush=True)
