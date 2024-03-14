@@ -1,0 +1,19 @@
+5 16 5
+x1 x2 x3 x4 x5
+z0 x1 x2 0110
+z1 x2 x3 0110
+z2 z0 z1 0111
+z3 z0 x3 0110
+z5 x4 z3 0110
+z6 x4 x5 0110
+z7 z5 z6 0010
+z8 z3 z6 0110
+z9 z2 z7 0110
+a4 z8 z9 0100
+a6 z8 aplkl4 0001
+a7 z8 aplkl5 0111
+a8 aplkl5 a4 0110
+aplkl3 z3 z2 0110
+aplkl4 z9 aplkl3 0100
+aplkl5 z9 aplkl4 0110
+a6 aplkl4 a8 aplkl5 a7

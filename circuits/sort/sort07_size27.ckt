@@ -1,0 +1,30 @@
+7 27 7
+x1 x2 x3 x4 x5 x6 x7
+z0 x1 x2 0110
+z1 x2 x3 0110
+z2 z0 z1 0111
+z3 z0 x3 0110
+z4 z2 z3 0110
+z5 x4 z3 0110
+z6 x4 x5 0110
+z7 z5 z6 0010
+z8 z3 z6 0110
+z9 z2 z7 0110
+z11 z8 x6 0110
+z12 x6 x7 0110
+z13 z11 z12 0111
+z14 z11 x7 0110
+z15 z13 z14 0110
+z16 z9 z15 0110
+z17 z9 z15 0001
+a3 z14 z16 0001
+a4 z16 ypmao5 0001
+a5 z16 ypmao5 0111
+a6 z14 a4 0111
+a7 ypmao5 a3 0001
+a9 z14 a5 0111
+a10 a6 ypmao5 0001
+a11 a3 ypmao5 0111
+ypmao4 z9 z4 0100
+ypmao5 z17 ypmao4 0110
+a7 a4 a10 ypmao5 a11 a5 a9
