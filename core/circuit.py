@@ -76,7 +76,7 @@ class Circuit:
                 if f == filename:
                     fname.append(os.path.join(root, f))
 
-        assert len(fname) == 1
+        assert len(fname) == 1, f'Number of files with this name: {len(fname)}'
         return fname[0]
 
     def __load_from_string_ckt(self, string):
