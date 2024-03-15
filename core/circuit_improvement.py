@@ -150,3 +150,18 @@ def improve_circuit(circuit, subcircuit_size=5, connected=True):
         remaining = time / current * (total - current)
         print(f' | curr: {int(stop - start)} sec | rem: {int(remaining)} sec ({round(remaining / 60, 1)} min)', end='',
               flush=True)
+
+
+def improve_circuit_iteratively(circuit, max_subcircuit_size):
+    was_improved = True
+    while was_improved:
+        was_improved = False
+
+        for subcircuit_size in range(2, max_subcircuit_size + 1):
+            better_circuit = improve_circuit(circuit, subcircuit_size=subcircuit_size)
+            if isinstance(better_circuit, Circuit):
+                was_improved = True
+                circuit = better_circuit
+                break
+
+    return circuit
