@@ -176,6 +176,11 @@ class Circuit:
                 neg_counter += 1
                 file_data += f'\n{new_var}=NOT({second})'
                 file_data += f'\n{gate}=OR({first}, {new_var})'
+            elif gate_type == '1101':
+                new_var = f'{neg_prefix}{neg_counter}'
+                neg_counter += 1
+                file_data += f'\n{new_var}=NOT({first})'
+                file_data += f'\n{gate}=OR({new_var}, {second})'
             elif gate_type == '1000':
                 file_data += f'\n{gate}=NOR({first}, {second})'
             elif gate_type == '1110':
@@ -315,7 +320,7 @@ class Circuit:
             for gate in topological_ordering:
                 if gate in self.input_labels:
                     continue
-                assert gate in self.gates
+                assert gate in self.gates, f'unknown gate: {gate}'
                 f, s = self.gates[gate][0], self.gates[gate][1]
                 assert len(truth_tables[f]) > len(truth_tables[gate]) and len(truth_tables[s]) > len(truth_tables[gate])
                 fv, sv = truth_tables[f][-1], truth_tables[s][-1]
