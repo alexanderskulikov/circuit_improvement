@@ -152,7 +152,7 @@ def improve_circuit(circuit, subcircuit_size=5, connected=True):
               flush=True)
 
 
-def improve_circuit_iteratively(circuit, max_subcircuit_size):
+def improve_circuit_iteratively(circuit, max_subcircuit_size=5, save_intermediate_circuits=True):
     was_improved = True
     while was_improved:
         was_improved = False
@@ -161,6 +161,8 @@ def improve_circuit_iteratively(circuit, max_subcircuit_size):
             better_circuit = improve_circuit(circuit, subcircuit_size=subcircuit_size)
             if isinstance(better_circuit, Circuit):
                 was_improved = True
+                if save_intermediate_circuits:
+                    better_circuit.save_to_file(f'improved{len(better_circuit.gates)}', extension='ckt')
                 circuit = better_circuit
                 break
 
