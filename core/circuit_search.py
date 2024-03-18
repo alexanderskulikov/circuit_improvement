@@ -259,20 +259,22 @@ class CircuitFinder:
         elif solver == 'minisat':
             cnf_file_name = '../tmp.cnf'
             self.save_cnf_formula_to_file(cnf_file_name)
-            # TODO: complete
-            assert False
-        elif solver == 'pysat':
+            assert False, 'minisat not yet supported'
+        elif solver == 'cadical195':
             cnf_file_name = '../tmp.cnf'
             self.save_cnf_formula_to_file(cnf_file_name)
-            f1 = CNF(from_file='../tmp.cnf')
-            s = Solver()
-            s.append_formula(f1.clauses)
+            formula = CNF(from_file='../tmp.cnf')
+            if verbose:
+                print(f'Running {solver}')
+            s = Solver(name=solver)
+            s.configure({'verbose': 2})
+            s.append_formula(formula.clauses)
             s.solve()
             result = s.get_model()
             if result is None:
                 return False
         else:
-            assert False
+            assert False, 'unknown solver'
 
         gate_descriptions = {}
         for gate in self.internal_gates:
