@@ -156,20 +156,23 @@ def add_sum7_size20(circuit, input_labels):
     return c0, d1, d2
 
 
-def add_sum8_size23(circuit, input_labels):
+def add_sum8_size25(circuit, input_labels):
     assert len(input_labels) == 8
     for input_label in input_labels:
         assert input_label in circuit.input_labels or input_label in circuit.gates
 
     x1, x2, x3, x4, x5, x6, x7, x8 = input_labels
 
-    a0, a1, a2 = add_sum5_size11(circuit, [x1, x2, x3, x4, x5])
-    b0, b1 = add_sum3(circuit, [a0, x6, x7])
-    w0, c1 = add_sum2(circuit, [b0, x8])
-    w1, d2 = add_sum3(circuit, [a1, b1, c1])
-    w2, w3 = add_sum2(circuit, [a2, d2])
+    x12 = circuit.add_gate(x1, x2, '0110')
+    x34 = circuit.add_gate(x3, x4, '0110')
+    x56 = circuit.add_gate(x5, x6, '0110')
+    x78 = circuit.add_gate(x7, x8, '0110')
+    a0, a1, a12 = add_simplified_mdfa(circuit, [x1, x12, x3, x34])
+    w0, b1, b12 = add_mdfa(circuit, [a0, x5, x56, x7, x78])
+    w1, c2, c23 = add_simplified_mdfa(circuit, [a1, a12, b1, b12])
+    w3 = circuit.add_gate(c2, c23, '0010')
 
-    return w0, w1, w2, w3
+    return w0, w1, c23, w3
 
 
 def add_sum9_size27(circuit, input_labels):
@@ -271,6 +274,33 @@ def add_sum11_size34(circuit, input_labels):
     return w0, w1, e23, w3
 
 
+def add_sum12_size41(circuit, input_labels):
+    assert len(input_labels) == 12
+    for input_label in input_labels:
+        assert input_label in circuit.input_labels or input_label in circuit.gates
+
+    x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12 = input_labels
+
+    a0, a1 = add_sum3(circuit, [x1, x2, x3])
+
+    x45 = circuit.add_gate(x4, x5, '0110')
+    x67 = circuit.add_gate(x6, x7, '0110')
+    c0, c1, c12 = add_mdfa(circuit, [a0, x4, x45, x6, x67])
+
+    x89 = circuit.add_gate(x8, x9, '0110')
+    x1011 = circuit.add_gate(x10, x11, '0110')
+    d0, d1, d12 = add_mdfa(circuit, [c0, x8, x89, x10, x1011])
+
+    w0, e1 = add_sum2(circuit, [d0, x12])
+
+    f1, f2, f23 = add_mdfa(circuit, [a1, c1, c12, d1, d12])
+    w1, h2 = add_sum2(circuit, [e1, f1])
+
+    w2, w3 = add_stockmeyer_block(circuit, [h2, f2, f23])
+
+    return w0, w1, w2, w3
+
+
 def add_sum11_size36(circuit, input_labels):
     assert len(input_labels) == 11
     for input_label in input_labels:
@@ -343,6 +373,49 @@ def add_mdfa(circuit, input_labels):
     return g6, g4, g8
 
 
+# an MDFA block with z=0
+def add_simplified_mdfa(circuit, input_labels):
+    assert len(input_labels) == 4
+    for input_label in input_labels:
+        assert input_label in circuit.input_labels or input_label in circuit.gates
+
+    x1, xy1, x2, xy2 = input_labels
+
+    g2 = circuit.add_gate(xy1, x1, '0111')
+    g4 = circuit.add_gate(g2, xy1, '0110')
+    g5 = circuit.add_gate(x2, xy1, '0110')
+    g6 = circuit.add_gate(xy1, xy2, '0110')
+    g7 = circuit.add_gate(g5, xy2, '0010')
+    g8 = circuit.add_gate(g2, g7, '0110')
+
+    return g6, g4, g8
+
+
+def add_sum14_size48(circuit, input_labels):
+    assert len(input_labels) == 14
+    for input_label in input_labels:
+        assert input_label in circuit.input_labels or input_label in circuit.gates
+
+    x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15 = input_labels
+
+    x45 = circuit.add_gate(x4, x5, '0110')
+    x67 = circuit.add_gate(x6, x7, '0110')
+    x89 = circuit.add_gate(x8, x9, '0110')
+    x1011 = circuit.add_gate(x10, x11, '0110')
+    x1213 = circuit.add_gate(x12, x13, '0110')
+    x1415 = circuit.add_gate(x14, x15, '0110')
+
+    a0, a1 = add_sum2(circuit, [x2, x3])
+    b0, b1, b12 = add_mdfa(circuit, [a0, x4, x45, x6, x67])
+    c0, c1, c12 = add_mdfa(circuit, [b0, x8, x89, x10, x1011])
+    w0, d1, d12 = add_mdfa(circuit, [c0, x12, x1213, x14, x1415])
+    e1, e2, e23 = add_mdfa(circuit, [a1, b1, b12, c1, c12])
+    w1, f2 = add_stockmeyer_block(circuit, [e1, d1, d12])
+    w2, w3 = add_stockmeyer_block(circuit, [f2, e2, e23])
+
+    return w0, w1, w2, w3
+
+
 def add_sum15_size51(circuit, input_labels):
     assert len(input_labels) == 15
     for input_label in input_labels:
@@ -402,6 +475,7 @@ def check_sum_circuit(circuit):
 
 
 if __name__ == '__main__':
-    ckt = Circuit(input_labels=[f'x{i}' for i in range(8)])
-    ckt.outputs = add_sum8_size23(ckt, ckt.input_labels)
+    ckt = Circuit(input_labels=[f'x{i}' for i in range(14)])
+    ckt.outputs = add_sum14_size48(ckt, ckt.input_labels)
     check_sum_circuit(ckt)
+
