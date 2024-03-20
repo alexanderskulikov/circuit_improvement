@@ -401,7 +401,6 @@ def add_sum15_size51(circuit, input_labels):
     return w0, w1, w2, w3
 
 
-# TODO: fix this circuit!
 def add_sum16_size59(circuit, input_labels):
     assert len(input_labels) == 16
     for input_label in input_labels:
@@ -409,25 +408,13 @@ def add_sum16_size59(circuit, input_labels):
 
     x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16 = input_labels
 
-    x12 = circuit.add_gate(x1, x2, '0110')
-    x34 = circuit.add_gate(x3, x4, '0110')
-    x56 = circuit.add_gate(x5, x6, '0110')
-    x78 = circuit.add_gate(x7, x8, '0110')
-    x910 = circuit.add_gate(x9, x10, '0110')
-    x1112 = circuit.add_gate(x11, x12, '0110')
-    x1314 = circuit.add_gate(x13, x14, '0110')
-    x1516 = circuit.add_gate(x15, x16, '0110')
+    q0, q1, q2, q3 = add_sum15_size51(circuit, input_labels[:-1])
+    w0, a1 = add_sum2(circuit, [q0, x16])
+    w1, b2 = add_sum2(circuit, [q1, a1])
+    w2, c3 = add_sum2(circuit, [q2, b2])
+    w3, w4 = add_sum2(circuit, [q3, c3])
 
-    a0, a1, a12 = add_simplified_mdfa(circuit, [x1, x12, x3, x34])
-    b0, b1, b12 = add_mdfa(circuit, [a0, x5, x56, x7, x78])
-    c0, c1, c12 = add_mdfa(circuit, [b0, x9, x910, x11, x1112])
-    d0, d1, d12 = add_mdfa(circuit, [c0, x13, x1314, x15, x1516])
-    e1, e2, e23 = add_simplified_mdfa(circuit, [a1, a12, b1, b12])
-    f1, f2, f23 = add_mdfa(circuit, [e1, c1, c12, d1, d12])
-    h2, h3, h34 = add_simplified_mdfa(circuit, [e2, e23, f2, f23])
-    w4 = circuit.add_gate(h3, h34, '0010')
-
-    return d0, f1, h2, h34, w4
+    return w0, w1, w2, w3, w4
 
 
 def add_sum31(circuit, input_labels):
@@ -464,10 +451,10 @@ def check_sum_circuit(circuit):
 
 
 if __name__ == '__main__':
-    ckt = Circuit(input_labels=[f'x{i}' for i in range(10)])
-    ckt.outputs = add_sum10_size31(ckt, ckt.input_labels)
-    # ckt.save_to_file('tmp', extension='ckt')
+    ckt = Circuit(input_labels=[f'x{i}' for i in range(1, 17)])
+    ckt.outputs = add_sum16_size59(ckt, ckt.input_labels)
+    # print(len(ckt.gates))
     check_sum_circuit(ckt)
-    ckt.save_to_file('sum10_size31', extension='ckt')
-    ckt.save_to_file('sum10_size31', extension='bench')
+    ckt.save_to_file('sum16_size59', extension='ckt')
+    # ckt.save_to_file('sum16_size59', extension='bench')
 
