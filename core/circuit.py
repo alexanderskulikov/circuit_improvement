@@ -43,7 +43,6 @@ class Circuit:
         'NOR': '1000',
         'NXOR': '1001',
 
-
         '1001': '=',
         '0010': '>',
         '0100': '<',
@@ -94,7 +93,6 @@ class Circuit:
         self.outputs = lines[number_of_gates + 2].strip().split()
         assert len(self.outputs) == number_of_outputs
 
-    # TODO: handle multiply gates
     def __load_from_string_bench(self, string):
         lines = string.splitlines()
 
@@ -268,7 +266,6 @@ class Circuit:
                                                                   improved_circuit.outputs[i])
         return replaced_graph
 
-
     def draw(self, file_name='circuit', detailed_labels=True, experimental=False):
         circuit_graph = self.construct_graph(detailed_labels)
         a = nx.nx_agraph.to_agraph(circuit_graph)
@@ -351,3 +348,35 @@ class Circuit:
             value = self.gates[gate]
             new_gates[list_after[list_before.index(gate)] if gate in list_before else gate] = (list_after[list_before.index(value[0])] if value[0] in list_before else value[0], list_after[list_before.index(value[1])] if value[1] in list_before else value[1], value[2])
         self.gates = new_gates
+
+    def get_nof_true_binary_gates(self):
+        nof_gates = 0
+        for gate in self.gates:
+            _, _, gate_type = self.gates[gate]
+            if gate_type not in ('0000', '1111', '0011', '1100', '0101', '1010'):
+                nof_gates += 1
+        return nof_gates
+
+    # propagate NOT gates into successors
+    def contract_not_gates(self):
+        new_not_gate_contracted = True
+        while new_not_gate_contracted:
+            new_not_gate_contracted = False
+
+            for gate in self.gates:
+                x, y, gate_type = self.gates[gate]
+                assert gate_type != '1010'
+                if gate_type == '1100':
+                    assert x == y
+
+                    if gate in self.outputs:
+                        continue
+
+                    for successor in self.gates:
+                        sx, sy, stype = self.gates[successor]
+                        if sx == gate:
+                            self.gates[successor] = (gate, sy, stype[2:] + stype[:2])
+
+                    self.gates.pop(gate)
+                    new_not_gate_contracted = True
+                    break
