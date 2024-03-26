@@ -20,28 +20,3 @@ def find_block_for_sum_circuit(x):
         return ['*' for _ in range(threshold)]
     else:
         return [1 if s >= t else 0 for t in range(threshold, 0, -1)]
-
-
-# for size in range(25, 3, -1):
-#     finder = CircuitFinder(dimension=5, function=find_block_for_sum_circuit, number_of_gates=size,
-#                            input_labels=['z51', 'z53', 'z55', 'z57', 'z58'])
-#     block = finder.solve_cnf_formula(verbose=True, solver='cadical195')
-#     block.save_to_file(f'block16_size{size}', extension='ckt')
-
-# ckt = Circuit()
-# ckt.load_from_file('improved83', extension='ckt')
-# verify_sorting_circuit(ckt)
-# # improve_circuit_iteratively(ckt, max_subcircuit_size=3)
-# ckt.save_to_file('sort16_size83', extension='ckt')
-# ckt.save_to_file('sort16_size83', extension='bench')
-
-
-# ckt = Circuit(input_labels=[f'x{i}' for i in range(1, 15)])
-# ckt.outputs = add_sum14_size48(ckt, ckt.input_labels)
-# # improve_circuit_iteratively(ckt, max_subcircuit_size=4)
-# print(len(ckt.gates))
-# ckt.save_to_file('sum14_size48', extension='ckt')
-# ckt.save_to_file('sum14_size48', extension='bench')
-
-
-
