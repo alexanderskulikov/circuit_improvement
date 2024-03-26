@@ -183,6 +183,9 @@ class Circuit:
                 file_data += f'\n{gate}=NOR({first}, {second})'
             elif gate_type == '1110':
                 file_data += f'\n{gate}=NAND({first}, {second})'
+            elif gate_type == '1100':
+                assert first == second
+                file_data += f'\n{gate}=NOT({first})'
             else:
                 assert False, f'Gate type not yet supported: {gate_type}'
 
@@ -375,8 +378,41 @@ class Circuit:
                     for successor in self.gates:
                         sx, sy, stype = self.gates[successor]
                         if sx == gate:
-                            self.gates[successor] = (gate, sy, stype[2:] + stype[:2])
+                            self.gates[successor] = (x, sy, stype[2:] + stype[:2])
+                        elif sy == gate:
+                            self.gates[successor] = (sx, x, stype[1] + stype[0] + stype[3] + stype[2])
 
                     self.gates.pop(gate)
                     new_not_gate_contracted = True
                     break
+
+    # TODO: to be adjusted
+    def contract_xor_gates(self):
+        new_xor_gate_contracted = True
+        while new_xor_gate_contracted:
+            new_xor_gate_contracted = False
+
+            for gate in self.gates:
+                first, second, gate_type = self.gates[gate]
+
+                if first in self.input_labels or second in self.input_labels:
+                    continue
+
+                if gate_type in ('0110', '1001'):
+                    continue
+
+                xf, yf, _ = self.gates[first]
+                xs, ys, _ = self.gates[second]
+
+                if (xf != xs or yf != ys) and (xf != ys and yf != xs):
+                    continue
+
+                first_outdegree = len([g for g in self.gates if self.gates[g][0] == first or self.gates[g][1] == first])
+                second_outdegree = len([g for g in self.gates if self.gates[g][0] == second or self.gates[g][1] == second])
+
+                assert first_outdegree >= 1 and second_outdegree >= 1
+
+                if first_outdegree > 1 or second_outdegree > 1:
+                    continue
+
+                print('.', end='')
