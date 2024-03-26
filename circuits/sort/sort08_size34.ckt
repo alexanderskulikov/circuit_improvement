@@ -1,4 +1,4 @@
-8 35 8
+8 34 8
 x1 x2 x3 x4 x5 x6 x7 x8
 z0 x1 x2 0110
 z1 x2 x3 0110
@@ -20,19 +20,18 @@ z16 z12 x8 0110
 z17 z12 x8 0001
 z18 z9 z15 0110
 z19 z18 z17 0110
-z20 z9 z15 0001
-z21 z18 z17 0001
-z22 z20 z21 0110
-z23 z10 z22 0110
-a5 z19 z23 0110
-a6 pufaj4 a5 0111
-a7 z16 z23 0110
-a8 a5 a7 0001
+a6 pufaj4 fupyv8 0111
+pufaj4 fupyv9 z10 0111
+a7 z16 fupyv9 0110
+a8 fupyv8 a7 0001
 a9 a6 a7 0111
-a11 pufaj4 a5 0010
+a11 pufaj4 fupyv8 0010
 a12 pufaj4 a8 0010
 a13 a8 a12 0110
 a14 a7 a11 0100
-pufaj4 z23 z10 0111
-pufaj5 z22 z10 0001
-pufaj5 a14 a11 a12 pufaj4 a13 a6 a9
+fupyv6 z19 z9 0110
+fupyv7 z18 fupyv6 0111
+fupyv8 z10 fupyv7 0110
+fupyv9 z19 fupyv8 0110
+fupyv10 z10 fupyv9 0010
+fupyv10 a14 a11 a12 pufaj4 a13 a6 a9
