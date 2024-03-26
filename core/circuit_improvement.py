@@ -106,7 +106,7 @@ def fix_internal_gates_names(circuit):
 
 
 def improve_circuit(circuit, subcircuit_size=5, connected=True):
-    print('Trying to improve a circuit of size', len(circuit.gates), flush=True)
+    print('Trying to improve a circuit of size', circuit.get_nof_true_binary_gates(), flush=True)
     circuit_graph = circuit.construct_graph()
     total, current, time = correct_subcircuit_count(circuit, subcircuit_size, connected=connected), 0, 0
     print(f'\nEnumerating subcircuits of size {subcircuit_size} (total={total})...', flush=True)
