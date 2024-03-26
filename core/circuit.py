@@ -386,33 +386,41 @@ class Circuit:
                     new_not_gate_contracted = True
                     break
 
-    # TODO: to be adjusted
-    def contract_xor_gates(self):
-        new_xor_gate_contracted = True
-        while new_xor_gate_contracted:
-            new_xor_gate_contracted = False
+    # if a gate g is fed by a and b such that both
+    # a and b are fed by d and d, then g is replaced by a function of c and d
+    def contract_gates(self):
+        new_gate_contracted = True
+        while new_gate_contracted:
+            new_gate_contracted = False
 
             for gate in self.gates:
-                first, second, gate_type = self.gates[gate]
+                a, b, gate_type = self.gates[gate]
 
-                if first in self.input_labels or second in self.input_labels:
+                if a in self.input_labels or b in self.input_labels:
                     continue
 
-                if gate_type in ('0110', '1001'):
-                    continue
+                a1, a2, a_type = self.gates[a]
+                b1, b2, b_type = self.gates[b]
 
-                xf, yf, _ = self.gates[first]
-                xs, ys, _ = self.gates[second]
+                if a1 == b1 and a2 == b2:
+                    new_type = ''.join([gate_type[2 * int(a_type[2 * c1 + c2]) + int(b_type[2 * c1 + c2])] for c1, c2 in product((0, 1), repeat=2)])
+                    self.gates[gate] = a1, a2, new_type
+                    new_gate_contracted = True
+                    break
+                elif a1 == b2 and a2 == b1:
+                    new_type = ''.join([gate_type[2 * int(a_type[2 * c1 + c2]) + int(b_type[2 * c2 + c1])] for c1, c2 in product((0, 1), repeat=2)])
+                    self.gates[gate] = a1, a2, new_type
+                    new_gate_contracted = True
+                    break
 
-                if (xf != xs or yf != ys) and (xf != ys and yf != xs):
-                    continue
+    def remove_dangling_gates(self):
+        graph = self.construct_graph()
 
-                first_outdegree = len([g for g in self.gates if self.gates[g][0] == first or self.gates[g][1] == first])
-                second_outdegree = len([g for g in self.gates if self.gates[g][0] == second or self.gates[g][1] == second])
+        for gate in graph.nodes:
+            if gate not in self.outputs and graph.out_degree(gate) == 0:
+                self.gates.pop(gate)
 
-                assert first_outdegree >= 1 and second_outdegree >= 1
-
-                if first_outdegree > 1 or second_outdegree > 1:
-                    continue
-
-                print('.', end='')
+    def normalize(self):
+        self.contract_not_gates()
+        self.contract_gates()
+        self.remove_dangling_gates()
