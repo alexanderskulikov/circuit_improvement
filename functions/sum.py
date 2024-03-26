@@ -200,49 +200,6 @@ def add_sum10_size31(circuit, input_labels):
     return c0, d1, d23, w3
 
 
-
-def add_sum10_size32(circuit, input_labels):
-    assert len(input_labels) == 10
-    for input_label in input_labels:
-        assert input_label in circuit.input_labels or input_label in circuit.gates
-
-    [x1, x2, x3, x4, x5, x6, x7, x8, x9, x10] = input_labels
-    z1 = circuit.add_gate(x2, x3, '0110')
-    z36 = circuit.add_gate(x1, x2, '0110')
-    z37 = circuit.add_gate(x3, z36, '0110')
-    z5 = circuit.add_gate(x4, z37, '0110')
-    z6 = circuit.add_gate(x4, x5, '0110')
-    z7 = circuit.add_gate(z5, z6, '0010')
-    z8 = circuit.add_gate(z6, z37, '0110')
-    z34 = circuit.add_gate(z1, z36, '0111')
-    z9 = circuit.add_gate(z7, z34, '0110')
-    z11 = circuit.add_gate(z8, x6, '0110')
-    z12 = circuit.add_gate(z8, x6, '0001')
-    z13 = circuit.add_gate(z9, z12, '0110')
-    z14 = circuit.add_gate(z9, z12, '0001')
-    z16 = circuit.add_gate(z11, x7, '0110')
-    z17 = circuit.add_gate(x7, x8, '0110')
-    z18 = circuit.add_gate(z16, z17, '0111')
-    z19 = circuit.add_gate(z16, x8, '0110')
-    z20 = circuit.add_gate(z18, z19, '0110')
-    z21 = circuit.add_gate(x9, z19, '0110')
-    z22 = circuit.add_gate(x9, x10, '0110')
-    z23 = circuit.add_gate(z21, z22, '0010')
-    z24 = circuit.add_gate(z19, z22, '0110')
-    z25 = circuit.add_gate(z18, z23, '0110')
-    z26 = circuit.add_gate(z20, z25, '0010')
-    z27 = circuit.add_gate(z25, z13, '0110')
-    z28 = circuit.add_gate(z25, z13, '0001')
-    z30 = circuit.add_gate(z26, z28, '0110')
-    z35 = circuit.add_gate(z30, z14, '0110')
-    z38 = circuit.add_gate(z34, z37, '0110')
-    z39 = circuit.add_gate(z9, z38, '1011')
-    z40 = circuit.add_gate(z35, z39, '1001')
-    z41 = circuit.add_gate(z30, z40, '0010')
-
-    return z24, z27, z40, z41
-
-
 def add_sum11_size34(circuit, input_labels):
     assert len(input_labels) == 11
     for input_label in input_labels:
