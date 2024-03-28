@@ -162,7 +162,7 @@ def improve_circuit_iteratively(circuit, max_subcircuit_size=5, save_intermediat
             if isinstance(better_circuit, Circuit):
                 was_improved = True
                 if save_intermediate_circuits:
-                    better_circuit.save_to_file(f'improved{len(better_circuit.gates)}', extension='ckt')
+                    better_circuit.save_to_file(f'improved{better_circuit.get_nof_true_binary_gates()}', extension='ckt')
                 circuit = better_circuit
                 break
 
