@@ -396,11 +396,14 @@ class Circuit:
             for gate in self.gates:
                 a, b, gate_type = self.gates[gate]
 
-                if a in self.input_labels or b in self.input_labels:
+                if a in self.input_labels or b in self.input_labels or a == b:
                     continue
 
                 a1, a2, a_type = self.gates[a]
                 b1, b2, b_type = self.gates[b]
+
+                if a1 == a2 or b1 == b2:
+                    continue
 
                 if a1 == b1 and a2 == b2:
                     new_type = ''.join([gate_type[2 * int(a_type[2 * c1 + c2]) + int(b_type[2 * c1 + c2])] for c1, c2 in product((0, 1), repeat=2)])
