@@ -387,7 +387,7 @@ class Circuit:
                     break
 
     # if a gate g is fed by a and b such that both
-    # a and b are fed by d and d, then g is replaced by a function of c and d
+    # a and b are fed by с and d, then g is replaced by a function of c and d
     def contract_gates(self):
         new_gate_contracted = True
         while new_gate_contracted:
