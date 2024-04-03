@@ -162,3 +162,5 @@ paper/main.pdf
 paper/main_lipics.pdf
 *.DS_Store
 tmp.cnf
+
+experiments/circuits/*
