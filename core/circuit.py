@@ -396,6 +396,9 @@ class Circuit:
             for gate in self.gates:
                 a, b, gate_type = self.gates[gate]
 
+                if gate_type in ('0000', '1111', '0011', '1100', '0101', '1010'):
+                    continue
+
                 if a in self.input_labels or b in self.input_labels or a == b:
                     continue
 
