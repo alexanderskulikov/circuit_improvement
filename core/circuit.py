@@ -50,21 +50,29 @@ class Circuit:
         '1101': '<=',
     }
 
-    def __init__(self, input_labels=None, gates=None, outputs=None, fn=None, graph=None):
+    def __init__(self, input_labels=None, gates=None, outputs=None, file_name=None, graph=None):
         self.input_labels = input_labels or []
         self.gates = gates or {}
         self.outputs = outputs or []
+        self.outputs_negations = [False] * len(self.outputs)
         if graph is not None and input_labels is not None and outputs is not None:
             self.__get_from_graph(graph)
-        if fn is not None:
-            self.load_from_file(fn)
+        if file_name is not None:
+            self.load_from_file(file_name)
 
     def __str__(self):
-        s = ''
-        s += 'Inputs: ' + ' '.join(map(str, self.input_labels)) + '\n'
+        s = 'Inputs: ' + ' '.join(map(str, self.input_labels)) + '\n'
+
         for gate in self.gates:
             s += f'{gate}: ({self.gates[gate][0]} {self.gate_types[self.gates[gate][2]]} {self.gates[gate][1]})\n'
-        s += 'Outputs: ' + ' '.join(map(str, self.outputs))
+
+        s += 'Outputs: '
+        assert len(self.outputs) == len(self.outputs_negations)
+        for output, is_negated in zip(self.outputs, self.outputs_negations):
+            if is_negated:
+                s += '-'
+            s += f'{output} '
+
         return s
 
     @staticmethod
@@ -92,12 +100,14 @@ class Circuit:
 
         self.outputs = lines[number_of_gates + 2].strip().split()
         assert len(self.outputs) == number_of_outputs
+        self.outputs_negations = [False] * number_of_outputs
 
     def __load_from_string_bench(self, string):
         lines = string.splitlines()
 
         self.input_labels = []
         self.outputs = []
+        self.outputs_negations = []
         self.gates = {}
 
         for line in lines:
@@ -107,6 +117,7 @@ class Circuit:
                 self.input_labels.append(ch(line[6:-1]))
             elif line.startswith('OUTPUT'):
                 self.outputs.append(ch(line[7:-1]))
+                self.outputs_negations.append(False)
             else:
                 nls = line.replace(" ", "").replace("=", ",").replace("(", ",").replace(")", "").split(",")
                 if len(nls) == 4:
@@ -135,20 +146,26 @@ class Circuit:
                 self.__load_from_string_bench(circuit_file.read())
 
     def __save_to_ckt(self):
-        file_data = ''
-        file_data += f'{len(self.input_labels)} {len(self.gates)} {len(self.outputs)}\n'
+        file_data = f'{len(self.input_labels)} {len(self.gates)} {len(self.outputs)}\n'
         file_data += ' '.join(map(str, self.input_labels))
 
         for gate in self.gates:
             first, second, gate_type = self.gates[gate]
             file_data += f'\n{gate} {first} {second} {gate_type}'
-        file_data += '\n' + ' '.join([str(i) for i in self.outputs])
+
+        assert len(self.outputs) == len(self.outputs_negations)
+        for output, is_negated in zip(self.outputs, self.outputs_negations):
+            if is_negated:
+                file_data += '-'
+            file_data += f'{output} '
+
         return file_data
 
     def __save_to_bench(self):
         file_data = '\n'.join(f'INPUT({l})' for l in self.input_labels) + '\n'
 
         neg_prefix, neg_counter = 'tmpneg', 1
+
         for gate in self.gates:
             first, second, gate_type = self.gates[gate]
             if gate_type == '0110':
@@ -189,7 +206,16 @@ class Circuit:
             else:
                 assert False, f'Gate type not yet supported: {gate_type}'
 
-        file_data += '\n\n' + '\n'.join(f'OUTPUT({l})' for l in self.outputs)
+        file_data += '\n\n'
+
+        for output, is_negated in zip(self.outputs, self.outputs_negations):
+            if is_negated:
+                new_var = f'{neg_prefix}{neg_counter}'
+                neg_counter += 1
+                file_data += f'\n{new_var}=NOT({output})'
+                file_data += f'\nOUTPUT{new_var}'
+            else:
+                file_data += f'\nOUTPUT{output}'
 
         return file_data
 
@@ -272,12 +298,21 @@ class Circuit:
     def draw(self, file_name='circuit', detailed_labels=True, experimental=False):
         circuit_graph = self.construct_graph(detailed_labels)
         a = nx.nx_agraph.to_agraph(circuit_graph)
+
         for gate in self.input_labels:
-            a.get_node(gate).attr['shape'] = 'box'
+            a.get_node(gate).attr['shape'] = 'invtriangle'
+
         if isinstance(self.outputs, str):
             self.outputs = [self.outputs]
-        for output in self.outputs:
-            a.get_node(output).attr['shape'] = 'box'
+
+        assert len(self.outputs) == len(self.outputs_negations)
+        for output_id, (output, is_negated) in enumerate(zip(self.outputs, self.outputs_negations)):
+            output_label = f'out{output_id}'
+            a.add_node(output_label)
+            a.get_node(output_label).attr['shape'] = 'invtriangle'
+            a.add_edge(output, output_label)
+            if is_negated:
+                a.get_edge(output, output_label).attr['style'] = 'dashed'
 
         if experimental:
             for g in self.gates:
