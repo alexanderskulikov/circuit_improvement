@@ -6,6 +6,7 @@ import networkx as nx
 import random
 from string import ascii_lowercase
 from timeit import default_timer as timer
+from tqdm import tqdm
 
 
 def correct_subcircuit_count(circuit, subcircuit_size=7, connected=True):
@@ -106,21 +107,26 @@ def fix_internal_gates_names(circuit):
 
 
 def improve_circuit(circuit, subcircuit_size=5, connected=True):
-    print('Trying to improve a circuit of size', circuit.get_nof_true_binary_gates(), flush=True)
+    # print('Trying to improve a circuit of size', circuit.get_nof_true_binary_gates(), flush=True)
     circuit_graph = circuit.construct_graph()
-    total, current, time = correct_subcircuit_count(circuit, subcircuit_size, connected=connected), 0, 0
-    print(f'\nEnumerating subcircuits of size {subcircuit_size} (total={total})...', flush=True)
+    total, current, current_percent, time = correct_subcircuit_count(circuit, subcircuit_size, connected=connected), 0, 0, 0
+    print(f'Enumerating subcircuits of size {subcircuit_size} (total={total})...', flush=True, end='')
+
     for graph in (circuit_graph.subgraph(selected_nodes) for selected_nodes in
                   combinations(circuit.gates, subcircuit_size)):
         if connected and not nx.is_weakly_connected(graph):
             continue
         subcircuit = tuple(graph.nodes)
-        start = timer()
+        # start = timer()
         subcircuit_inputs, subcircuit_outputs = get_inputs_and_outputs(circuit, circuit_graph, subcircuit)
         if len(subcircuit_outputs) == subcircuit_size:
             continue
+
         current += 1
-        print(f'\n{subcircuit_size}: {current}/{total} ({100 * current // total}%) ', end='', flush=True)
+        # print(f'\n{subcircuit_size}: {current}/{total} ({100 * current // total}%) ', end='', flush=True)
+        if current / total > current_percent / 100:
+            print('.', end='')
+            current_percent += 1
 
         random.shuffle(subcircuit_inputs)
         output_truth_tables = make_output_truth_tables(circuit, subcircuit_inputs, subcircuit_outputs)
@@ -145,11 +151,12 @@ def improve_circuit(circuit, subcircuit_size=5, connected=True):
                 fix_internal_gates_names(improved_full_circuit)
                 return improved_full_circuit
 
-        stop = timer()
-        time += stop - start
-        remaining = time / current * (total - current)
-        print(f' | curr: {int(stop - start)} sec | rem: {int(remaining)} sec ({round(remaining / 60, 1)} min)', end='',
-              flush=True)
+        # stop = timer()
+        # time += stop - start
+        # remaining = time / current * (total - current)
+        # print(f' | curr: {int(stop - start)} sec | rem: {int(remaining)} sec ({round(remaining / 60, 1)} min)', end='',
+        #       flush=True)
+    print()
 
 
 def improve_circuit_iteratively(circuit, max_subcircuit_size=5, save_intermediate_circuits=True):
