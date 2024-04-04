@@ -296,12 +296,15 @@ class Circuit:
                                                                   improved_circuit.outputs[i])
         return replaced_graph
 
-    def draw(self, file_name='circuit', detailed_labels=True, experimental=False):
+    def draw(self, file_name='circuit', detailed_labels=False, experimental=False):
         circuit_graph = self.construct_graph(detailed_labels)
         a = nx.nx_agraph.to_agraph(circuit_graph)
 
         for gate in self.input_labels:
             a.get_node(gate).attr['shape'] = 'invtriangle'
+
+        for gate in self.gates:
+            a.get_node(gate).attr['shape'] = 'circle'
 
         if isinstance(self.outputs, str):
             self.outputs = [self.outputs]
@@ -409,7 +412,11 @@ class Circuit:
                     assert x == y
 
                     if gate in self.outputs:
-                        continue
+                        gate_index = self.outputs.index(gate)
+                        self.outputs[gate_index] = x
+                        self.outputs_negations[gate_index] = not self.outputs_negations[gate_index]
+                        new_not_gate_contracted = True
+                        break
 
                     for successor in self.gates:
                         sx, sy, stype = self.gates[successor]
