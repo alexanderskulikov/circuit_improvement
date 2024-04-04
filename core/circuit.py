@@ -67,7 +67,7 @@ class Circuit:
             s += f'{gate}: ({self.gates[gate][0]} {self.gate_types[self.gates[gate][2]]} {self.gates[gate][1]})\n'
 
         s += 'Outputs: '
-        assert len(self.outputs) == len(self.outputs_negations)
+        self.outputs_negations = self.outputs_negations or [False] * len(self.outputs)
         for output, is_negated in zip(self.outputs, self.outputs_negations):
             if is_negated:
                 s += '-'
@@ -153,7 +153,7 @@ class Circuit:
             first, second, gate_type = self.gates[gate]
             file_data += f'\n{gate} {first} {second} {gate_type}'
 
-        assert len(self.outputs) == len(self.outputs_negations)
+        self.outputs_negations = self.outputs_negations or [False] * len(self.outputs)
         for output, is_negated in zip(self.outputs, self.outputs_negations):
             if is_negated:
                 file_data += '-'
@@ -208,6 +208,7 @@ class Circuit:
 
         file_data += '\n\n'
 
+        self.outputs_negations = self.outputs_negations or [False] * len(self.outputs)
         for output, is_negated in zip(self.outputs, self.outputs_negations):
             if is_negated:
                 new_var = f'{neg_prefix}{neg_counter}'
@@ -305,7 +306,7 @@ class Circuit:
         if isinstance(self.outputs, str):
             self.outputs = [self.outputs]
 
-        assert len(self.outputs) == len(self.outputs_negations)
+        self.outputs_negations = self.outputs_negations or [False] * len(self.outputs)
         for output_id, (output, is_negated) in enumerate(zip(self.outputs, self.outputs_negations)):
             output_label = f'out{output_id}'
             a.add_node(output_label)
@@ -455,11 +456,16 @@ class Circuit:
                     break
 
     def remove_dangling_gates(self):
-        graph = self.construct_graph()
+        dangling_gate_removed = True
+        while dangling_gate_removed:
+            dangling_gate_removed = False
 
-        for gate in graph.nodes:
-            if gate not in self.outputs and graph.out_degree(gate) == 0:
-                self.gates.pop(gate)
+            graph = self.construct_graph()
+
+            for gate in graph.nodes:
+                if gate not in self.outputs and graph.out_degree(gate) == 0:
+                    self.gates.pop(gate)
+                    dangling_gate_removed = True
 
     def normalize(self):
         self.contract_not_gates()
