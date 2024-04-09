@@ -6,7 +6,6 @@ import networkx as nx
 import random
 from string import ascii_lowercase
 from timeit import default_timer as timer
-from tqdm import tqdm
 
 
 def correct_subcircuit_count(circuit, subcircuit_size=7, connected=True):
