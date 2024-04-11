@@ -400,34 +400,58 @@ class Circuit:
         return nof_gates
 
     # propagate NOT gates into successors
-    def contract_not_gates(self):
-        new_not_gate_contracted = True
-        while new_not_gate_contracted:
-            new_not_gate_contracted = False
+    def contract_unary_gates(self):
+        # tmp = 0
+        new_gate_contracted = True
+        while new_gate_contracted:
+            new_gate_contracted = False
+            # tmp += 1
+            # self.draw(f'{tmp}')
+            # self.save_to_file(f'{tmp}')
 
             for gate in self.gates:
                 x, y, gate_type = self.gates[gate]
-                assert gate_type != '1010'
-                if gate_type == '1100':
+                assert gate_type != '1010' and gate_type != '0101', 'y and NOT(y) are not supported yet'
+                if gate_type == '1100':  # NOT gates
                     assert x == y
 
-                    if gate in self.outputs:
-                        gate_index = self.outputs.index(gate)
-                        self.outputs[gate_index] = x
-                        self.outputs_negations[gate_index] = not self.outputs_negations[gate_index]
-                        new_not_gate_contracted = True
-                        break
+                    for i in range(len(self.outputs)):
+                        if self.outputs[i] == gate:
+                            self.outputs[i] = x
+                            self.outputs_negations[i] = not self.outputs_negations[i]
 
                     for successor in self.gates:
                         sx, sy, stype = self.gates[successor]
-                        if sx == gate:
+                        if sx == sy and sx == gate:
+                            assert stype == '1100'
+                            self.gates[successor] = (x, x, '0011')
+                        elif sx == gate:
                             self.gates[successor] = (x, sy, stype[2:] + stype[:2])
                         elif sy == gate:
                             self.gates[successor] = (sx, x, stype[1] + stype[0] + stype[3] + stype[2])
 
                     self.gates.pop(gate)
-                    new_not_gate_contracted = True
+                    new_gate_contracted = True
                     break
+                # elif gate_type == '0011':  # BUFF gates
+                #     assert x == y
+                #
+                #     if gate in self.outputs:
+                #         gate_index = self.outputs.index(gate)
+                #         self.outputs[gate_index] = x
+                #     else:
+                #         for successor in self.gates:
+                #             sx, sy, stype = self.gates[successor]
+                #             if sx == sy and sx == gate:
+                #                 self.gates[successor] = (x, x, stype)
+                #             elif sx == gate:
+                #                 self.gates[successor] = (x, sy, stype)
+                #             elif sy == gate:
+                #                 self.gates[successor] = (sx, x, stype)
+                #
+                #     self.gates.pop(gate)
+                #     new_gate_contracted = True
+                #     break
 
     # if a gate g is fed by a and b such that both
     # a and b are fed by с and d, then g is replaced by a function of c and d
@@ -475,6 +499,6 @@ class Circuit:
                     dangling_gate_removed = True
 
     def normalize(self):
-        self.contract_not_gates()
+        self.contract_unary_gates()
         self.contract_gates()
         self.remove_dangling_gates()
