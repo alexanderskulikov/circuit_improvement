@@ -154,6 +154,7 @@ class Circuit:
             first, second, gate_type = self.gates[gate]
             file_data += f'\n{gate} {first} {second} {gate_type}'
 
+        file_data += '\n'
         self.outputs_negations = self.outputs_negations or [False] * len(self.outputs)
         for output, is_negated in zip(self.outputs, self.outputs_negations):
             if is_negated:
