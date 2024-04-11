@@ -407,11 +407,45 @@ def check_sum_circuit(circuit):
         assert s == sum(x), f'Input: {x}, sum: {sum(x)}, s: {s}, output: {[truth_tables[circuit.outputs[d]][i] for d in range(len(circuit.outputs))]}'
 
 
-if __name__ == '__main__':
-    ckt = Circuit(input_labels=[f'x{i}' for i in range(1, 17)])
-    ckt.outputs = add_sum16_size59(ckt, ckt.input_labels)
-    # print(len(ckt.gates))
-    check_sum_circuit(ckt)
-    ckt.save_to_file('sum16_size59', extension='ckt')
-    # ckt.save_to_file('sum16_size59', extension='bench')
+def add_sum(circuit, input_labels):
+    n = len(input_labels)
+    if n == 2:
+        return add_sum2(circuit, input_labels)
+    if n == 3:
+        return add_sum3(circuit, input_labels)
+    if n == 4:
+        return add_sum4(circuit, input_labels)
+    if n == 5:
+        return add_sum5_size11(circuit, input_labels)
+    if n == 6:
+        return add_sum6_size16(circuit, input_labels)
+    if n == 7:
+        return add_sum7_size19(circuit, input_labels)
+    if n == 8:
+        return add_sum8_size25(circuit, input_labels)
+    if n == 9:
+        return add_sum9_size27(circuit, input_labels)
+    if n == 10:
+        return add_sum10_size31(circuit, input_labels)
+    if n == 11:
+        return add_sum11_size34(circuit, input_labels)
+    if n == 12:
+        return add_sum12_size41(circuit, input_labels)
+    if n == 13:
+        return add_sum13_size43(circuit, input_labels)
+    if n == 14:
+        return add_sum14_size48(circuit, input_labels)
+    if n == 15:
+        return add_sum15_size51(circuit, input_labels)
+    if n == 16:
+        return add_sum16_size59(circuit, input_labels)
+
+    assert False, 'not yet implemented'
+
+
+# if __name__ == '__main__':
+#     ckt = Circuit(input_labels=[f'x{i}' for i in range(1, 17)])
+#     ckt.outputs = add_sum16_size59(ckt, ckt.input_labels)
+#     check_sum_circuit(ckt)
+#     ckt.save_to_file('sum16_size59', extension='ckt')
 
