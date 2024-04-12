@@ -407,6 +407,42 @@ def check_sum_circuit(circuit):
         assert s == sum(x), f'Input: {x}, sum: {sum(x)}, s: {s}, output: {[truth_tables[circuit.outputs[d]][i] for d in range(len(circuit.outputs))]}'
 
 
+# computes the sum (2^w1)*x1+...+(2^wn)*xn
+def add_sum_pow2_weights(circuit, weighted_inputs):
+    weighted_bits, outputs = sorted(list(weighted_inputs)), []
+
+    while weighted_bits:
+        if len(weighted_bits) == 1 or weighted_bits[0][0] < weighted_bits[1][0]:
+            outputs += [weighted_bits[0][1]]
+            weighted_bits = weighted_bits[1:]
+        elif len(weighted_bits) == 2:
+            (w1, x1), (w2, x2) = weighted_bits[:2]
+            if w1 < w2:
+                outputs += [weighted_bits[0][1], weighted_bits[1][1]]
+                weighted_bits = weighted_bits[2:]
+            else:
+                assert w1 == w2
+                weighted_bits = weighted_bits[2:]
+                s, c = add_sum2(circuit, [x1, x2])
+                weighted_bits += [(w1, s), (w1 + 1, c)]
+                weighted_bits = sorted(weighted_bits)
+        else:
+            (w1, x1), (w2, x2), (w3, x3) = weighted_bits[:3]
+            if w1 == w2 == w3:
+                weighted_bits = weighted_bits[3:]
+                s, c = add_sum3(circuit, [x1, x2, x3])
+                weighted_bits += [(w1, s), (w1 + 1, c)]
+                weighted_bits = sorted(weighted_bits)
+            elif w1 == w2:
+                assert w3 > w2
+                weighted_bits = weighted_bits[2:]
+                s, c = add_sum2(circuit, [x1, x2])
+                weighted_bits += [(w1, s), (w1 + 1, c)]
+                weighted_bits = sorted(weighted_bits)
+
+    return outputs
+
+
 def add_sum(circuit, input_labels):
     n = len(input_labels)
     assert n > 1
@@ -443,44 +479,35 @@ def add_sum(circuit, input_labels):
         return add_sum16_size59(circuit, input_labels)
 
     # synthesizing a circuit of size 5n out of full adders
-    weighted_bits, outputs = [(0, x) for x in input_labels], []
-    while weighted_bits:
-        if len(weighted_bits) == 1 or weighted_bits[0][0] < weighted_bits[1][0]:
-            outputs += [weighted_bits[0][1]]
-            weighted_bits = weighted_bits[1:]
-        elif len(weighted_bits) == 2:
-            (w1, x1), (w2, x2) = weighted_bits[:2]
-            if w1 < w2:
-                outputs += [weighted_bits[0][1], weighted_bits[1][1]]
-                weighted_bits = weighted_bits[2:]
-            else:
-                assert w1 == w2
-                weighted_bits = weighted_bits[2:]
-                s, c = add_sum2(circuit, [x1, x2])
-                weighted_bits += [(w1, s), (w1 + 1, c)]
-                weighted_bits = sorted(weighted_bits)
-        else:
-            (w1, x1), (w2, x2), (w3, x3) = weighted_bits[:3]
-            if w1 == w2 == w3:
-                weighted_bits = weighted_bits[3:]
-                s, c = add_sum3(circuit, [x1, x2, x3])
-                weighted_bits += [(w1, s), (w1 + 1, c)]
-                weighted_bits = sorted(weighted_bits)
-            elif w1 == w2:
-                assert w3 > w2
-                weighted_bits = weighted_bits[2:]
-                s, c = add_sum2(circuit, [x1, x2])
-                weighted_bits += [(w1, s), (w1 + 1, c)]
-                weighted_bits = sorted(weighted_bits)
+    return add_sum_pow2_weights(ckt, [(0, x) for x in input_labels])
 
-    return outputs
+
+# computes the sum w1*x1+...+wn*xn
+def add_weighted_sum(circuit, weights, input_labels):
+    assert len(input_labels) == len(weights)
+    assert all(isinstance(w, int) and w > 0 for w in weights)
+
+    weighted_bits = []
+    for w, x in zip(weights, input_labels):
+        k = 0
+        while w:
+            if w % 2 == 1:
+                weighted_bits.append((k, x))
+            w, k = w // 2, k + 1
+
+    return add_sum_pow2_weights(circuit, weighted_bits)
 
 
 if __name__ == '__main__':
-    for n in range(2, 20):
-        ckt = Circuit(input_labels=[f'x{i}' for i in range(n)])
-        ckt.outputs = add_sum(ckt, ckt.input_labels)
-        print(f'Verifying a circuit of size {ckt.get_nof_true_binary_gates()} computing the sum of {n} bits...', end='')
-        check_sum_circuit(ckt)
-        print('OK')
+    # for n in range(2, 20):
+    #     ckt = Circuit(input_labels=[f'x{i}' for i in range(n)])
+    #     ckt.outputs = add_sum(ckt, ckt.input_labels)
+    #     print(f'Verifying a circuit of size {ckt.get_nof_true_binary_gates()} computing the sum of {n} bits...', end='')
+    #     check_sum_circuit(ckt)
+    #     print('OK')
+
+    ckt = Circuit(input_labels=[f'x{i}' for i in range(12)])
+    ckt.outputs = add_weighted_sum(ckt, [1, 2, 4, 1, 2, 4, 3, 6, 12, 2, 4, 8], ckt.input_labels)
+    print(ckt.get_nof_true_binary_gates())
+
 
