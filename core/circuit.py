@@ -216,9 +216,9 @@ class Circuit:
                 new_var = f'{neg_prefix}{neg_counter}'
                 neg_counter += 1
                 file_data += f'\n{new_var}=NOT({output})'
-                file_data += f'\nOUTPUT{new_var}'
+                file_data += f'\nOUTPUT({new_var})'
             else:
-                file_data += f'\nOUTPUT{output}'
+                file_data += f'\nOUTPUT({output})'
 
         return file_data
 
