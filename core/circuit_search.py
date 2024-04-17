@@ -1,6 +1,7 @@
 from core.circuit import Circuit
 from itertools import combinations, product, permutations
 from core.functions2 import BooleanFunction
+from datetime import datetime
 import os
 import pycosat
 import sys
@@ -240,7 +241,9 @@ class CircuitFinder:
             for v in self.variables:
                 file.write(f'c {v} {self.variables[v]}\n')
 
-    def solve_cnf_formula(self, solver=None, verbose=0):
+    def solve_cnf_formula(self, solver='cadical195', verbose=0):
+        print(f'Starting solving a CNF formula, solver: {solver}, time: {datetime.now()}')
+
         # corner case: looking for a circuit of size 0
         if self.number_of_gates == 0:
             for tt in self.output_truth_tables:
@@ -252,13 +255,14 @@ class CircuitFinder:
 
         self.finalize_cnf_formula()
 
-        if solver is None:
+        if solver == 'pycosat':
             result = pycosat.solve(self.clauses, verbose=verbose)
+            print(f'Solved!, {datetime.now()}')
             if result == 'UNSAT':
                 return False
         elif solver == 'minisat':
-            cnf_file_name = '../tmp.cnf'
-            self.save_cnf_formula_to_file(cnf_file_name)
+            # cnf_file_name = '../tmp.cnf'
+            # self.save_cnf_formula_to_file(cnf_file_name)
             assert False, 'minisat not yet supported'
         elif solver == 'cadical195':
             cnf_file_name = '../tmp.cnf'
@@ -270,6 +274,7 @@ class CircuitFinder:
             s.configure({'verbose': 2})
             s.append_formula(formula.clauses)
             s.solve()
+            print(f'Solved!, {datetime.now()}')
             result = s.get_model()
             if result is None:
                 return False
