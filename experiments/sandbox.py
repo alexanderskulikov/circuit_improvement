@@ -1,13 +1,12 @@
-from core.circuit_search import *
 from core.circuit_improvement import *
-from functions.sum import *
+from functions.mult import *
+from functions.th import *
+from core.circuit_search import *
+from datetime import datetime
 
-for i in range(85, 86):
-    file_name = 'ex' + ('0' if i < 10 else '') + str(i)
-    ckt = Circuit()
-    ckt.load_from_file(file_name, extension='bench')
-    ckt.contract_not_gates()
-    print(ckt.get_nof_true_binary_gates())
-    improve_circuit_iteratively(ckt, max_subcircuit_size=7)
-
-
+for size in (10, 9, 8):
+    f = CircuitFinder(dimension=6, output_truth_tables=['1010111110101111101000001010000010101111101000111111010101110001', ], number_of_gates=size)
+    f.fix_gate(6, 3, 5, '0111')
+    ckt = f.solve_cnf_formula()
+    if ckt:
+        ckt.save_to_file(f'z_ex80_size{size}', extension='bench')
