@@ -242,7 +242,7 @@ class CircuitFinder:
                 file.write(f'c {v} {self.variables[v]}\n')
 
     def solve_cnf_formula(self, solver='cadical195', verbose=0):
-        print(f'Starting solving a CNF formula, solver: {solver}, time: {datetime.now()}')
+        print(f'Solving a CNF formula, solver: {solver}, time: {datetime.now()}')
 
         # corner case: looking for a circuit of size 0
         if self.number_of_gates == 0:
