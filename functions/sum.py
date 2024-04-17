@@ -2,6 +2,56 @@ from core.circuit import Circuit
 from itertools import product
 
 
+def add_sum_two_numbers(circuit, input_labels_a, input_labels_b):
+    n = len(input_labels_a)
+    m = len(input_labels_b)
+    for input_label in input_labels_a:
+        assert input_label in circuit.input_labels or input_label in circuit.gates
+    for input_label in input_labels_b:
+        assert input_label in circuit.input_labels or input_label in circuit.gates
+
+    if n < m:
+        n, m = m, n
+        input_labels_a, input_labels_b = input_labels_b, input_labels_a
+    d = [[0] for _ in range(n + 1)]
+    d[0] = add_sum(circuit, [input_labels_a[0], input_labels_b[0]])
+    for i in range(1, n):
+        inp = [d[i - 1][1], input_labels_a[i]]
+        if i < m:
+            inp.append(input_labels_b[i])
+        d[i] = add_sum(circuit, inp)
+    d[n] = [d[n - 1][1]]
+    return [d[i][0] for i in range(n + 1)]
+
+
+def add_sum_two_numbers_with_shift(circuit, shift, input_labels_a, input_labels_b):  # shift for second
+    n = len(input_labels_a)
+    m = len(input_labels_b)
+    for input_label in input_labels_a:
+        assert input_label in circuit.input_labels or input_label in circuit.gates
+    for input_label in input_labels_b:
+        assert input_label in circuit.input_labels or input_label in circuit.gates
+
+    if shift >= n:  # if shift so big for first number (in out cases I hope we will not use this)
+        d = [[0] for _ in range(m + shift)]
+        for i in range(n):
+            d[i] = [input_labels_a[i]]
+        if shift != n:
+            zero = circuit.add_gate(input_labels_a[0], input_labels_a[0], '0000')
+            for i in range(n, shift - n):
+                d[i] = [zero]
+        for i in range(m):
+            d[i + shift] = [input_labels_b[i]]
+        return [i[0] for i in d]
+    d = [[0] for _ in range(max(n, m + shift) + 1)]
+    for i in range(shift):
+        d[i] = [input_labels_a[i]]
+    res_sum = add_sum_two_numbers(circuit, input_labels_a[shift:n], input_labels_b)
+    for i in range(shift, max(n, m + shift) + 1):
+        d[i] = [res_sum[i - shift]]
+    return [d[i][0] for i in range(max(n, m + shift) + 1)]
+
+
 def add_sum2(circuit, input_labels):
     assert len(input_labels) == 2
     for input_label in input_labels:
@@ -404,7 +454,8 @@ def check_sum_circuit(circuit):
     for x in product(range(2), repeat=n):
         i = sum((2 ** (n - 1 - j)) * x[j] for j in range(n))
         s = sum(truth_tables[circuit.outputs[d]][i] * (2 ** d) for d in range(len(circuit.outputs)))
-        assert s == sum(x), f'Input: {x}, sum: {sum(x)}, s: {s}, output: {[truth_tables[circuit.outputs[d]][i] for d in range(len(circuit.outputs))]}'
+        assert s == sum(
+            x), f'Input: {x}, sum: {sum(x)}, s: {s}, output: {[truth_tables[circuit.outputs[d]][i] for d in range(len(circuit.outputs))]}'
 
 
 # computes the sum (2^w1)*x1+...+(2^wn)*xn
@@ -445,8 +496,9 @@ def add_sum_pow2_weights(circuit, weighted_inputs):
 
 def add_sum(circuit, input_labels):
     n = len(input_labels)
-    assert n > 1
-
+    assert n > 0
+    if n == 1:
+        return input_labels[0]
     if n == 2:
         return add_sum2(circuit, input_labels)
     if n == 3:
@@ -506,8 +558,12 @@ if __name__ == '__main__':
     #     check_sum_circuit(ckt)
     #     print('OK')
 
-    ckt = Circuit(input_labels=[f'x{i}' for i in range(12)])
-    ckt.outputs = add_weighted_sum(ckt, [1, 2, 4, 1, 2, 4, 3, 6, 12, 2, 4, 8], ckt.input_labels)
+    ckt = Circuit(input_labels=[f'x{i}' for i in range(6)])
+    inp_a = [f'x{i}' for i in range(3)]
+    inp_b = [f'x{i}' for i in range(3, 6)]
+    ckt.outputs = add_sum_two_numbers_with_shift(ckt, 1, inp_a, inp_b)
+
+
+    # ckt.outputs = add_weighted_sum(ckt, [1, 2, 4, 1, 2, 4, 3, 6, 12, 2, 4, 8], ckt.input_labels)
     print(ckt.get_nof_true_binary_gates())
-
-
+    print(ckt)
