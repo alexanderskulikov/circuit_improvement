@@ -1,7 +1,7 @@
 from core.circuit import Circuit
 from itertools import product
-from functions.sum import add_sum4, add_sum5, add_sum6, add_sum7
-from functions.sum import add_sumn, add_sumn_mdfa
+from functions.sum import add_sum14_size48, add_sum5_size11, add_sum6_size16, add_sum7_size19
+# from functions.sum import add_sum, add_sumn_mdfa
 
 
 def add_th2_2(circuit, input_labels):
