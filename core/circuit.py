@@ -301,7 +301,8 @@ class Circuit:
                                                                   improved_circuit.outputs[i])
         return replaced_graph
 
-    def draw(self, file_name='circuit', detailed_labels=False, experimental=False):
+    def draw(self, file_name='circuit', detailed_labels=False, experimental=False, highlight_gates=None):
+        highlight_gates = highlight_gates or []
         circuit_graph = self.construct_graph(detailed_labels)
         a = nx.nx_agraph.to_agraph(circuit_graph)
 
@@ -313,6 +314,10 @@ class Circuit:
                 a.get_node(gate).attr['shape'] = 'rectangle'
             else:
                 a.get_node(gate).attr['shape'] = 'circle'
+
+        for gate in highlight_gates:
+            a.get_node(gate).attr['style'] = 'filled'
+            a.get_node(gate).attr['fillcolor'] = 'green3'
 
         if isinstance(self.outputs, str):
             self.outputs = [self.outputs]
@@ -409,13 +414,9 @@ class Circuit:
 
     # propagate NOT gates into successors
     def contract_unary_gates(self):
-        # tmp = 0
         new_gate_contracted = True
         while new_gate_contracted:
             new_gate_contracted = False
-            # tmp += 1
-            # self.draw(f'{tmp}')
-            # self.save_to_file(f'{tmp}')
 
             for gate in self.gates:
                 x, y, gate_type = self.gates[gate]
@@ -542,5 +543,23 @@ class Circuit:
 
         self.gates = new_gates
         self.outputs = output_gate_labels
+
+    def merge_gates(self, first_gate, second_gate):
+        assert first_gate in self.gates and second_gate in self.gates
+
+        order = list(nx.topological_sort(self.construct_graph()))
+        (to_be_replaced_gate, by_gate) = (first_gate, second_gate) if order.index(first_gate) > order.index(second_gate) else (second_gate, first_gate)
+
+        self.gates.pop(to_be_replaced_gate)
+
+        for gate in self.gates:
+            if self.gates[gate][0] == to_be_replaced_gate:
+                self.gates[gate] = by_gate, self.gates[gate][1], self.gates[gate][2]
+            if self.gates[gate][1] == to_be_replaced_gate:
+                self.gates[gate] = self.gates[gate][0], by_gate, self.gates[gate][2]
+
+        for idx in range(len(self.outputs)):
+            if self.outputs[idx] == to_be_replaced_gate:
+                self.outputs[idx] = by_gate
 
 

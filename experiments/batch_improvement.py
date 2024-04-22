@@ -11,4 +11,4 @@ for file_name in sorted(listdir('./circuits/')):
     ckt.normalize()
     original_size = ckt.get_nof_true_binary_gates()
     print(f'Processing {file_name[:-6]} of size {original_size}')
-    improve_circuit_iteratively(ckt, file_name)
+    improve_circuit_iteratively(ckt, file_name[:-6])
