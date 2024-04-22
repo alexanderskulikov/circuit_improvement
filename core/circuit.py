@@ -251,7 +251,6 @@ class Circuit:
             circuit_graph.add_edge(self.gates[gate][0], gate)
             circuit_graph.add_edge(self.gates[gate][1], gate)
 
-        # assert nx.is_directed_acyclic_graph(circuit_graph)
         return circuit_graph
 
     def __get_from_graph(self, graph):
