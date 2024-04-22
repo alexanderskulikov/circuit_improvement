@@ -115,6 +115,7 @@ class Circuit:
         self.gates = {}
 
         for line in lines:
+            line = line.strip()
             if len(line) == 0 or line.startswith('#'):
                 continue
             elif line.startswith('INPUT'):
