@@ -1,6 +1,9 @@
 from itertools import product
 import networkx as nx
 import os
+import random
+from string import ascii_lowercase
+
 
 project_directory = os.path.dirname(os.path.abspath("path"))
 
@@ -248,6 +251,7 @@ class Circuit:
             circuit_graph.add_edge(self.gates[gate][0], gate)
             circuit_graph.add_edge(self.gates[gate][1], gate)
 
+        # assert nx.is_directed_acyclic_graph(circuit_graph)
         return circuit_graph
 
     def __get_from_graph(self, graph):
@@ -306,7 +310,10 @@ class Circuit:
             a.get_node(gate).attr['shape'] = 'invtriangle'
 
         for gate in self.gates:
-            a.get_node(gate).attr['shape'] = 'circle'
+            if detailed_labels:
+                a.get_node(gate).attr['shape'] = 'rectangle'
+            else:
+                a.get_node(gate).attr['shape'] = 'circle'
 
         if isinstance(self.outputs, str):
             self.outputs = [self.outputs]
@@ -504,3 +511,37 @@ class Circuit:
         self.contract_unary_gates()
         self.contract_gates()
         self.remove_dangling_gates()
+
+    # prepends all internal gate (i.e., gates that are not inputs and outputs) names with the string prefix
+    # to avoid names clashes with other circuits
+    def rename_internal_gates(self, prefix=''):
+        if not prefix:
+            prefix = ''.join(random.choice(ascii_lowercase) for _ in range(5))
+
+        def new_name(old_name):
+            return prefix + str(old_name) if old_name not in self.input_labels and old_name not in self.outputs else str(old_name)
+
+        new_gates = dict()
+        for gate in self.gates:
+            first, second, gate_type = self.gates[gate]
+            new_gates[new_name(gate)] = new_name(first), new_name(second), gate_type
+
+        self.gates = new_gates
+
+    def rename_output_gates(self, output_gate_labels):
+        assert len(self.outputs) == len(output_gate_labels)
+        for name in output_gate_labels:
+            assert name not in self.input_labels and name not in self.outputs and name not in self.gates
+
+        def new_name(old_name):
+            return output_gate_labels[self.outputs.index(old_name)] if old_name in self.outputs else old_name
+
+        new_gates = dict()
+        for gate in self.gates:
+            first, second, gate_type = self.gates[gate]
+            new_gates[new_name(gate)] = new_name(first), new_name(second), gate_type
+
+        self.gates = new_gates
+        self.outputs = output_gate_labels
+
+
