@@ -1,4 +1,4 @@
-python-sat~=0.1.7.dev11
+python-sat~=1.8
 networkx~=2.6.3
 shapely~=1.8.0
 sympy~=1.9
