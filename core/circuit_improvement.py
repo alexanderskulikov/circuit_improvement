@@ -5,7 +5,7 @@ import networkx as nx
 from tqdm import tqdm
 
 
-def improve_circuit(circuit, max_inputs=5, max_gates=6):
+def improve_circuit(circuit, max_inputs=5, max_gates=6, forbidden_operations=None):
     circuit_graph, circuit_truth_tables = circuit.construct_graph(), circuit.get_truth_tables()
 
     gate_subsets = set()
@@ -83,10 +83,12 @@ def improve_circuit(circuit, max_inputs=5, max_gates=6):
             output_truth_tables=final_truth_tables,
             input_labels=subcircuit_inputs,
             input_truth_tables=None,
-            forbidden_operations=[]
+            forbidden_operations=forbidden_operations
         )
 
         if better_subcircuit:
+            assert all(better_subcircuit.gates[gate][2] not in forbidden_operations for gate in better_subcircuit.gates)
+
             better_subcircuit.rename_internal_gates()
             better_subcircuit.rename_output_gates(subcircuit_outputs)
             better_subcircuit_graph = better_subcircuit.construct_graph()
@@ -114,12 +116,17 @@ def improve_circuit(circuit, max_inputs=5, max_gates=6):
                 return better_circuit
 
 
-def improve_circuit_iteratively(circuit, file_name=''):
+def improve_circuit_iteratively(circuit, file_name='', forbidden_operations=None):
     was_improved = True
     while was_improved:
         was_improved = False
 
-        better_circuit = improve_circuit(circuit, max_gates=6 if circuit.get_nof_true_binary_gates() < 400 else 5)
+        better_circuit = improve_circuit(
+            circuit,
+            max_gates=6 if circuit.get_nof_true_binary_gates() < 400 else 5,
+            forbidden_operations=forbidden_operations
+        )
+
         if better_circuit:
             assert better_circuit.get_nof_true_binary_gates() < circuit.get_nof_true_binary_gates()
             print(f'{file_name} improved to {better_circuit.get_nof_true_binary_gates()}')
