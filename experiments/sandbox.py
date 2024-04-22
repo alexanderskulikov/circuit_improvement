@@ -4,9 +4,11 @@ from functions.th import *
 from core.circuit_search import *
 from datetime import datetime
 
-for size in (10, 9, 8):
-    f = CircuitFinder(dimension=6, output_truth_tables=['1010111110101111101000001010000010101111101000111111010101110001', ], number_of_gates=size)
-    f.fix_gate(6, 3, 5, '0111')
-    ckt = f.solve_cnf_formula()
-    if ckt:
-        ckt.save_to_file(f'z_ex80_size{size}', extension='bench')
+finder = CircuitFinder(
+    dimension=4,
+    number_of_gates=11,
+    output_truth_tables=['0000000000000001', '0001011101111111', '0110100110010110'],
+    forbidden_operations=['0110', '1001']
+)
+ckt = finder.solve_cnf_formula()
+print(ckt)
