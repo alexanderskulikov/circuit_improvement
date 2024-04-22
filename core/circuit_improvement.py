@@ -1,6 +1,7 @@
 from copy import deepcopy
 from core.circuit_search import find_circuit
 from functions.sum import *
+from itertools import combinations
 import networkx as nx
 from tqdm import tqdm
 
@@ -49,7 +50,7 @@ def improve_circuit(circuit, max_inputs=5, max_gates=6):
 
         return list(subcircuit_inputs), list(subcircuit_outputs)
 
-    for gate_subset in tqdm(gate_subsets):
+    for gate_subset in tqdm(sorted(gate_subsets)):
         subcircuit_inputs, subcircuit_outputs = compute_subcircuit_inputs_and_outputs(gate_subset)
         if len(subcircuit_inputs) > max_inputs or len(subcircuit_outputs) == len(gate_subset):
             continue
@@ -77,6 +78,25 @@ def improve_circuit(circuit, max_inputs=5, max_gates=6):
 
         final_truth_tables = [''.join(map(str, table)) for table in final_truth_tables]
 
+        def verify_better_circuit(original_circuit, smaller_circuit):
+            assert smaller_circuit.get_nof_true_binary_gates() < original_circuit.get_nof_true_binary_gates()
+            assert original_circuit.outputs == smaller_circuit.outputs
+
+            original_circuit_truth_tables = original_circuit.get_truth_tables()
+            smaller_circuit_truth_tables = smaller_circuit.get_truth_tables()
+            for output_gate in smaller_circuit.outputs:
+                assert original_circuit_truth_tables[output_gate] == smaller_circuit_truth_tables[output_gate]
+
+        # corner case: there are two equal outputs
+        for i, j in combinations(range(len(subcircuit_outputs)), 2):
+            if final_truth_tables[i] == final_truth_tables[j]:
+                first_gate, second_gate = subcircuit_outputs[i], subcircuit_outputs[j]
+                better_circuit = deepcopy(circuit)
+                better_circuit.merge_gates(first_gate, second_gate)
+
+                verify_better_circuit(circuit, better_circuit)
+                return better_circuit
+
         better_subcircuit = find_circuit(
             dimension=len(subcircuit_inputs),
             number_of_gates=len(gate_subset) - 1,
@@ -89,6 +109,9 @@ def improve_circuit(circuit, max_inputs=5, max_gates=6):
         if better_subcircuit:
             better_subcircuit.rename_internal_gates()
             better_subcircuit.rename_output_gates(subcircuit_outputs)
+            assert better_subcircuit.input_labels == subcircuit_inputs
+            assert better_subcircuit.outputs == subcircuit_outputs
+
             better_subcircuit_graph = better_subcircuit.construct_graph()
 
             better_circuit = deepcopy(circuit)
@@ -105,12 +128,7 @@ def improve_circuit(circuit, max_inputs=5, max_gates=6):
 
             better_circuit_graph = better_circuit.construct_graph()
             if nx.is_directed_acyclic_graph(better_circuit_graph):
-                # verifying that the new circuit computes the same
-                assert better_circuit.get_nof_true_binary_gates() < circuit.get_nof_true_binary_gates()
-                new_truth_tables = better_circuit.get_truth_tables()
-                for output_gate in better_circuit.outputs:
-                    assert new_truth_tables[output_gate] == circuit_truth_tables[output_gate]
-
+                verify_better_circuit(circuit, better_circuit)
                 return better_circuit
 
 
