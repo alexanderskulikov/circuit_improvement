@@ -71,12 +71,19 @@ def add_sum3(circuit, input_labels):
 
     x1, x2, x3 = input_labels
 
+    # g1 = circuit.add_gate(x1, x2, '0110')
+    # g2 = circuit.add_gate(g1, x3, '0110')
+    # g3 = circuit.add_gate(x1, x2, '0001')
+    # g4 = circuit.add_gate(g1, x3, '0001')
+    # g5 = circuit.add_gate(g3, g4, '0110')
+
+    # the block below is crucial for improving a circuit of size 12 for SUM5
     g1 = circuit.add_gate(x1, x2, '0110')
-    g2 = circuit.add_gate(g1, x3, '0110')
-    g3 = circuit.add_gate(x1, x2, '0001')
-    g4 = circuit.add_gate(g1, x3, '0001')
+    g2 = circuit.add_gate(x2, x3, '0110')
+    g3 = circuit.add_gate(g1, g2, '0111')
+    g4 = circuit.add_gate(g1, x3, '0110')
     g5 = circuit.add_gate(g3, g4, '0110')
-    return g2, g5
+    return g4, g5
 
 
 # given x1, x2, and (x2 oplus x3), computes the binary representation
@@ -551,19 +558,9 @@ def add_weighted_sum(circuit, weights, input_labels):
 
 
 if __name__ == '__main__':
-    # for n in range(2, 20):
-    #     ckt = Circuit(input_labels=[f'x{i}' for i in range(n)])
-    #     ckt.outputs = add_sum(ckt, ckt.input_labels)
-    #     print(f'Verifying a circuit of size {ckt.get_nof_true_binary_gates()} computing the sum of {n} bits...', end='')
-    #     check_sum_circuit(ckt)
-    #     print('OK')
-
-    ckt = Circuit(input_labels=[f'x{i}' for i in range(6)])
-    inp_a = [f'x{i}' for i in range(3)]
-    inp_b = [f'x{i}' for i in range(3, 6)]
-    ckt.outputs = add_sum_two_numbers_with_shift(ckt, 1, inp_a, inp_b)
-
-
-    # ckt.outputs = add_weighted_sum(ckt, [1, 2, 4, 1, 2, 4, 3, 6, 12, 2, 4, 8], ckt.input_labels)
-    print(ckt.get_nof_true_binary_gates())
-    print(ckt)
+    for n in range(2, 20):
+        ckt = Circuit(input_labels=[f'x{i}' for i in range(n)])
+        ckt.outputs = add_sum(ckt, ckt.input_labels)
+        print(f'Verifying a circuit of size {ckt.get_nof_true_binary_gates()} computing the sum of {n} bits...', end='')
+        check_sum_circuit(ckt)
+        print('OK')
