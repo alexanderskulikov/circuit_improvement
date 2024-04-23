@@ -138,7 +138,7 @@ def improve_circuit(circuit, max_inputs=6, subcircuit_size=7, forbidden_operatio
                 return better_circuit
 
 
-def improve_circuit_iteratively(circuit, file_name='', forbidden_operations=None, max_inputs=5, max_subcircuit_size=6):
+def improve_circuit_iteratively(circuit, file_name='', forbidden_operations=None, max_inputs=6, max_subcircuit_size=7):
     was_improved = True
     while was_improved:
         was_improved = False
