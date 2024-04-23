@@ -7,7 +7,7 @@ import networkx as nx
 from tqdm import tqdm
 
 
-def improve_circuit(circuit, max_inputs=5, subcircuit_size=6, forbidden_operations=None):
+def improve_circuit(circuit, max_inputs=6, subcircuit_size=7, forbidden_operations=None):
     print(f'  Enumerating subcircuits of size {subcircuit_size} with at most {max_inputs} inputs ({datetime.now()})')
     circuit_graph, circuit_truth_tables = circuit.construct_graph(), circuit.get_truth_tables()
 
