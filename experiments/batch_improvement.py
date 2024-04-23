@@ -11,7 +11,11 @@ for file_name in sorted(listdir('./circuits/')):
     ckt = Circuit()
     ckt.load_from_file(file_name[:-6], extension='bench')
     ckt.normalize()
-    print(f'Processing {file_name[:-6]} of size {ckt.get_nof_true_binary_gates()} ({datetime.now()})')
-    improve_circuit_iteratively(ckt, file_name[:-6], max_inputs=6, max_subcircuit_size=7)
+
+    if len(ckt.gates) < ckt.get_nof_true_binary_gates():
+        print(f'Skipping {file_name[:-6]} as it still contains unary gates')
+    else:
+        print(f'Processing {file_name[:-6]} of size {ckt.get_nof_true_binary_gates()} ({datetime.now()})')
+        improve_circuit_iteratively(ckt, file_name[:-6], max_inputs=6, max_subcircuit_size=7)
 
 print('Done! ({datetime.now()})')
