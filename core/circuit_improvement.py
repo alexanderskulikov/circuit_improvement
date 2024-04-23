@@ -6,7 +6,8 @@ import networkx as nx
 from tqdm import tqdm
 
 
-def improve_circuit(circuit, max_inputs=5, max_gates=6, forbidden_operations=None):
+def improve_circuit(circuit, max_inputs=5, subcircuit_size=6, forbidden_operations=None):
+    print(f'  Enumerating subcircuits of size {subcircuit_size} with at most {max_inputs} inputs...')
     circuit_graph, circuit_truth_tables = circuit.construct_graph(), circuit.get_truth_tables()
 
     gate_subsets = set()
@@ -14,10 +15,10 @@ def improve_circuit(circuit, max_inputs=5, max_gates=6, forbidden_operations=Non
     def extend_gate_set(current_gate_set):
         gate_subsets.add(frozenset(current_gate_set))
 
-        if len(current_gate_set) == max_gates:
+        if len(current_gate_set) == subcircuit_size:
             return
 
-        if len(current_gate_set) == max_gates - 1:
+        if len(current_gate_set) == subcircuit_size - 1:
             for gate in current_gate_set:
                 for successor in circuit_graph.neighbors(gate):
                     if successor not in current_gate_set:
@@ -73,7 +74,7 @@ def improve_circuit(circuit, max_inputs=5, max_gates=6, forbidden_operations=Non
                 for i in range(len(output)):
                     final_truth_tables[i].append(output[i])
             else:
-                for i in range(len(output)):
+                for i in range(len(subcircuit_outputs)):
                     final_truth_tables[i].append('*')
 
         final_truth_tables = [''.join(map(str, table)) for table in final_truth_tables]
@@ -107,11 +108,13 @@ def improve_circuit(circuit, max_inputs=5, max_gates=6, forbidden_operations=Non
         )
 
         if better_subcircuit:
-            assert all(better_subcircuit.gates[gate][2] not in forbidden_operations for gate in better_subcircuit.gates)
+            if forbidden_operations:
+                assert all(better_subcircuit.gates[gate][2] not in forbidden_operations for gate in better_subcircuit.gates)
 
             better_subcircuit.rename_internal_gates()
             better_subcircuit.rename_output_gates(subcircuit_outputs)
-            assert better_subcircuit.input_labels == subcircuit_inputs
+
+            assert better_subcircuit.input_labels == subcircuit_inputs, f'{better_subcircuit.input_labels}, {subcircuit_inputs}'
             assert better_subcircuit.outputs == subcircuit_outputs
 
             better_subcircuit_graph = better_subcircuit.construct_graph()
@@ -134,22 +137,20 @@ def improve_circuit(circuit, max_inputs=5, max_gates=6, forbidden_operations=Non
                 return better_circuit
 
 
-def improve_circuit_iteratively(circuit, file_name='', forbidden_operations=None):
+def improve_circuit_iteratively(circuit, file_name='', forbidden_operations=None, max_subcircuit_size=6):
     was_improved = True
     while was_improved:
         was_improved = False
 
-        better_circuit = improve_circuit(
-            circuit,
-            max_gates=6 if circuit.get_nof_true_binary_gates() < 400 else 5,
-            forbidden_operations=forbidden_operations
-        )
+        for subcircuit_size in range(2, max_subcircuit_size + 1):
+            better_circuit = improve_circuit(circuit, subcircuit_size=subcircuit_size, forbidden_operations=forbidden_operations)
 
-        if better_circuit:
-            assert better_circuit.get_nof_true_binary_gates() < circuit.get_nof_true_binary_gates()
-            print(f'{file_name} improved to {better_circuit.get_nof_true_binary_gates()}')
-            was_improved = True
-            better_circuit.save_to_file('y_' + file_name + '_size' + str(better_circuit.get_nof_true_binary_gates()), extension='bench')
-            circuit = better_circuit
+            if better_circuit:
+                assert better_circuit.get_nof_true_binary_gates() < circuit.get_nof_true_binary_gates()
+                print(f'{file_name} improved to {better_circuit.get_nof_true_binary_gates()}')
+                was_improved = True
+                circuit = better_circuit
+                circuit.save_to_file('y_' + file_name + '_size' + str(better_circuit.get_nof_true_binary_gates()), extension='bench')
+                break
 
     return circuit

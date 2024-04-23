@@ -9,6 +9,5 @@ for file_name in sorted(listdir('./circuits/')):
     ckt = Circuit()
     ckt.load_from_file(file_name[:-6], extension='bench')
     ckt.normalize()
-    original_size = ckt.get_nof_true_binary_gates()
-    print(f'Processing {file_name[:-6]} of size {original_size}')
-    improve_circuit_iteratively(ckt, file_name[:-6])
+    print(f'Processing {file_name[:-6]} of size {ckt.get_nof_true_binary_gates()}')
+    improve_circuit_iteratively(ckt, file_name[:-6], max_subcircuit_size=7)
