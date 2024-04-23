@@ -1,5 +1,6 @@
 from copy import deepcopy
 from core.circuit_search import find_circuit
+from datetime import datetime
 from functions.sum import *
 from itertools import combinations
 import networkx as nx
@@ -7,7 +8,7 @@ from tqdm import tqdm
 
 
 def improve_circuit(circuit, max_inputs=5, subcircuit_size=6, forbidden_operations=None):
-    print(f'  Enumerating subcircuits of size {subcircuit_size} with at most {max_inputs} inputs...')
+    print(f'  Enumerating subcircuits of size {subcircuit_size} with at most {max_inputs} inputs ({datetime.now()})')
     circuit_graph, circuit_truth_tables = circuit.construct_graph(), circuit.get_truth_tables()
 
     gate_subsets = set()
