@@ -12,6 +12,6 @@ for file_name in sorted(listdir('./circuits/')):
     ckt.load_from_file(file_name[:-6], extension='bench')
     ckt.normalize()
     print(f'Processing {file_name[:-6]} of size {ckt.get_nof_true_binary_gates()}')
-    improve_circuit_iteratively(ckt, file_name[:-6], max_subcircuit_size=7)
+    improve_circuit_iteratively(ckt, file_name[:-6], max_inputs=6, max_subcircuit_size=7)
 
 print('Done! Time:', datetime.now())

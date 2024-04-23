@@ -137,13 +137,18 @@ def improve_circuit(circuit, max_inputs=5, subcircuit_size=6, forbidden_operatio
                 return better_circuit
 
 
-def improve_circuit_iteratively(circuit, file_name='', forbidden_operations=None, max_subcircuit_size=6):
+def improve_circuit_iteratively(circuit, file_name='', forbidden_operations=None, max_inputs=5, max_subcircuit_size=6):
     was_improved = True
     while was_improved:
         was_improved = False
 
         for subcircuit_size in range(2, max_subcircuit_size + 1):
-            better_circuit = improve_circuit(circuit, subcircuit_size=subcircuit_size, forbidden_operations=forbidden_operations)
+            better_circuit = improve_circuit(
+                circuit,
+                max_inputs=max_inputs,
+                subcircuit_size=subcircuit_size,
+                forbidden_operations=forbidden_operations
+            )
 
             if better_circuit:
                 assert better_circuit.get_nof_true_binary_gates() < circuit.get_nof_true_binary_gates()
