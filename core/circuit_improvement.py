@@ -7,7 +7,7 @@ import networkx as nx
 from tqdm import tqdm
 
 
-def improve_circuit(circuit, max_inputs=6, subcircuit_size=7, forbidden_operations=None):
+def improve_circuit(circuit, max_inputs=7, subcircuit_size=7, forbidden_operations=None):
     print(f'  Enumerating subcircuits of size {subcircuit_size} with at most {max_inputs} inputs ({datetime.now()})')
     circuit_graph, circuit_truth_tables = circuit.construct_graph(), circuit.get_truth_tables()
 
@@ -138,7 +138,7 @@ def improve_circuit(circuit, max_inputs=6, subcircuit_size=7, forbidden_operatio
                 return better_circuit
 
 
-def improve_circuit_iteratively(circuit, file_name='', forbidden_operations=None, max_inputs=6, max_subcircuit_size=7):
+def improve_circuit_iteratively(circuit, file_name='', forbidden_operations=None, max_inputs=7, max_subcircuit_size=7):
     was_improved = True
     while was_improved:
         was_improved = False
@@ -155,7 +155,9 @@ def improve_circuit_iteratively(circuit, file_name='', forbidden_operations=None
                 assert better_circuit.get_nof_true_binary_gates() < circuit.get_nof_true_binary_gates()
                 print(f'{file_name} improved to {better_circuit.get_nof_true_binary_gates()}')
                 was_improved = True
+
                 circuit = better_circuit
+                circuit.normalize()
                 circuit.save_to_file('y_' + file_name + '_size' + str(better_circuit.get_nof_true_binary_gates()), extension='bench')
                 break
 
