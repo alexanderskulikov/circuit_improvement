@@ -1,7 +1,8 @@
-python-sat~=1.8
+python-sat~=1.8.dev12
 networkx~=2.6.3
 shapely~=1.8.0
 sympy~=1.9
 pyeda~=0.28.0
 pygraphviz~=1.7
 pycosat~=0.6.3
+tqdm~=4.66.2
