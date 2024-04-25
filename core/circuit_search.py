@@ -8,6 +8,7 @@ import sys
 from timeit import default_timer as timer
 from pysat.formula import CNF
 from pysat.solvers import Solver
+from threading import Timer
 
 
 class CircuitFinder:
@@ -190,9 +191,9 @@ class CircuitFinder:
             for v in self.variables:
                 file.write(f'c {v} {self.variables[v]}\n')
 
-    def solve_cnf_formula(self, solver='cadical195', verbose=0):
+    def solve_cnf_formula(self, solver_name='glucose421', verbose=1, time_limit=None):
         if verbose:
-            print(f'Solving a CNF formula, solver: {solver}, time: {datetime.now()}')
+            print(f'Solving a CNF formula, solver: {solver_name}, time_limit: {time_limit}, current time: {datetime.now()}')
 
         # corner case: looking for a circuit of size 0
         if self.number_of_gates == 0:
@@ -205,48 +206,42 @@ class CircuitFinder:
 
         self.finalize_cnf_formula()
 
-        if solver == 'pycosat':
-            result = pycosat.solve(self.clauses, verbose=verbose)
-            print(f'Solved!, {datetime.now()}')
-            if result == 'UNSAT':
-                return False
-        elif solver == 'minisat':
-            # cnf_file_name = '../tmp.cnf'
-            # self.save_cnf_formula_to_file(cnf_file_name)
-            assert False, 'minisat not yet supported'
-        elif solver == 'cadical195':
-            cnf_file_name = '../tmp.cnf'
-            self.save_cnf_formula_to_file(cnf_file_name)
-            formula = CNF(from_file='../tmp.cnf')
-            if verbose:
-                print(f'Running {solver}')
-            s = Solver(name=solver)
-            s.configure({'verbose': 2})
-            s.append_formula(formula.clauses)
-            s.solve()
-            if verbose:
-                print(f'Solved!, {datetime.now()}')
-            result = s.get_model()
-            if result is None:
-                return False
+        if verbose:
+            print(f'Running {solver_name}')
+
+        solver = Solver(name=solver_name, bootstrap_with=self.clauses)
+
+        if time_limit:
+            def interrupt(s):
+                s.interrupt()
+
+            solver_timer = Timer(time_limit, interrupt, [solver])
+            solver_timer.start()
+            solver.solve_limited(expect_interrupt=True)
         else:
-            assert False, 'unknown solver'
+            solver.solve()
+
+        model = solver.get_model()
+        solver.delete()
+
+        if not model:
+            return model
 
         gate_descriptions = {}
         for gate in self.internal_gates:
             first_predecessor, second_predecessor = None, None
             for f, s in combinations(range(gate), 2):
-                if self.predecessors_variable(gate, f, s) in result:
+                if self.predecessors_variable(gate, f, s) in model:
                     first_predecessor, second_predecessor = f, s
                 else:
-                    assert -self.predecessors_variable(gate, f, s) in result
+                    assert -self.predecessors_variable(gate, f, s) in model
 
             gate_type = []
             for p, q in product(range(2), repeat=2):
-                if self.gate_type_variable(gate, p, q) in result:
+                if self.gate_type_variable(gate, p, q) in model:
                     gate_type.append(1)
                 else:
-                    assert -self.gate_type_variable(gate, p, q) in result
+                    assert -self.gate_type_variable(gate, p, q) in model
                     gate_type.append(0)
 
             first_predecessor = self.input_labels[first_predecessor] if first_predecessor in self.input_gates else 's' + str(first_predecessor)
@@ -256,7 +251,7 @@ class CircuitFinder:
         output_gates = []
         for h in self.outputs:
             for gate in self.gates:
-                if self.output_gate_variable(h, gate) in result:
+                if self.output_gate_variable(h, gate) in model:
                     output_gates.append('s' + str(gate))
 
         return Circuit(self.input_labels, gate_descriptions, output_gates)
@@ -307,14 +302,14 @@ class CircuitFinder:
                 self.clauses += [[-self.predecessors_variable(to_gate, min(other, from_gate), max(other, from_gate))]]
 
 
-def find_circuit(dimension, number_of_gates, input_labels, input_truth_tables, output_truth_tables, forbidden_operations, verbose=0):
+def find_circuit(dimension, number_of_gates, input_labels, input_truth_tables, output_truth_tables, forbidden_operations, verbose=0, time_limit=None):
     circuit_finder = CircuitFinder(dimension=dimension,
                                    number_of_gates=number_of_gates,
                                    input_labels=input_labels,
                                    input_truth_tables=input_truth_tables,
                                    output_truth_tables=output_truth_tables,
                                    forbidden_operations=forbidden_operations)
-    return circuit_finder.solve_cnf_formula(verbose=verbose)
+    return circuit_finder.solve_cnf_formula(verbose=verbose, time_limit=time_limit)
 
 
 if __name__ == '__main__':
