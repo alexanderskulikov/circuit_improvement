@@ -138,12 +138,13 @@ def improve_circuit(circuit, max_inputs=7, subcircuit_size=7, forbidden_operatio
                 return better_circuit
 
 
-def improve_circuit_iteratively(circuit, file_name='', forbidden_operations=None, max_inputs=7, max_subcircuit_size=7):
+def improve_circuit_iteratively(circuit, file_name='', forbidden_operations=None,
+                                max_inputs=7, min_subcircuit_size=2, max_subcircuit_size=7):
     was_improved = True
     while was_improved:
         was_improved = False
 
-        for subcircuit_size in range(2, max_subcircuit_size + 1):
+        for subcircuit_size in range(min_subcircuit_size, max_subcircuit_size + 1):
             better_circuit = improve_circuit(
                 circuit,
                 max_inputs=max_inputs,

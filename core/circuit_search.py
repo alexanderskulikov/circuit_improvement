@@ -50,7 +50,7 @@ class CircuitFinder:
         self.input_labels = input_labels
         self.input_truth_tables = input_truth_tables
         self.number_of_gates = number_of_gates
-        self.is_normal = all(table[0] != '1' for table in self.output_truth_tables)
+        # self.is_normal = all(table[0] != '1' for table in self.output_truth_tables)
         # self.is_normal = False
 
         assert all(len(table) == 1 << dimension for table in self.output_truth_tables)
@@ -64,12 +64,6 @@ class CircuitFinder:
         self.gates = list(range(number_of_input_gates + number_of_gates))
         self.outputs = list(range(number_of_outputs))
 
-        # if all(str(gate) not in self.input_labels for gate in self.internal_gates):
-        #     a = 0
-        # else:
-        #     print(self.input_labels)
-        #     print(self.internal_gates)
-        #     print(self)
         assert all(str(gate) not in self.input_labels for gate in self.internal_gates)
 
         self.forbidden_operations = forbidden_operations or []
@@ -122,8 +116,6 @@ class CircuitFinder:
         # each output is computed somewhere
         for h in range(len(self.outputs)):
             self.clauses += exactly_one_of([self.output_gate_variable(h, gate) for gate in self.internal_gates])
-
-        # a=1
 
         # truth values for inputs
         for input_gate in self.input_gates:
@@ -270,9 +262,10 @@ class CircuitFinder:
         return Circuit(self.input_labels, gate_descriptions, output_gates)
 
     def finalize_cnf_formula(self):
-        if self.is_normal:
-            for gate in self.internal_gates:
-                self.clauses += [[-self.gate_type_variable(gate, 0, 0)]]
+        # if self.is_normal:
+        #     for gate in self.internal_gates:
+        #         self.clauses += [[-self.gate_type_variable(gate, 0, 0)]]
+        pass
 
     # The following method allows to further restrict the internal structure of a circuit.
     # Only use it if you know what you are doing.
@@ -296,8 +289,8 @@ class CircuitFinder:
         if gate_type:
             assert isinstance(gate_type, str) and len(gate_type) == 4
 
-            if gate_type[0] != '0':
-                self.is_normal = False
+            # if gate_type[0] != '0':
+            #     self.is_normal = False
 
             for a, b in product(range(2), repeat=2):
                 bit = int(gate_type[2 * a + b])
