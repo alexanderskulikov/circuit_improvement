@@ -139,7 +139,7 @@ def improve_circuit(circuit, max_inputs=7, subcircuit_size=7, basis='xaig', time
 
 def improve_circuit_iteratively(circuit, file_name='', basis='xaig',
                                 max_inputs=7, min_subcircuit_size=2, max_subcircuit_size=7,
-                                time_limit=None):
+                                time_limit=None, save_circuits=True):
     assert basis in ('xaig', 'aig')
     was_improved = True
     while was_improved:
@@ -161,7 +161,8 @@ def improve_circuit_iteratively(circuit, file_name='', basis='xaig',
 
                 circuit = better_circuit
                 circuit.normalize()
-                circuit.save_to_file('y_' + file_name + '_size' + str(better_circuit.get_nof_true_binary_gates()), extension='bench')
+                if save_circuits:
+                    circuit.save_to_file('y_' + file_name + '_size' + str(better_circuit.get_nof_true_binary_gates()), extension='bench')
                 break
 
     return circuit
