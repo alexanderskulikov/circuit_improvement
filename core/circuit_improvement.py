@@ -7,7 +7,7 @@ import networkx as nx
 from tqdm import tqdm
 
 
-def improve_circuit(circuit, max_inputs=7, subcircuit_size=7, forbidden_operations=None, time_limit=None):
+def improve_circuit(circuit, max_inputs=7, subcircuit_size=7, basis='xaig', time_limit=None):
     print(f'  Enumerating subcircuits of size {subcircuit_size} with at most {max_inputs} inputs, '
           f'solver time limit: {time_limit}, current time: {datetime.now()}')
     circuit_graph, circuit_truth_tables = circuit.construct_graph(), circuit.get_truth_tables()
@@ -106,14 +106,11 @@ def improve_circuit(circuit, max_inputs=7, subcircuit_size=7, forbidden_operatio
             output_truth_tables=final_truth_tables,
             input_labels=subcircuit_inputs,
             input_truth_tables=None,
-            forbidden_operations=forbidden_operations,
+            basis=basis,
             time_limit=time_limit
         )
 
         if better_subcircuit:
-            if forbidden_operations:
-                assert all(better_subcircuit.gates[gate][2] not in forbidden_operations for gate in better_subcircuit.gates)
-
             better_subcircuit.rename_internal_gates()
             better_subcircuit.rename_output_gates(subcircuit_outputs)
 
@@ -140,9 +137,10 @@ def improve_circuit(circuit, max_inputs=7, subcircuit_size=7, forbidden_operatio
                 return better_circuit
 
 
-def improve_circuit_iteratively(circuit, file_name='', forbidden_operations=None,
+def improve_circuit_iteratively(circuit, file_name='', basis='xaig',
                                 max_inputs=7, min_subcircuit_size=2, max_subcircuit_size=7,
                                 time_limit=None):
+    assert basis in ('xaig', 'aig')
     was_improved = True
     while was_improved:
         was_improved = False
@@ -152,7 +150,7 @@ def improve_circuit_iteratively(circuit, file_name='', forbidden_operations=None
                 circuit,
                 max_inputs=max_inputs,
                 subcircuit_size=subcircuit_size,
-                forbidden_operations=forbidden_operations,
+                basis=basis,
                 time_limit=time_limit
             )
 

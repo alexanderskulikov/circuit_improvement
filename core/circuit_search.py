@@ -14,7 +14,7 @@ from threading import Timer
 class CircuitFinder:
     def __init__(self, dimension, number_of_gates, input_labels=None,
                  input_truth_tables=None, output_truth_tables=None,
-                 function=None, forbidden_operations=None):
+                 function=None, basis='xaig'):
         self.dimension = dimension
 
         if function is not None:
@@ -67,7 +67,8 @@ class CircuitFinder:
 
         assert all(str(gate) not in self.input_labels for gate in self.internal_gates)
 
-        self.forbidden_operations = forbidden_operations or []
+        assert basis in ('xaig', 'aig')
+        self.forbidden_operations = [] if basis == 'xaig' else ['0110', '1001']
 
         self.clauses = []
         self.variables = {'dummy': 0}
@@ -302,13 +303,13 @@ class CircuitFinder:
                 self.clauses += [[-self.predecessors_variable(to_gate, min(other, from_gate), max(other, from_gate))]]
 
 
-def find_circuit(dimension, number_of_gates, input_labels, input_truth_tables, output_truth_tables, forbidden_operations, verbose=0, time_limit=None):
+def find_circuit(dimension, number_of_gates, input_labels, input_truth_tables, output_truth_tables, basis='xaig', verbose=0, time_limit=None):
     circuit_finder = CircuitFinder(dimension=dimension,
                                    number_of_gates=number_of_gates,
                                    input_labels=input_labels,
                                    input_truth_tables=input_truth_tables,
                                    output_truth_tables=output_truth_tables,
-                                   forbidden_operations=forbidden_operations)
+                                   basis=basis)
     return circuit_finder.solve_cnf_formula(verbose=verbose, time_limit=time_limit)
 
 
@@ -328,7 +329,7 @@ if __name__ == '__main__':
                            output_truth_tables=output_truth_tables,
                            input_labels=None,
                            input_truth_tables=None,
-                           forbidden_operations=None)
+                           basis='xaig')
     end = timer()
 
     if not circuit:

@@ -16,8 +16,6 @@ for file_name in sorted(listdir('./circuits/')):
         print(f'Skipping {file_name[:-6]} as it still contains unary gates')
     else:
         print(f'Processing {file_name[:-6]} of size {ckt.get_nof_true_binary_gates()} ({datetime.now()})')
-        improve_circuit_iteratively(ckt, file_name[:-6],
-                                    min_subcircuit_size=9, max_subcircuit_size=9, max_inputs=7, time_limit=10,
-                                    forbidden_operations=['0110', '1001'])
+        improve_circuit_iteratively(ckt, file_name[:-6], basis='xaig')
 
 print(f'Done! ({datetime.now()})')
