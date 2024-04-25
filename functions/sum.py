@@ -52,7 +52,8 @@ def add_sum_two_numbers_with_shift(circuit, shift, input_labels_a, input_labels_
     return [d[i][0] for i in range(max(n, m + shift) + 1)]
 
 
-def add_sum2(circuit, input_labels):
+def add_sum2(circuit, input_labels, basis='xaig'):
+    assert basis in ('xaig', 'aig')
     assert len(input_labels) == 2
     for input_label in input_labels:
         assert input_label in circuit.input_labels or input_label in circuit.gates
@@ -64,7 +65,7 @@ def add_sum2(circuit, input_labels):
     return g1, g2
 
 
-def add_sum3(circuit, input_labels):
+def add_sum3(circuit, input_labels, basis='xaig'):
     assert len(input_labels) == 3
     for input_label in input_labels:
         assert input_label in circuit.input_labels or input_label in circuit.gates
@@ -77,13 +78,25 @@ def add_sum3(circuit, input_labels):
     # g4 = circuit.add_gate(g1, x3, '0001')
     # g5 = circuit.add_gate(g3, g4, '0110')
 
-    # the block below is crucial for improving a circuit of size 12 for SUM5
-    g1 = circuit.add_gate(x1, x2, '0110')
-    g2 = circuit.add_gate(x2, x3, '0110')
-    g3 = circuit.add_gate(g1, g2, '0111')
-    g4 = circuit.add_gate(g1, x3, '0110')
-    g5 = circuit.add_gate(g3, g4, '0110')
-    return g4, g5
+    if basis == 'xaig':
+        # the block below is crucial for improving a circuit of size 12 for SUM5
+        g1 = circuit.add_gate(x1, x2, '0110')
+        g2 = circuit.add_gate(x2, x3, '0110')
+        g3 = circuit.add_gate(g1, g2, '0111')
+        g4 = circuit.add_gate(g1, x3, '0110')
+        g5 = circuit.add_gate(g3, g4, '0110')
+        return g4, g5
+    elif basis == 'aig':
+        g1 = circuit.add_gate(x1, x2, '0111')
+        g2 = circuit.add_gate(x1, x2, '0001')
+        g3 = circuit.add_gate(g1, g2, '0010')
+        g4 = circuit.add_gate(g3, x3, '0111')
+        g5 = circuit.add_gate(g3, x3, '0001')
+        g6 = circuit.add_gate(g4, g5, '0010')
+        g7 = circuit.add_gate(g2, g5, '0111')
+        return g6, g7
+    else:
+        assert False, 'unknown basis'
 
 
 # given x1, x2, and (x2 oplus x3), computes the binary representation
@@ -466,7 +479,8 @@ def check_sum_circuit(circuit):
 
 
 # computes the sum (2^w1)*x1+...+(2^wn)*xn
-def add_sum_pow2_weights(circuit, weighted_inputs):
+def add_sum_pow2_weights(circuit, weighted_inputs, basis='xaig'):
+    assert basis in ('xaig', 'aig')
     weighted_bits, outputs = sorted(list(weighted_inputs)), []
 
     while weighted_bits:
@@ -481,64 +495,68 @@ def add_sum_pow2_weights(circuit, weighted_inputs):
             else:
                 assert w1 == w2
                 weighted_bits = weighted_bits[2:]
-                s, c = add_sum2(circuit, [x1, x2])
+                s, c = add_sum2(circuit, [x1, x2], basis)
                 weighted_bits += [(w1, s), (w1 + 1, c)]
                 weighted_bits = sorted(weighted_bits)
         else:
             (w1, x1), (w2, x2), (w3, x3) = weighted_bits[:3]
             if w1 == w2 == w3:
                 weighted_bits = weighted_bits[3:]
-                s, c = add_sum3(circuit, [x1, x2, x3])
+                s, c = add_sum3(circuit, [x1, x2, x3], basis)
                 weighted_bits += [(w1, s), (w1 + 1, c)]
                 weighted_bits = sorted(weighted_bits)
             elif w1 == w2:
                 assert w3 > w2
                 weighted_bits = weighted_bits[2:]
-                s, c = add_sum2(circuit, [x1, x2])
+                s, c = add_sum2(circuit, [x1, x2], basis)
                 weighted_bits += [(w1, s), (w1 + 1, c)]
                 weighted_bits = sorted(weighted_bits)
 
     return outputs
 
 
-def add_sum(circuit, input_labels):
+def add_sum(circuit, input_labels, basis='xaig'):
+    assert basis in ('xaig', 'aig')
     n = len(input_labels)
     assert n > 0
+
     if n == 1:
         return input_labels[0]
     if n == 2:
-        return add_sum2(circuit, input_labels)
+        return add_sum2(circuit, input_labels, basis)
     if n == 3:
-        return add_sum3(circuit, input_labels)
-    if n == 4:
-        return add_sum4(circuit, input_labels)
-    if n == 5:
-        return add_sum5_size11(circuit, input_labels)
-    if n == 6:
-        return add_sum6_size16(circuit, input_labels)
-    if n == 7:
-        return add_sum7_size19(circuit, input_labels)
-    if n == 8:
-        return add_sum8_size25(circuit, input_labels)
-    if n == 9:
-        return add_sum9_size27(circuit, input_labels)
-    if n == 10:
-        return add_sum10_size31(circuit, input_labels)
-    if n == 11:
-        return add_sum11_size34(circuit, input_labels)
-    if n == 12:
-        return add_sum12_size41(circuit, input_labels)
-    if n == 13:
-        return add_sum13_size43(circuit, input_labels)
-    if n == 14:
-        return add_sum14_size48(circuit, input_labels)
-    if n == 15:
-        return add_sum15_size51(circuit, input_labels)
-    if n == 16:
-        return add_sum16_size59(circuit, input_labels)
+        return add_sum3(circuit, input_labels, basis)
 
-    # synthesizing a circuit of size 5n out of full adders
-    return add_sum_pow2_weights(ckt, [(0, x) for x in input_labels])
+    if basis == 'xaig':
+        if n == 4:
+            return add_sum4(circuit, input_labels)
+        if n == 5:
+            return add_sum5_size11(circuit, input_labels)
+        if n == 6:
+            return add_sum6_size16(circuit, input_labels)
+        if n == 7:
+            return add_sum7_size19(circuit, input_labels)
+        if n == 8:
+            return add_sum8_size25(circuit, input_labels)
+        if n == 9:
+            return add_sum9_size27(circuit, input_labels)
+        if n == 10:
+            return add_sum10_size31(circuit, input_labels)
+        if n == 11:
+            return add_sum11_size34(circuit, input_labels)
+        if n == 12:
+            return add_sum12_size41(circuit, input_labels)
+        if n == 13:
+            return add_sum13_size43(circuit, input_labels)
+        if n == 14:
+            return add_sum14_size48(circuit, input_labels)
+        if n == 15:
+            return add_sum15_size51(circuit, input_labels)
+        if n == 16:
+            return add_sum16_size59(circuit, input_labels)
+
+    # synthesizing a circuit of size 5n/7n out of full adders
+    return add_sum_pow2_weights(circuit, [(0, x) for x in input_labels], basis=basis)
 
 
 # computes the sum w1*x1+...+wn*xn
@@ -558,9 +576,10 @@ def add_weighted_sum(circuit, weights, input_labels):
 
 
 if __name__ == '__main__':
-    for n in range(2, 20):
-        ckt = Circuit(input_labels=[f'x{i}' for i in range(n)])
-        ckt.outputs = add_sum(ckt, ckt.input_labels)
-        print(f'Verifying a circuit of size {ckt.get_nof_true_binary_gates()} computing the sum of {n} bits...', end='')
-        check_sum_circuit(ckt)
-        print('OK')
+    for basis in ('xaig', 'aig'):
+        for n in range(2, 20):
+            ckt = Circuit(input_labels=[f'x{i}' for i in range(n)])
+            ckt.outputs = add_sum(ckt, ckt.input_labels, basis)
+            print(f'Verifying a circuit of size {ckt.get_nof_true_binary_gates()} computing the sum of {n} bits over the basis {basis}...', end='')
+            check_sum_circuit(ckt)
+            print('OK')
