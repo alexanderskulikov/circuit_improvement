@@ -15,7 +15,7 @@ def verify_sorting_circuit(circuit):
 
 
 def synthesize_sorting_circuit(n, basis):
-    basis in ('xaig', 'aig')
+    assert basis in ('xaig', 'aig')
 
     print(f'--> Synthesizing a sorting circuit for n={n} over the basis {basis}')
 
