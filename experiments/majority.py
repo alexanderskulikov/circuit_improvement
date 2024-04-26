@@ -93,7 +93,7 @@ def synthesize_majority_circuit(n, basis):
 
     print(f'Now, try to improve it locally...')
     better_circuit = improve_circuit_iteratively(
-        circuit, time_limit=2, min_subcircuit_size=4, max_subcircuit_size=9,
+        circuit, speed='fast',
         file_name=f'tmp_{basis}_maj{n}', save_circuits=False, basis=basis)
     verify_majority_circuit(better_circuit)
     print(f'Final circuit:')

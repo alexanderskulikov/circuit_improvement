@@ -83,12 +83,13 @@ def improve_circuit(circuit, max_inputs=7, subcircuit_size=7, basis='xaig', time
 
         def verify_better_circuit(original_circuit, smaller_circuit):
             assert smaller_circuit.get_nof_true_binary_gates() < original_circuit.get_nof_true_binary_gates()
-            assert original_circuit.outputs == smaller_circuit.outputs
+            assert len(original_circuit.outputs) == len(smaller_circuit.outputs)
 
             original_circuit_truth_tables = original_circuit.get_truth_tables()
             smaller_circuit_truth_tables = smaller_circuit.get_truth_tables()
-            for output_gate in smaller_circuit.outputs:
-                assert original_circuit_truth_tables[output_gate] == smaller_circuit_truth_tables[output_gate]
+
+            for i in range(len(original_circuit.outputs)):
+                assert original_circuit_truth_tables[original_circuit.outputs[i]] == smaller_circuit_truth_tables[smaller_circuit.outputs[i]]
 
         # corner case: there are two equal outputs
         for i, j in combinations(range(len(subcircuit_outputs)), 2):
@@ -140,8 +141,16 @@ def improve_circuit(circuit, max_inputs=7, subcircuit_size=7, basis='xaig', time
 
 def improve_circuit_iteratively(circuit, file_name='', basis='xaig',
                                 max_inputs=7, min_subcircuit_size=2, max_subcircuit_size=7,
-                                time_limit=None, save_circuits=True):
+                                time_limit=None, save_circuits=True, speed=None):
     assert basis in ('xaig', 'aig')
+
+    if speed == 'fast':
+        max_inputs, min_subcircuit_size, max_subcircuit_size, time_limit = 6, 4, 5, 1
+    elif speed == 'medium':
+        max_inputs, min_subcircuit_size, max_subcircuit_size, time_limit = 7, 4, 7, 5
+    elif speed == 'slow':
+        max_inputs, min_subcircuit_size, max_subcircuit_size, time_limit = 8, 9, 9, 10
+
     was_improved = True
     while was_improved:
         was_improved = False
