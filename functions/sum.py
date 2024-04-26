@@ -59,13 +59,19 @@ def add_sum2(circuit, input_labels, basis='xaig'):
         assert input_label in circuit.input_labels or input_label in circuit.gates
 
     [x1, x2] = input_labels
-    g1 = circuit.add_gate(x1, x2, '0110')
-    g2 = circuit.add_gate(x1, x2, '0001')
-
-    return g1, g2
+    if basis == 'xaig':
+        g1 = circuit.add_gate(x1, x2, '0110')
+        g2 = circuit.add_gate(x1, x2, '0001')
+        return g1, g2
+    elif basis == 'aig':
+        g1 = circuit.add_gate(x1, x2, '0111')
+        g2 = circuit.add_gate(x1, x2, '0001')
+        g3 = circuit.add_gate(g1, g2, '0010')
+        return g3, g2
 
 
 def add_sum3(circuit, input_labels, basis='xaig'):
+    assert basis in ('xaig', 'aig')
     assert len(input_labels) == 3
     for input_label in input_labels:
         assert input_label in circuit.input_labels or input_label in circuit.gates
@@ -576,10 +582,11 @@ def add_weighted_sum(circuit, weights, input_labels):
 
 
 if __name__ == '__main__':
-    for basis in ('xaig', 'aig'):
-        for n in range(2, 20):
+    for basis in ('xaig', 'aig', ):
+        for n in range(5, 17):
             ckt = Circuit(input_labels=[f'x{i}' for i in range(n)])
             ckt.outputs = add_sum(ckt, ckt.input_labels, basis)
             print(f'Verifying a circuit of size {ckt.get_nof_true_binary_gates()} computing the sum of {n} bits over the basis {basis}...', end='')
             check_sum_circuit(ckt)
             print('OK')
+            ckt.save_to_file(f'{basis}_sum{"0" if n < 10 else ""}{n}_size{ckt.get_nof_true_binary_gates()}', extension='bench')
