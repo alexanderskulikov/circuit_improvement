@@ -325,7 +325,7 @@ class Circuit:
 
         self.outputs_negations = self.outputs_negations or [False] * len(self.outputs)
         for output_id, (output, is_negated) in enumerate(zip(self.outputs, self.outputs_negations)):
-            output_label = f'out{output_id}'
+            output_label = f'tout{output_id}'
             a.add_node(output_label)
             a.get_node(output_label).attr['shape'] = 'invtriangle'
             a.add_edge(output, output_label)
