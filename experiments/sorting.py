@@ -30,23 +30,26 @@ def synthesize_sorting_circuit(n, basis):
         else:
             return [1 if s >= t else 0 for t in range(n, 0, -1)]
 
+    print('Looking for a final block...', end='')
     final_block, final_block_size = False, n - 1
     while not final_block:
         final_block_size += 1
+        print(f'{final_block_size}...', end='')
         finder = CircuitFinder(dimension=len(sum_outputs), input_labels=sum_outputs,
                                function=final_block_function, number_of_gates=final_block_size,
                                basis=basis)
-        final_block = finder.solve_cnf_formula(time_limit=20, verbose=0)
+        final_block = finder.solve_cnf_formula(time_limit=60, verbose=0)
 
-    print(f'Found a final block of size {final_block_size}')
+    print('Done!')
+
     final_block.rename_internal_gates(prefix='sort')
-    final_block.rename_output_gates([f'out{i}' for i in range(1, n + 1)])
+    final_block.rename_output_gates([f'sout{i}' for i in range(1, n + 1)])
 
     for gate in final_block.gates:
         first, second, oper = final_block.gates[gate]
         circuit.add_gate(first, second, oper, gate)
 
-    circuit.outputs = [f'out{i}' for i in range(1, n + 1)]
+    circuit.outputs = [f'sout{i}' for i in range(1, n + 1)]
     circuit.outputs_negations = [False] * n
 
     print(f'Synthesized a circuit of size {circuit.get_nof_true_binary_gates()}!')
@@ -66,5 +69,5 @@ def synthesize_sorting_circuit(n, basis):
 
 
 if __name__ == '__main__':
-    for basis, n in product(('xaig', 'aig',), range(5, 17)):
+    for basis, n in product(('aig', 'xaig'), range(5, 17)):
         synthesize_sorting_circuit(n, basis)
