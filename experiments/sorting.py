@@ -15,7 +15,7 @@ def verify_sorting_circuit(circuit):
 
 
 def synthesize_sorting_circuit(n, basis):
-    assert n % 2 and basis in ('xaig', 'aig')
+    basis in ('xaig', 'aig')
 
     print(f'--> Synthesizing a sorting circuit for n={n} over the basis {basis}')
 
@@ -36,7 +36,7 @@ def synthesize_sorting_circuit(n, basis):
         finder = CircuitFinder(dimension=len(sum_outputs), input_labels=sum_outputs,
                                function=final_block_function, number_of_gates=final_block_size,
                                basis=basis)
-        final_block = finder.solve_cnf_formula(time_limit=20)
+        final_block = finder.solve_cnf_formula(time_limit=20, verbose=0)
 
     print(f'Found a final block of size {final_block_size}')
     final_block.rename_internal_gates(prefix='sort')
@@ -57,7 +57,7 @@ def synthesize_sorting_circuit(n, basis):
 
     print(f'Now, try to improve it locally...')
     better_circuit = improve_circuit_iteratively(
-        circuit, time_limit=2, min_subcircuit_size=4, max_subcircuit_size=9,
+        circuit, speed='fast',
         file_name=f'tmp_{basis}_sort{n}', save_circuits=False, basis=basis)
 
     verify_sorting_circuit(better_circuit)
