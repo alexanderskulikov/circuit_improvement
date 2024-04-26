@@ -110,11 +110,12 @@ def improve_circuit(circuit, max_inputs=7, subcircuit_size=7, basis='xaig', time
             time_limit=time_limit
         )
 
-        if better_subcircuit:
+        # the second check is a dirty hack
+        if better_subcircuit and len(better_subcircuit.gates):
             better_subcircuit.rename_internal_gates()
             better_subcircuit.rename_output_gates(subcircuit_outputs)
 
-            assert better_subcircuit.input_labels == subcircuit_inputs, f'{better_subcircuit.input_labels}, {subcircuit_inputs}'
+            assert better_subcircuit.input_labels == subcircuit_inputs
             assert better_subcircuit.outputs == subcircuit_outputs
 
             better_subcircuit_graph = better_subcircuit.construct_graph()
