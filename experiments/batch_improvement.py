@@ -5,8 +5,9 @@ from os import listdir
 basis = 'xaig'
 
 print(f'Start batch improvement ({datetime.now()})')
+files = sorted(listdir('./circuits/'))
 
-for file_name in sorted(listdir('./circuits/')):
+for file_number, file_name in enumerate(files):
     if file_name == '.images':
         continue
 
@@ -17,7 +18,7 @@ for file_name in sorted(listdir('./circuits/')):
     if len(ckt.gates) < ckt.get_nof_true_binary_gates():
         print(f'Skipping {file_name[:-6]} as it still contains unary gates')
     else:
-        print(f'Processing {file_name[:-6]} of size {ckt.get_nof_true_binary_gates()} ({datetime.now()})')
-        improve_circuit_iteratively(ckt, file_name[:-6], basis=basis, time_limit=10)
+        print(f'[{file_number}/{len(files)}] Processing {file_name[:-6]} of size {ckt.get_nof_true_binary_gates()} ({datetime.now()})')
+        improve_circuit_iteratively(ckt, file_name[:-6], basis=basis, speed='fast')
 
 print(f'Done! ({datetime.now()})')
