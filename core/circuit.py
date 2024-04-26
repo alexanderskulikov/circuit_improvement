@@ -465,7 +465,9 @@ class Circuit:
 
     # if a gate g is fed by a and b such that both
     # a and b are fed by с and d, then g is replaced by a function of c and d
-    def contract_gates(self):
+    def contract_gates(self, basis):
+        assert basis in ('xaig', 'aig')
+
         new_gate_contracted = True
         while new_gate_contracted:
             new_gate_contracted = False
@@ -487,14 +489,16 @@ class Circuit:
 
                 if a1 == b1 and a2 == b2:
                     new_type = ''.join([gate_type[2 * int(a_type[2 * c1 + c2]) + int(b_type[2 * c1 + c2])] for c1, c2 in product((0, 1), repeat=2)])
-                    self.gates[gate] = a1, a2, new_type
-                    new_gate_contracted = True
-                    break
+                    if basis != 'aig' or new_type not in ['0110', '1001']:
+                        self.gates[gate] = a1, a2, new_type
+                        new_gate_contracted = True
+                        break
                 elif a1 == b2 and a2 == b1:
                     new_type = ''.join([gate_type[2 * int(a_type[2 * c1 + c2]) + int(b_type[2 * c2 + c1])] for c1, c2 in product((0, 1), repeat=2)])
-                    self.gates[gate] = a1, a2, new_type
-                    new_gate_contracted = True
-                    break
+                    if basis != 'aig' or new_type not in ['0110', '1001']:
+                        self.gates[gate] = a1, a2, new_type
+                        new_gate_contracted = True
+                        break
 
     def remove_dangling_gates(self):
         dangling_gate_removed = True
@@ -508,9 +512,10 @@ class Circuit:
                     self.gates.pop(gate)
                     dangling_gate_removed = True
 
-    def normalize(self):
+    def normalize(self, basis):
+        assert basis in ('aig', 'xaig')
         self.contract_unary_gates()
-        self.contract_gates()
+        self.contract_gates(basis=basis)
         self.remove_dangling_gates()
 
     # prepends all internal gate (i.e., gates that are not inputs and outputs) names with the string prefix
