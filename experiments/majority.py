@@ -88,9 +88,8 @@ def synthesize_majority_circuit(n, basis):
     verify_majority_circuit(circuit)
     print('OK!')
 
-    if basis == 'xaig':
-        circuit.normalize()
-        print(f'Size after normalization: {circuit.get_nof_true_binary_gates()}')
+    circuit.normalize(basis=basis)
+    print(f'Size after normalization: {circuit.get_nof_true_binary_gates()}')
 
     print(f'Now, try to improve it locally...')
     better_circuit = improve_circuit_iteratively(

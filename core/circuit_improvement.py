@@ -160,10 +160,11 @@ def improve_circuit_iteratively(circuit, file_name='', basis='xaig',
                 was_improved = True
 
                 circuit = better_circuit
-                if basis == 'xaig':
-                    circuit.normalize()
+                circuit.normalize(basis=basis)
+
                 if save_circuits:
                     circuit.save_to_file('y_' + file_name + '_size' + str(better_circuit.get_nof_true_binary_gates()), extension='bench')
+
                 break
 
     return circuit
