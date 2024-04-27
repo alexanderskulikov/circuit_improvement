@@ -4,6 +4,7 @@ project_dir = Path(__file__).resolve().parent.parent
 sys.path.append(str(project_dir))
 
 import asyncio
+import logging
 import queue
 import sys
 
@@ -13,6 +14,11 @@ from multiprocessing import Process, Queue
 from pathlib import Path
 from core.circuit_improvement import *
 
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
+)
+
+logger = logging.getLogger(__name__)
 
 def get_file_name(basis, id):
     folder = Path(__file__).absolute().parent / 'circuits'
