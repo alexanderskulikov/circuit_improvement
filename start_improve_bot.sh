@@ -21,7 +21,7 @@ echo "Preparing existing solutions"
 if [ ! -d "circuit-synthesis" ]; then
     git clone git@github.com:SPbSAT/circuit-synthesis.git
 else
-    printf "Do you want to update existing solutions? (y/N) "
+    printf "Do you want to update existing solutions from git? (y/N) "
     read -r ans
     if [[ "$ans" == "y" || "$ans" == "Y" ]]; then
         rm -rf circuit-synthesis
@@ -41,7 +41,7 @@ for i in {0..99}; do
     for basis in "aig" "xaig"; do
         pattern="ex$(printf "%02d" $i)*"
         dir1="circuit-synthesis/iwls2024/solutions/${basis}_bench/"
-        dir2="circuit-synthesis/iwls2024/best_from_2023/${basis}_bench"
+        dir2="circuit-synthesis/iwls2024/best_from_2023/${basis}_bench_cleaned"
         files1=$(find "$dir1" -maxdepth 1 -name "$pattern")
         files2=$(find "$dir2" -maxdepth 1 -name "$pattern")
         if [[ -n $files1 ]]; then
