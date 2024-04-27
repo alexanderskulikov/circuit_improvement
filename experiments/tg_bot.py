@@ -1,26 +1,14 @@
 import asyncio
-import logging
 import queue
-import re
 import sys
 
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
 from multiprocessing import Process, Queue
 from pathlib import Path
-from datetime import datetime
-from os import listdir
 from core.circuit_improvement import *
 
-# Enable logging
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
-)
 
-logger = logging.getLogger(__name__)
-
-
-# Mock function to get file_name by basis and id
 def get_file_name(basis, id):
     folder = Path(__file__).absolute().parent / 'circuits'
     print(folder, file=sys.stderr)
@@ -40,7 +28,6 @@ async def log_queue_listener():
         await asyncio.sleep(1)
 
 
-# Function to improve circuit
 def improve_circuit(basis, circuit_number, speed, log_file, queue: Queue):
     def log(text):
         queue.put(f"{basis}_{circuit_number}: {text}")
