@@ -95,12 +95,21 @@ async def get_log(update: Update, context: ContextTypes.DEFAULT_TYPE):
     basis = context.args[0]
     circuit_number = context.args[1]
 
-    file_name = get_log_path(basis, circuit_number)
-
-    text = "\n".join(get_lines(file_name)[-10:]) or "No log found"
-    await context.bot.send_message(chat_id=update.effective_chat.id,
-                                   text=f'{text}')
-
+    for i in range(3):
+        try:
+            file_name = get_log_path(basis, circuit_number)
+            text = "\n".join(get_lines(file_name)[-10:]) or "No log found"
+            await context.bot.send_message(chat_id=update.effective_chat.id,
+                                           text=f'{text}')
+            break
+        except BaseException as e:
+            await context.bot.send_message(chat_id=update.effective_chat.id,
+                                           text=f'Something wrong with log. I will try one more time: {e}')
+            await asyncio.sleep(5)
+            continue
+    else:
+        await context.bot.send_message(chat_id=update.effective_chat.id,
+                                       text=f"Didn't manage to get log")
 
 async def improve(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if len(context.args) != 3:
