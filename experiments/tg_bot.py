@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path
+
 project_dir = Path(__file__).resolve().parent.parent
 sys.path.append(str(project_dir))
 
@@ -19,6 +20,7 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
+
 
 def get_file_name(basis, id):
     folder = Path(__file__).absolute().parent / 'circuits'
@@ -70,6 +72,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=update.effective_chat.id,
                                    text=f'Hi, this bot can improve circuits. '
                                         f'Send /improve basis circuit_number speed to start.')
+    await subscribe(update, context)
 
 
 def get_log_path(basis, id):
@@ -123,7 +126,12 @@ async def improve(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                                    text=f'Started. Use /log {basis} {circuit_number} to get status')
 
 
-async def check(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def manual_check(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    context.chat_id = update.effective_chat.id
+    await check(context)
+
+
+async def check(context: ContextTypes.DEFAULT_TYPE) -> None:
     text = []
     while True:
         try:
@@ -131,9 +139,24 @@ async def check(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             text.append(msg)
         except queue.Empty:
             break
-    text = "\n========\n".join(text)
+    if text:
+        text = "\n========\n".join(text)
+        await context.bot.send_message(chat_id=context._chat_id,
+                                       text=f"{text}")
+
+
+subscribed = set()
+
+
+async def subscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if update.effective_chat.id in subscribed:
+        await context.bot.send_message(chat_id=update.effective_chat.id,
+                                       text=f"Already subscribed")
+        return
+    subscribed.add(update.effective_chat.id)
     await context.bot.send_message(chat_id=update.effective_chat.id,
-                                   text=f"Messages:\n\n{text}")
+                                   text=f"Subscribed for updates")
+    context.job_queue.run_repeating(check, interval=60, first=0, chat_id=update.effective_chat.id)
 
 
 def main() -> None:
@@ -147,8 +170,9 @@ def main() -> None:
     start_handler = CommandHandler('start', start)
     improve_handler = CommandHandler("improve", improve)
     log_handler = CommandHandler("log", get_log)
-    check_handler = CommandHandler("check", check)
-    application.add_handlers([start_handler, improve_handler, log_handler, check_handler])
+    subscribe_handler = CommandHandler("subscribe", subscribe)
+    check_handler = CommandHandler("check", manual_check)
+    application.add_handlers([start_handler, improve_handler, log_handler, check_handler, subscribe_handler])
 
     application.run_polling()
 

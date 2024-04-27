@@ -68,7 +68,7 @@ if [ ! -d "bot_venv" ]; then
     echo "Installing requirements.txt"
     pip install -r requirements.txt
     echo "Installing python-telegram-bot"
-    pip install python-telegram-bot
+    pip install "python-telegram-bot[job-queue]"
 fi
 source bot_venv/bin/activate
 
