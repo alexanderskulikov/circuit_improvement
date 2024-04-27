@@ -123,9 +123,9 @@ async def improve(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await context.bot.send_message(chat_id=update.effective_chat.id,
                                        text=f'Basis should be aig or xaig')
         return
-    if speed not in ['fast', 'medium', 'slow']:
+    if speed not in ['high', 'medium', 'slow']:
         await context.bot.send_message(chat_id=update.effective_chat.id,
-                                       text=f'Speed should be fast/medium/slow')
+                                       text=f'Speed should be high/medium/slow')
         return
 
     p = Process(target=improve_circuit,
