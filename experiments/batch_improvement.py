@@ -2,7 +2,7 @@ from core.circuit_improvement import *
 from datetime import datetime
 from os import listdir
 
-basis = 'xaig'
+basis, speed = 'xaig', 'high'
 
 print(f'Start batch improvement ({datetime.now()})')
 files = sorted(listdir('./circuits/'))
@@ -19,6 +19,6 @@ for file_number, file_name in enumerate(files):
         print(f'Skipping {file_name[:-6]} as it still contains unary gates')
     else:
         print(f'[{file_number}/{len(files)}] Processing {file_name[:-6]} of size {ckt.get_nof_true_binary_gates()} ({datetime.now()})')
-        improve_circuit_iteratively(ckt, file_name[:-6], basis=basis, speed='fast')
+        improve_circuit_iteratively(ckt, file_name[:-6], basis=basis, speed=speed)
 
 print(f'Done! ({datetime.now()})')
