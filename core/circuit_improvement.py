@@ -147,7 +147,7 @@ def improve_circuit_iteratively(circuit, file_name='', basis='xaig',
     if speed == 'high':
         max_inputs, min_subcircuit_size, max_subcircuit_size, time_limit = 6, 5, 5, 1
     elif speed == 'medium':
-        max_inputs, min_subcircuit_size, max_subcircuit_size, time_limit = 7, 6, 7, 5
+        max_inputs, min_subcircuit_size, max_subcircuit_size, time_limit = 7, 4, 7, 5
     elif speed == 'slow':
         max_inputs, min_subcircuit_size, max_subcircuit_size, time_limit = 8, 9, 9, 10
 
