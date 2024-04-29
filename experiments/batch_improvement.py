@@ -2,7 +2,7 @@ from core.circuit_improvement import *
 from datetime import datetime
 from os import listdir
 
-basis, speed = 'xaig', 'medium'
+basis, speed = 'xaig', '10'
 
 print(f'Start batch improvement ({datetime.now()})')
 files = sorted(listdir('./circuits/'))

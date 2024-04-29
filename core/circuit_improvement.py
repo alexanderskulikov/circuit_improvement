@@ -141,15 +141,28 @@ def improve_circuit(circuit, max_inputs=7, subcircuit_size=7, basis='xaig', time
 
 def improve_circuit_iteratively(circuit, file_name='', basis='xaig',
                                 max_inputs=7, min_subcircuit_size=2, max_subcircuit_size=7,
-                                time_limit=None, save_circuits=True, speed=None):
+                                time_limit=None, save_circuits=True, speed=10):
     assert basis in ('xaig', 'aig')
 
-    if speed == 'high':
-        max_inputs, min_subcircuit_size, max_subcircuit_size, time_limit = 6, 5, 5, 1
-    elif speed == 'medium':
-        max_inputs, min_subcircuit_size, max_subcircuit_size, time_limit = 7, 4, 7, 5
-    elif speed == 'slow':
-        max_inputs, min_subcircuit_size, max_subcircuit_size, time_limit = 8, 9, 9, 10
+    predefined_parameters = {
+        17: (5, 3, 3, 1),
+        16: (5, 4, 4, 1),
+        15: (6, 4, 5, 1),   # previous name: fast
+        14: (6, 5, 5, 3),
+        13: (7, 5, 5, 3),
+        12: (7, 6, 6, 3),
+        11: (12, 6, 6, 10),
+        10: (7, 4, 7, 5),   # previous name: medium
+        9: (7, 7, 7, 10),
+        8: (7, 7, 7, 20),
+        7: (8, 8, 8, 10),
+        6: (16, 8, 8, 20),
+        5: (8, 9, 9, 10),   # previous name: slow
+        4: (8, 9, 9, 20),
+        3: (10, 10, 15, 10),
+        2: (11, 11, 15, 20),
+    }
+    max_inputs, min_subcircuit_size, max_subcircuit_size, time_limit = predefined_parameters[speed]
 
     was_improved = True
     while was_improved:
