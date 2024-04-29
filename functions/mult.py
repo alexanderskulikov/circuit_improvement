@@ -25,7 +25,10 @@ def add_mul(circuit, input_labels_a, input_labels_b):
         for j in range(i):
             if j + len(d[j]) > i:
                 inp.append(d[j][i - j])
-        d[i] = add_sum(circuit, inp)
+        if(len(inp) == 1):
+            d[i] = [inp[0]]
+        else:
+            d[i] = add_sum(circuit, inp)
     return [d[i][0] for i in range(n + m)]
 
 

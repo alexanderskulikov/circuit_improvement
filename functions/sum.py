@@ -564,6 +564,50 @@ def add_sum(circuit, input_labels, basis='xaig'):
     # synthesizing a circuit of size 5n/7n out of full adders
     return add_sum_pow2_weights(circuit, [(0, x) for x in input_labels], basis=basis)
 
+# divides the sum into blocks of size 2^n-1 
+def add_sum_alter(circuit, input_labels, basis='xaig'):
+    assert basis in ('xaig')
+    n = len(input_labels)
+    assert n > 0
+
+    if n == 1:
+        return [input_labels[0]]
+
+    out = []
+    it = -1
+    if basis == 'xaig':
+        while(len(input_labels) > 1):
+            it += 1
+            n = len(input_labels)
+            if n >= 31:
+                out.append(add_sum31(circuit, input_labels[0: 31]))
+                input_labels = input_labels[31:]
+                input_labels.append(out[it][0])
+                continue
+            if n >= 15:
+                out.append(add_sum15_size51(circuit, input_labels[0: 15]))
+                input_labels = input_labels[15:]
+                input_labels.append(out[it][0])
+                continue
+            if n >= 7:
+                out.append(add_sum7_size19(circuit, input_labels[0: 7]))
+                input_labels = input_labels[7:]
+                input_labels.append(out[it][0])
+                continue
+            if n >= 3:
+                out.append(add_sum3(circuit, input_labels[0: 3], basis))
+                input_labels = input_labels[3:]
+                input_labels.append(out[it][0])
+                continue
+            if n >= 2:
+                out.append(add_sum2(circuit, input_labels[0: 2], basis))
+                input_labels = input_labels[2:]
+                input_labels.append(out[it][0])
+                continue
+        from itertools import zip_longest
+        out = [list(filter(None, x)) for x in zip_longest(*out)]
+        out[0] = [out[0][len(out[0])-1]] 
+        return out
 
 # computes the sum w1*x1+...+wn*xn
 def add_weighted_sum(circuit, weights, input_labels):
