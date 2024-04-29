@@ -1,3 +1,4 @@
+import signal
 import sys
 from pathlib import Path
 
@@ -12,6 +13,7 @@ import sys
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
 from multiprocessing import Process, Queue
+import multiprocessing
 from pathlib import Path
 from core.circuit_improvement import *
 
@@ -20,6 +22,19 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
+log_queue = Queue()
+processes = dict()
+processes_lock = multiprocessing.Lock()
+subscribed = set()
+subscribed_lock = asyncio.Lock()
+
+
+def kill_all_processes():
+    with processes_lock:
+        for p in processes.values():
+            p.kill()
+        for p in processes.values():
+            p.join()
 
 
 def get_file_name(basis, id):
@@ -28,17 +43,6 @@ def get_file_name(basis, id):
     matching_files = [file for file in folder.glob(f"{basis}_ex{id}*.bench") if file.is_file()]
     assert len(matching_files) == 1, f"Found {len(matching_files)} files, expected 1: {matching_files}"
     return str(matching_files[0].name)[:-6]
-
-
-log_queue = Queue()
-
-
-async def log_queue_listener():
-    while True:
-        if not log_queue.empty():
-            chat_id, bot, message = log_queue.get()
-            await bot.send_message(chat_id=chat_id, text=message)
-        await asyncio.sleep(1)
 
 
 def improve_circuit(basis, circuit_number, speed, log_file, queue: Queue):
@@ -60,12 +64,11 @@ def improve_circuit(basis, circuit_number, speed, log_file, queue: Queue):
         if len(ckt.gates) < ckt.get_nof_true_binary_gates():
             log(f'Skipping {file_name} as it still contains unary gates')
         else:
-            log(f'Processing {file_name} of size {ckt.get_nof_true_binary_gates()} ({datetime.now()})')
+            log(f'Started Processing {file_name} of size {ckt.get_nof_true_binary_gates()} ({datetime.now()})')
             improve_circuit_iteratively(ckt, file_name, basis=basis, speed=speed)
             log(f'Done improving {file_name}! ({datetime.now()})')
     except Exception as e:
         log(f'Error: {e}')
-    log("Finished :-)")
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -90,11 +93,10 @@ def get_lines(logfile_path):
 async def get_log(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if len(context.args) != 2:
         await context.bot.send_message(chat_id=update.effective_chat.id,
-                                       text=f'Usage: /improve basis circuit_id')
+                                       text=f'Usage: /log basis circuit_id')
         return
     basis = context.args[0]
     circuit_number = context.args[1]
-
     for i in range(3):
         try:
             file_name = get_log_path(basis, circuit_number)
@@ -111,6 +113,26 @@ async def get_log(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await context.bot.send_message(chat_id=update.effective_chat.id,
                                        text=f"Didn't manage to get log")
 
+
+def clear_finished_processes():
+    with processes_lock:
+        for key, p in list(processes.items()):
+            if p.is_alive():
+                continue
+            processes.pop(key)
+
+
+async def get_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    clear_finished_processes()
+    text = []
+    with processes_lock:
+        for basis, circuit_number in processes.keys():
+            text += [f"{basis} {circuit_number}"]
+    text = '\n'.join(text) or "No running processes"
+    await context.bot.send_message(chat_id=update.effective_chat.id,
+                                   text=text)
+
+
 async def improve(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if len(context.args) != 3:
         await context.bot.send_message(chat_id=update.effective_chat.id,
@@ -123,24 +145,36 @@ async def improve(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await context.bot.send_message(chat_id=update.effective_chat.id,
                                        text=f'Basis should be aig or xaig')
         return
-    if speed not in ['high', 'medium', 'slow']:
+    if len(circuit_number) != 2 or not circuit_number.isdigit():
         await context.bot.send_message(chat_id=update.effective_chat.id,
-                                       text=f'Speed should be high/medium/slow')
-        return
+                                       text=f"Circuit number should be two digit number, got: {circuit_number}. Example: 03")
+    if not speed.isdigit() or not 2 <= int(speed) <= 17:
+        await context.bot.send_message(chat_id=update.effective_chat.id,
+                                       text=f"speed should be a number from [2, 17], got: {speed}")
 
+    with processes_lock:
+        if (basis, circuit_number) in processes.keys():
+            await context.bot.send_message(chat_id=update.effective_chat.id,
+                                           text=f"Such circuit is already in progress")
+            return
+
+    await subscribe(update, context)
     p = Process(target=improve_circuit,
-                args=(basis, circuit_number, speed, get_log_path(basis, circuit_number), log_queue))
+                args=(basis, circuit_number, int(speed), get_log_path(basis, circuit_number), log_queue))
     p.start()
+
+    with processes_lock:
+        processes[(basis, circuit_number)] = p
     await context.bot.send_message(chat_id=update.effective_chat.id,
                                    text=f'Started. Use /log {basis} {circuit_number} to get status')
 
 
 async def manual_check(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     context.chat_id = update.effective_chat.id
-    await check(context)
+    await check_messages(context)
 
 
-async def check(context: ContextTypes.DEFAULT_TYPE) -> None:
+async def check_messages(context: ContextTypes.DEFAULT_TYPE) -> None:
     text = []
     while True:
         try:
@@ -154,18 +188,35 @@ async def check(context: ContextTypes.DEFAULT_TYPE) -> None:
                                        text=f"{text}")
 
 
-subscribed = set()
-
-
 async def subscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    if update.effective_chat.id in subscribed:
-        await context.bot.send_message(chat_id=update.effective_chat.id,
-                                       text=f"Already subscribed")
-        return
-    subscribed.add(update.effective_chat.id)
+    async with subscribed_lock:
+        if update.effective_chat.id in subscribed:
+            return
+        subscribed.add(update.effective_chat.id)
+
     await context.bot.send_message(chat_id=update.effective_chat.id,
                                    text=f"Subscribed for updates")
-    context.job_queue.run_repeating(check, interval=60, first=0, chat_id=update.effective_chat.id)
+    context.job_queue.run_repeating(check_messages, interval=10, first=0, chat_id=update.effective_chat.id)
+
+
+async def kill_process(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if len(context.args) != 2:
+        await context.bot.send_message(chat_id=update.effective_chat.id,
+                                       text=f'Usage: /kill basis circuit_id')
+        return
+    basis = context.args[0]
+    circuit_number = context.args[1]
+    clear_finished_processes()
+    key = (basis, circuit_number)
+    with processes_lock:
+        if key not in processes.keys() or not (p := processes[key]).is_alive():
+            await context.bot.send_message(chat_id=update.effective_chat.id,
+                                           text=f"{basis} {circuit_number} is not processing now")
+        else:
+            p.kill()
+            p.join()
+            await context.bot.send_message(chat_id=update.effective_chat.id,
+                                           text=f"Killed {basis} {circuit_number}")
 
 
 def main() -> None:
@@ -176,14 +227,18 @@ def main() -> None:
 
     application = ApplicationBuilder().token(token).build()
 
-    start_handler = CommandHandler('start', start)
-    improve_handler = CommandHandler("improve", improve)
-    log_handler = CommandHandler("log", get_log)
-    subscribe_handler = CommandHandler("subscribe", subscribe)
-    check_handler = CommandHandler("check", manual_check)
-    application.add_handlers([start_handler, improve_handler, log_handler, check_handler, subscribe_handler])
-
-    application.run_polling()
+    application.add_handlers([CommandHandler('start', start),
+                              CommandHandler("improve", improve),
+                              CommandHandler("log", get_log),
+                              CommandHandler("status", get_status),
+                              CommandHandler("kill", kill_process)])
+    try:
+        application.run_polling()
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        print("Killing all the subprocesses...")
+        kill_all_processes()
 
 
 if __name__ == '__main__':

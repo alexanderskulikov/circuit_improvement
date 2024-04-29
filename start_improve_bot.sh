@@ -60,6 +60,13 @@ for i in {0..99}; do
 done
 echo "All current solutions copied to $circuits_dir"
 
+if [ -d "experiments/log" ]; then
+    echo "Clearing old logs"
+    rm -r experiments/log
+fi
+
+
+
 if [ ! -d "bot_venv" ]; then
     echo "Creating bot_venv..."
     python -m venv bot_venv
