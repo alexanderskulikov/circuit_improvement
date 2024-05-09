@@ -13,30 +13,30 @@ from multiprocessing import Process
 import curses
 import tempfile
 
-basis: str
-speed: int
-threads: int
-
 log_dir = Path(tempfile.gettempdir())
 
 
-def process_circuit(file_number, total_files, file_name):
-    set_output("home")
+def process_circuit(file_number, total_files, file_name, forward_output=False):
+    if forward_output:
+        set_output("home")
     ckt = Circuit()
     ckt.load_from_file(file_name[:-6], extension='bench')
     ckt.normalize(basis)
     text = f'[{file_number}/{total_files}] Processing {file_name[:-6]} of size {ckt.get_nof_true_binary_gates()} ({datetime.now()})'
     print(text)
-    set_output(file_number)
-    print(text)
+    if forward_output:
+        set_output(file_number)
+        print(text)
     improve_circuit_iteratively(ckt, file_name[:-6], basis=basis, speed=speed)
-    set_output("home")
+    if forward_output:
+        set_output("home")
     print(f"Done [{file_number}] {file_name}")
 
 
-def improve_batch():
-    clear_output("home")
-    set_output("home")
+def improve_batch(basis, speed, threads):
+    if threads > 1:
+        clear_output("home")
+        set_output("home")
     print(f'Start batch improvement ({datetime.now()}). basis: {basis}, speed: {speed}, threads: {threads}')
     files = sorted(listdir('./circuits/'))
     with ProcessPoolExecutor(max_workers=threads) as pool:
@@ -46,9 +46,9 @@ def improve_batch():
                 continue
             clear_output(file_number)
             if threads == 1:
-                process_circuit(file_number, len(files), file_name)
+                process_circuit(file_number, len(files), file_name, False)
             else:
-                task = pool.submit(process_circuit, file_number, len(files), file_name)
+                task = pool.submit(process_circuit, file_number, len(files), file_name, True)
                 tasks.append(task)
 
         for task in as_completed(tasks):
@@ -63,8 +63,6 @@ def get_log_file(log_id):
 
 
 def set_output(log_id):
-    if threads == 1:
-        return
     log_filepath = get_log_file(log_id)
     log_file = log_filepath.open("a")
     sys.stderr = log_file
@@ -147,8 +145,8 @@ def run_tui(stdscr):
         curses.endwin()
 
 
-def main(stdscr):
-    improve_process = Process(target=improve_batch)
+def main(stdscr, basis, speed, threads):
+    improve_process = Process(target=improve_batch, args=[basis, speed, threads])
     improve_process.start()
     tui_process = Process(target=run_tui, args=[stdscr])
     tui_process.start()
@@ -180,9 +178,9 @@ if __name__ == "__main__":
     assert threads is not None
 
     if threads == 1:
-        improve_batch()
+        improve_batch(basis, speed, threads)
     else:
         try:
-            curses.wrapper(main)
+            curses.wrapper(main, basis, speed, threads)
         except BaseException as e:
             print(f"Curses error: {e}")
