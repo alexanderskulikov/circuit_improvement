@@ -143,14 +143,14 @@ async def improve(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     speed = context.args[2]
     if basis not in ['aig', 'xaig']:
         await context.bot.send_message(chat_id=update.effective_chat.id,
-                                       text=f'Basis should be aig or xaig')
+                                       text=f'Error: Basis should be aig or xaig')
         return
     if len(circuit_number) != 2 or not circuit_number.isdigit():
         await context.bot.send_message(chat_id=update.effective_chat.id,
-                                       text=f"Circuit number should be two digit number, got: {circuit_number}. Example: 03")
+                                       text=f"Warning: Circuit number should be two digit number, got: {circuit_number}. Example: 03")
     if not speed.isdigit() or not 2 <= int(speed) <= 17:
         await context.bot.send_message(chat_id=update.effective_chat.id,
-                                       text=f"speed should be a number from [2, 17], got: {speed}")
+                                       text=f"Warning: speed should be a number from [2, 17], got: {speed}")
 
     with processes_lock:
         if (basis, circuit_number) in processes.keys():
