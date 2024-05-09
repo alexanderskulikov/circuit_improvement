@@ -16,7 +16,7 @@ import tempfile
 log_dir = Path(tempfile.gettempdir())
 
 
-def process_circuit(file_number, total_files, file_name, forward_output=False):
+def process_circuit(file_number, total_files, file_name, basis, speed, forward_output=False):
     if forward_output:
         set_output("home")
     ckt = Circuit()
@@ -46,9 +46,9 @@ def improve_batch(basis, speed, threads):
                 continue
             clear_output(file_number)
             if threads == 1:
-                process_circuit(file_number, len(files), file_name, False)
+                process_circuit(file_number, len(files), file_name, basis, speed, False)
             else:
-                task = pool.submit(process_circuit, file_number, len(files), file_name, True)
+                task = pool.submit(process_circuit, file_number, len(files), file_name, basis, speed, True)
                 tasks.append(task)
 
         for task in as_completed(tasks):
@@ -145,7 +145,7 @@ def run_tui(stdscr):
         curses.endwin()
 
 
-def main(stdscr, basis, speed, threads):
+def start(stdscr, basis, speed, threads):
     improve_process = Process(target=improve_batch, args=[basis, speed, threads])
     improve_process.start()
     run_tui(stdscr)
@@ -156,7 +156,7 @@ def main(stdscr, basis, speed, threads):
     improve_process.join()
 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(description="Process some integers.")
 
     parser.add_argument('--basis', type=str, choices=['xaig', 'aig'], required=True,
@@ -167,6 +167,7 @@ if __name__ == "__main__":
                         help="The number of threads, must be greater than 1")
 
     args = parser.parse_args()
+
     basis = args.basis
     speed = args.speed
     threads = args.threads
@@ -178,6 +179,10 @@ if __name__ == "__main__":
         improve_batch(basis, speed, threads)
     else:
         try:
-            curses.wrapper(main, basis, speed, threads)
+            curses.wrapper(start, basis, speed, threads)
         except BaseException as e:
             print(f"Curses error: {e}")
+
+
+if __name__ == "__main__":
+    main()
