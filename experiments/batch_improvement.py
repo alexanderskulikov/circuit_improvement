@@ -148,10 +148,7 @@ def run_tui(stdscr):
 def main(stdscr, basis, speed, threads):
     improve_process = Process(target=improve_batch, args=[basis, speed, threads])
     improve_process.start()
-    tui_process = Process(target=run_tui, args=[stdscr])
-    tui_process.start()
-
-    tui_process.join()
+    run_tui(stdscr)
     print("TUI exited.")
     if improve_process.is_alive():
         print("Improving is still running. Try to kill it")
