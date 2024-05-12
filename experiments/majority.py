@@ -69,7 +69,7 @@ def synthesize_majority_circuit(n, basis):
             finder = CircuitFinder(dimension=len(sum_outputs), input_labels=sum_outputs,
                                    function=final_block_function, number_of_gates=final_block_size,
                                    basis=basis)
-            final_block = finder.solve_cnf_formula(time_limit=200)
+            final_block = finder.solve_cnf_formula(time_limit=2000)
 
         print(f'Found a final block of size {final_block_size}')
         final_block.rename_internal_gates(prefix='maj')
@@ -93,13 +93,66 @@ def synthesize_majority_circuit(n, basis):
 
     print(f'Now, try to improve it locally...')
     better_circuit = improve_circuit_iteratively(
-        circuit, speed='fast',
+        circuit, speed=10,
         file_name=f'tmp_{basis}_maj{n}', save_circuits=False, basis=basis)
     verify_majority_circuit(better_circuit)
     print(f'Final circuit:')
     better_circuit.save_to_file(f'{basis}_maj{"0" if n < 10 else ""}{n}_size{better_circuit.get_nof_true_binary_gates()}', extension='bench')
 
 
+def experiments():
+    n, basis = 9, 'aig'
+    circuit = Circuit(input_labels=[f'x{i}' for i in range(1, n + 1)])
+    a0, a1 = add_sum3(circuit, ['x1', 'x2', 'x3'], basis=basis)
+    b0, b1 = add_sum3(circuit, [a0, 'x4', 'x5'], basis=basis)
+    c0, c1 = add_sum3(circuit, [b0, 'x6', 'x7'], basis=basis)
+    d0, d1 = add_sum3(circuit, [c0, 'x8', 'x9'], basis=basis)
+
+    def final_block_function(y):
+        (d0, a1, b1, c1, d1) = y
+        s = d0 + 2 * a1 + 2 * b1 + 2 * c1 + 2 * d1
+        assert 0 <= s <= n
+        return [1 if s > n / 2 else 0, ]
+
+    print('Looking for a final block...', end='')
+    final_block, final_block_size = False, n - 1
+    while not final_block:
+        final_block_size += 1
+        print(f'{final_block_size}...', end='')
+        finder = CircuitFinder(dimension=5, input_labels=[d0, a1, b1, c1, d1],
+                               function=final_block_function, number_of_gates=final_block_size,
+                               basis=basis)
+        final_block = finder.solve_cnf_formula(time_limit=60, verbose=0)
+
+    print('Done!')
+
+    final_block.rename_internal_gates(prefix='maj')
+    final_block.rename_output_gates(['qout'])
+
+    for gate in final_block.gates:
+        first, second, oper = final_block.gates[gate]
+        circuit.add_gate(first, second, oper, gate)
+
+    circuit.outputs = ['qout',]
+    circuit.outputs_negations = [False, ]
+
+    print(f'Synthesized a circuit of size {circuit.get_nof_true_binary_gates()}!')
+
+    print('Verifying a circuit...', end='')
+    verify_majority_circuit(circuit)
+    print('OK!')
+
+    print(f'Now, try to improve it locally...')
+    better_circuit = improve_circuit_iteratively(
+        circuit, speed=10,
+        file_name=f'tmp_{basis}_maj{n}', save_circuits=False, basis=basis)
+
+    verify_majority_circuit(better_circuit)
+    print(f'Final circuit:')
+    better_circuit.save_to_file(f'{basis}_maj{"0" if n < 10 else ""}{n}_size{better_circuit.get_nof_true_binary_gates()}', extension='bench')
+
+
 if __name__ == '__main__':
-    for basis, n in product(('aig',), (5, 7, 9, 11, 13, 15)):
-        synthesize_majority_circuit(n, basis)
+    # for basis, n in product(('aig',), (5, 7, 9, 11, 13, 15)):
+    #     synthesize_majority_circuit(n, basis)
+    experiments()
