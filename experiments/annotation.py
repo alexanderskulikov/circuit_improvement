@@ -3,6 +3,8 @@ from core.circuit_search import *
 from functions.sum import *
 from itertools import product
 from mip import *
+from tqdm import tqdm
+from os import listdir
 
 
 # checks whether a given gate computes [w0x0+w1x1+...+w(n-1)x(n-1) >= t] for some
@@ -12,12 +14,12 @@ def check_gate_for_weighted_threshold(circuit, gate):
 
     n = len(circuit.input_labels)
 
-    model = Model()
+    model = Model(sense=MINIMIZE)
     model.emphasis = 1
     model.verbose = False
 
-    t = model.add_var(var_type=INTEGER, name='t', lb=-1000, ub=1000)
-    w = [model.add_var(var_type=INTEGER, name=f'w{i}', lb=-1000, ub=1000) for i in range(n)]
+    t = model.add_var(var_type=INTEGER, name='t', lb=-10)
+    w = [model.add_var(var_type=INTEGER, name=f'w{i}', lb=-10) for i in range(n)]
 
     all_truth_tables = circuit.get_truth_tables()
     gate_truth_table = all_truth_tables[gate]
@@ -32,11 +34,13 @@ def check_gate_for_weighted_threshold(circuit, gate):
             assert value == 0
             model += xsum(w[i] * x[i] for i in range(n)) <= t - 1
 
-    # print('Start optimizing...')
-    model.verbose = False
-    status = model.optimize()
+    model.verbose = 0
+    # model += t >= 0
+    # model.objective = t
+    status = model.optimize(max_seconds=5)
+
     if status == OptimizationStatus.OPTIMAL or status == OptimizationStatus.FEASIBLE:
-        return [w[i].x for i in range(n)] + [t.x, ]
+        return [int(w[i].x) for i in range(n)] + [int(t.x), ]
     else:
         return None
 
@@ -51,13 +55,20 @@ def weighted_threshold(x):
 # ckt = finder.solve_cnf_formula()
 # # print(ckt)
 
-ckt = Circuit()
-ckt.load_from_file('ex01', extension='bench')
-
-for gate in reversed(list(nx.topological_sort(ckt.construct_graph()))):
-    if gate in ckt.input_labels:
+for file_name in sorted(listdir('./circuits/')):
+    if file_name == '.images':
         continue
-    print(f'Processing gate {gate}...')
-    wt = check_gate_for_weighted_threshold(ckt, gate)
-    if wt:
-        print(f'Gate {gate} computes a weighted sum: {wt}')
+
+    print(f'Processing {file_name}')
+    ckt = Circuit()
+    ckt.load_from_file(file_name[:-6], extension='bench')
+    ckt.normalize(basis='xaig')
+
+    gates = list(reversed(list(nx.topological_sort(ckt.construct_graph()))))
+    for gate in tqdm(gates):
+        if gate in ckt.input_labels:
+            continue
+        wt = check_gate_for_weighted_threshold(ckt, gate)
+        if wt and len([a for a in wt if a != 0]) >= 5:
+            description = '+'.join([f'{wt[i]}*x{i}' for i in range(len(wt) - 1) if wt[i] != 0])
+            print(f'Gate {gate} computes a weighted sum: [{description}>={wt[-1]}]')
