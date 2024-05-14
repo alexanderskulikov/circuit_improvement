@@ -114,16 +114,20 @@ async def get_log(update: Update, context: ContextTypes.DEFAULT_TYPE):
                                        text=f"Didn't manage to get log")
 
 
-def clear_finished_processes():
+async def clear_finished_processes(context: ContextTypes.DEFAULT_TYPE):
     with processes_lock:
         for key, p in list(processes.items()):
             if p.is_alive():
                 continue
+            p.join()
+            if p.exitcode != 0:
+                await context.bot.send_message(chat_id=context._chat_id,
+                                               text=f'Process ({key}) is terminated with code: {p.exitcode}')
             processes.pop(key)
 
 
 async def get_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    clear_finished_processes()
+    await clear_finished_processes(context)
     text = []
     with processes_lock:
         for basis, circuit_number in processes.keys():
@@ -152,6 +156,7 @@ async def improve(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await context.bot.send_message(chat_id=update.effective_chat.id,
                                        text=f"Warning: speed should be a number from [2, 17], got: {speed}")
 
+    await clear_finished_processes(context)
     with processes_lock:
         if (basis, circuit_number) in processes.keys():
             await context.bot.send_message(chat_id=update.effective_chat.id,
@@ -197,6 +202,7 @@ async def subscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await context.bot.send_message(chat_id=update.effective_chat.id,
                                    text=f"Subscribed for updates")
     context.job_queue.run_repeating(check_messages, interval=10, first=0, chat_id=update.effective_chat.id)
+    context.job_queue.run_repeating(clear_finished_processes, interval=10, first=0, chat_id=update.effective_chat.id)
 
 
 async def kill_process(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -206,7 +212,7 @@ async def kill_process(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         return
     basis = context.args[0]
     circuit_number = context.args[1]
-    clear_finished_processes()
+    await clear_finished_processes(context)
     key = (basis, circuit_number)
     with processes_lock:
         if key not in processes.keys() or not (p := processes[key]).is_alive():
