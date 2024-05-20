@@ -139,9 +139,7 @@ def improve_circuit(circuit, max_inputs=7, subcircuit_size=7, basis='xaig', time
                 return better_circuit
 
 
-def improve_circuit_iteratively(circuit, file_name='', basis='xaig',
-                                max_inputs=7, min_subcircuit_size=2, max_subcircuit_size=7,
-                                time_limit=None, save_circuits=True, speed=10):
+def improve_circuit_iteratively(circuit, file_name='', basis='xaig', save_circuits=True, speed=10):
     assert basis in ('xaig', 'aig')
 
     predefined_parameters = {
