@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import itertools
+from functools import reduce
 from typing import Union, Iterable, Optional, List, Dict, Callable
 
 Monom = Union[int, Iterable[int]]
@@ -72,6 +73,32 @@ class ZhegalkinPolynomial:
 
     def __repr__(self):
         return self.__str__()
+
+    def is_linear(self) -> bool:
+        return all(m.bit_count() <= 1 for m in self._monomials)
+
+    def common_inputs(self) -> List:
+        common_components = 2 ** len(self._input_labels) - 1
+        for m in self._monomials:
+            if m == 0:
+                continue
+            common_components &= m
+        if common_components == 0:
+            return list()
+        result = []
+        for i, label in enumerate(self._input_labels):
+            if (common_components >> i) & 1:
+                result.append(label)
+        return result
+
+    def is_monom(self) -> bool:
+        return len(self._monomials) <= 1 + int(0 in self._monomials)
+
+    def is_common_inputs_and_linear(self) -> bool:
+        common_inputs = self.common_inputs()
+        if len(common_inputs) == 0:
+            return False
+        return all(m.bit_count() <= 1 + len(common_inputs) for m in self._monomials)
 
     def _input_to_int(self, inp: InputType) -> int:
         if isinstance(inp, int):
