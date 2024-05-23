@@ -3,7 +3,7 @@ import networkx as nx
 import os
 import random
 from string import ascii_lowercase
-
+from .zhegalkin_polynomial import ZhegalkinPolynomial
 
 project_directory = os.path.dirname(os.path.abspath("path"))
 
@@ -260,7 +260,8 @@ class Circuit:
                 continue
             operation = (graph.nodes[gate]['label']).split()[2]
             bit_operation = list(self.gate_types.keys())[list(self.gate_types.values()).index(operation)]
-            self.gates[gate] = ((graph.nodes[gate]['label']).split()[1], (graph.nodes[gate]['label']).split()[3], bit_operation)
+            self.gates[gate] = (
+                (graph.nodes[gate]['label']).split()[1], (graph.nodes[gate]['label']).split()[3], bit_operation)
 
     # TODO: check this method
     def replace_subgraph(self, improved_circuit, subcircuit, subcircuit_outputs):
@@ -381,6 +382,22 @@ class Circuit:
 
         return truth_tables
 
+    def get_zhegalkin_polynomials(self):
+        polynomials = {}
+        topological_ordering = list(nx.topological_sort(self.construct_graph()))
+        for gate in topological_ordering:
+            if gate in self.input_labels:
+                polynomials[gate] = ZhegalkinPolynomial(self.input_labels, [[self.input_labels.index(gate)]])
+                continue
+            assert gate in self.gates, f'unknown gate: {gate}'
+            f, s = self.gates[gate][0], self.gates[gate][1]
+            op = self.gates[gate][2]
+            f_polynom = polynomials[f]
+            s_polynom = polynomials[s]
+            polynomials[gate] = ZhegalkinPolynomial.merge_polynomials(f_polynom, s_polynom, op)
+
+        return polynomials
+
     def add_gate(self, first_predecessor, second_predecessor, operation, gate_label=None):
         if not gate_label:
             gate_label = f'z{len(self.gates)}'
@@ -402,7 +419,9 @@ class Circuit:
         new_gates = {}
         for gate in self.gates:
             value = self.gates[gate]
-            new_gates[list_after[list_before.index(gate)] if gate in list_before else gate] = (list_after[list_before.index(value[0])] if value[0] in list_before else value[0], list_after[list_before.index(value[1])] if value[1] in list_before else value[1], value[2])
+            new_gates[list_after[list_before.index(gate)] if gate in list_before else gate] = (
+                list_after[list_before.index(value[0])] if value[0] in list_before else value[0],
+                list_after[list_before.index(value[1])] if value[1] in list_before else value[1], value[2])
         self.gates = new_gates
 
     def get_nof_true_binary_gates(self):
@@ -488,13 +507,15 @@ class Circuit:
                     continue
 
                 if a1 == b1 and a2 == b2:
-                    new_type = ''.join([gate_type[2 * int(a_type[2 * c1 + c2]) + int(b_type[2 * c1 + c2])] for c1, c2 in product((0, 1), repeat=2)])
+                    new_type = ''.join([gate_type[2 * int(a_type[2 * c1 + c2]) + int(b_type[2 * c1 + c2])] for c1, c2 in
+                                        product((0, 1), repeat=2)])
                     if basis != 'aig' or new_type not in ['0110', '1001']:
                         self.gates[gate] = a1, a2, new_type
                         new_gate_contracted = True
                         break
                 elif a1 == b2 and a2 == b1:
-                    new_type = ''.join([gate_type[2 * int(a_type[2 * c1 + c2]) + int(b_type[2 * c2 + c1])] for c1, c2 in product((0, 1), repeat=2)])
+                    new_type = ''.join([gate_type[2 * int(a_type[2 * c1 + c2]) + int(b_type[2 * c2 + c1])] for c1, c2 in
+                                        product((0, 1), repeat=2)])
                     if basis != 'aig' or new_type not in ['0110', '1001']:
                         self.gates[gate] = a1, a2, new_type
                         new_gate_contracted = True
@@ -525,7 +546,8 @@ class Circuit:
             prefix = ''.join(random.choice(ascii_lowercase) for _ in range(5))
 
         def new_name(old_name):
-            return prefix + str(old_name) if old_name not in self.input_labels and old_name not in self.outputs else str(old_name)
+            return prefix + str(
+                old_name) if old_name not in self.input_labels and old_name not in self.outputs else str(old_name)
 
         new_gates = dict()
         for gate in self.gates:
@@ -554,7 +576,8 @@ class Circuit:
         assert first_gate in self.gates and second_gate in self.gates
 
         order = list(nx.topological_sort(self.construct_graph()))
-        (to_be_replaced_gate, by_gate) = (first_gate, second_gate) if order.index(first_gate) > order.index(second_gate) else (second_gate, first_gate)
+        (to_be_replaced_gate, by_gate) = (first_gate, second_gate) if order.index(first_gate) > order.index(
+            second_gate) else (second_gate, first_gate)
 
         self.gates.pop(to_be_replaced_gate)
 
@@ -567,5 +590,3 @@ class Circuit:
         for idx in range(len(self.outputs)):
             if self.outputs[idx] == to_be_replaced_gate:
                 self.outputs[idx] = by_gate
-
-
