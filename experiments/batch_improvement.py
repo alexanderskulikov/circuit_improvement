@@ -2,6 +2,7 @@ import argparse
 import sys
 import time
 from pathlib import Path
+import logging
 
 sys.path.append(str(Path(__file__).absolute().parent.parent))
 
@@ -9,35 +10,43 @@ from core.circuit_improvement import *
 from datetime import datetime
 from os import listdir
 from concurrent.futures import ProcessPoolExecutor, as_completed, Future
-from multiprocessing import Process
+from multiprocessing import Process, Queue
 import curses
 import tempfile
 
 log_dir = Path(tempfile.gettempdir())
 
 
+def get_log_file(log_id):
+    return log_dir / f"log_{log_id}.log"
+
+
+home_log = []
+home_log_queue = Queue()
+
+
+def print_home(s):
+    home_log_queue.put(s)
+
+
 def process_circuit(file_number, total_files, file_name, basis, speed, forward_output=False):
-    if forward_output:
-        set_output("home")
     ckt = Circuit()
     ckt.load_from_file(file_name[:-6], extension='bench')
     ckt.normalize(basis)
     text = f'[{file_number}/{total_files}] Processing {file_name[:-6]} of size {ckt.get_nof_true_binary_gates()} ({datetime.now()})'
-    print(text)
+    print_home(text)
     if forward_output:
         set_output(file_number)
         print(text)
     improve_circuit_iteratively(ckt, file_name[:-6], basis=basis, speed=speed)
-    if forward_output:
-        set_output("home")
-    print(f"Done [{file_number}] {file_name}")
+    print_home(f"Done [{file_number}] {file_name}")
 
 
 def improve_batch(basis, speed, threads):
     if threads > 1:
         clear_output("home")
         set_output("home")
-    print(f'Start batch improvement ({datetime.now()}). basis: {basis}, speed: {speed}, threads: {threads}')
+    print_home(f'Start batch improvement ({datetime.now()}). basis: {basis}, speed: {speed}, threads: {threads}')
     files = sorted(listdir('./circuits/'))
     with ProcessPoolExecutor(max_workers=threads) as pool:
         tasks = []
@@ -58,10 +67,6 @@ def improve_batch(basis, speed, threads):
     print(f'Done! ({datetime.now()}). Enter quit to exit')
 
 
-def get_log_file(log_id):
-    return log_dir / f"log_{log_id}.log"
-
-
 def set_output(log_id):
     log_filepath = get_log_file(log_id)
     log_file = log_filepath.open("a")
@@ -75,11 +80,25 @@ def clear_output(log_id):
         log_filepath.unlink()
 
 
-def print_file(file, stdscr):
+def print_lines(lines, stdscr):
     max_y, max_x = stdscr.getmaxyx()
 
-    def save_add(s):
+    def safe_add(s):
         stdscr.addstr(f"{s[:max_x - 1]}\n")
+
+    lines = lines[-(max_y - 2):]
+    for line in lines:
+        safe_add(line)
+
+
+def print_screen(screen, stdscr):
+    if screen == "home":
+        while not home_log_queue.empty():
+            home_log.append(home_log_queue.get())
+        print_lines(home_log, stdscr)
+        return
+
+    file = get_log_file(screen)
 
     if file.is_file():
         with file.open("rb") as file:
@@ -87,11 +106,9 @@ def print_file(file, stdscr):
             text = file.read().decode('utf-8')
             for line in text.split('\n'):
                 lines.append(line.split('\r')[-1])
-            lines = lines[-(max_y - 2):]
-            for line in lines:
-                save_add(line)
+            print_lines(lines, stdscr)
     else:
-        save_add("Log file does not exist.")
+        print_lines(["Log file does not exist."], stdscr)
 
 
 def run_tui(stdscr):
@@ -107,10 +124,8 @@ def run_tui(stdscr):
             time.sleep(0.05)
             stdscr.clear()
             stdscr.addstr(f"\"{current_screen}\" log:\n")
-            current_file = get_log_file(current_screen)
-
             max_y, max_x = stdscr.getmaxyx()
-            print_file(current_file, stdscr)
+            print_screen(current_screen, stdscr)
 
             stdscr.addstr(max_y - 1, 0,
                           f"Enter \"run id\" or \"quit\" or \"home\" and press Enter: {''.join(next_screen_name)}"[
