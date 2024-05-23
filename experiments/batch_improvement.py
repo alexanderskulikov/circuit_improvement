@@ -1,4 +1,5 @@
 import argparse
+import queue
 import sys
 import time
 from pathlib import Path
@@ -93,8 +94,12 @@ def print_lines(lines, stdscr):
 
 def print_screen(screen, stdscr):
     if screen == "home":
-        while not home_log_queue.empty():
-            home_log.append(home_log_queue.get())
+        try:
+            while True:
+                line = home_log_queue.get_nowait()
+                home_log.append(line)
+        except queue.Empty:
+            pass
         print_lines(home_log, stdscr)
         return
 
