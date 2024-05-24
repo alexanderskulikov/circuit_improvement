@@ -46,6 +46,7 @@ class Circuit:
         'NAND': '1110',
         'NOR': '1000',
         'NXOR': '1001',
+        'XNOR': '1001',
 
         '1001': '=',
         '0010': '>',
@@ -172,7 +173,10 @@ class Circuit:
 
         neg_prefix, neg_counter = 'tmpneg', 1
 
-        for gate in self.gates:
+        for gate in list(nx.topological_sort(self.construct_graph())):
+            if gate in self.input_labels:
+                continue
+
             first, second, gate_type = self.gates[gate]
             if gate_type == '0110':
                 file_data += f'\n{gate}=XOR({first}, {second})'
@@ -209,6 +213,9 @@ class Circuit:
             elif gate_type == '1100':
                 assert first == second
                 file_data += f'\n{gate}=NOT({first})'
+            elif gate_type == '0011':
+                assert first == second
+                file_data += f'\n{gate}=BUFF({first})'
             else:
                 assert False, f'Gate type not yet supported: {gate_type}'
 
