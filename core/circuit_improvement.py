@@ -9,7 +9,7 @@ from tqdm import tqdm
 
 def improve_circuit(circuit, max_inputs=7, subcircuit_size=7, basis='xaig', time_limit=None):
     print(f'  Enumerating subcircuits of size {subcircuit_size} with at most {max_inputs} inputs, '
-          f'solver time limit: {time_limit}, current time: {datetime.now()}')
+          f'solver time limit: {time_limit}, basis: {basis}, current time: {datetime.now()}')
     circuit_graph, circuit_truth_tables = circuit.construct_graph(), circuit.get_truth_tables()
 
     gate_subsets = set()
@@ -158,7 +158,7 @@ def improve_circuit_iteratively(circuit, file_name='', basis='xaig', save_circui
         5: (8, 9, 9, 10),   # previous name: slow
         4: (8, 9, 9, 20),
         3: (10, 10, 15, 10),
-        2: (11, 11, 15, 20),
+        2: (20, 3, 15, 20),
         1: (20, 3, 10, 20),
     }
     max_inputs, min_subcircuit_size, max_subcircuit_size, time_limit = predefined_parameters[speed]
@@ -185,7 +185,7 @@ def improve_circuit_iteratively(circuit, file_name='', basis='xaig', save_circui
                 circuit = better_circuit
 
                 if save_circuits:
-                    circuit.save_to_file('y_' + file_name + '_size' + str(better_circuit.get_nof_true_binary_gates()), extension='bench')
+                    circuit.save_to_file(f'_{file_name}-{basis}-size{str(better_circuit.get_nof_true_binary_gates())}', extension='bench')
 
                 break
 
