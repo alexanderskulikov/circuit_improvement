@@ -1,9 +1,12 @@
+import itertools
 from itertools import product
+from typing import List, Any, Union
+
 import networkx as nx
 import os
 import random
 from string import ascii_lowercase
-from .zhegalkin_polynomial import ZhegalkinPolynomial
+from .zhegalkin_polynomial import ZhegalkinPolynomial, ZhegalkinTree
 
 project_directory = os.path.dirname(os.path.abspath("path"))
 
@@ -46,6 +49,7 @@ class Circuit:
         'NAND': '1110',
         'NOR': '1000',
         'NXOR': '1001',
+        'XNOR': '1001',
 
         '1001': '=',
         '0010': '>',
@@ -63,6 +67,7 @@ class Circuit:
             self.__get_from_graph(graph)
         if file_name is not None:
             self.load_from_file(file_name)
+        self._new_node_counter = 0
 
     def __str__(self):
         s = 'Inputs: ' + ' '.join(map(str, self.input_labels)) + '\n'
@@ -398,6 +403,100 @@ class Circuit:
 
         return polynomials
 
+    def add_zhegalkin_polynomials(self, polynomials: List[ZhegalkinPolynomial], add_outputs: bool = False) -> List:
+        assert all(self.input_labels == p.input_labels for p in polynomials), "Input_labels should be aligned"
+        assert len(polynomials) > 0, "At least one polynomial should be provided"
+
+        def add_gate(label, first, second, op):
+            if label in self.gates.keys():
+                return
+            self.add_gate(first, second, op, label)
+
+        monom_pref = "m"
+        xor_pref = "x"
+        not_pref = "not"
+
+        def monom_to_gate(monom):
+            assert monom != 0
+            if monom.bit_count() == 1:
+                idx = bin(monom)[::-1].index('1')
+                return self.input_labels[idx]
+            else:
+                return f"{monom_pref}_{monom}"
+
+        def add_monom(monom):
+            assert monom != 0
+            monom_inputs = [i for i in range(len(self.input_labels)) if monom >> i & 1]
+            prev = 2 ** monom_inputs[0]
+            for i, elem in enumerate(monom_inputs):
+                if i == 0:
+                    continue
+                nxt = prev | 2 ** monom_inputs[i]
+                add_gate(monom_to_gate(nxt), monom_to_gate(prev), self.input_labels[elem], "0001")
+                prev = nxt
+
+        def add_not(gate):
+            assert gate is not None
+            new_gate = f"{not_pref}_{gate}"
+            add_gate(new_gate, gate, gate, "1100")
+            return new_gate
+
+        def add_xor(gate, monom):
+            assert monom != 0
+            new_gate = f"{gate}_{xor_pref}_{monom_to_gate(monom)}"
+            add_gate(new_gate, gate, monom_to_gate(monom), op="0110")
+            return new_gate
+
+        outputs = []
+        for polynomial in polynomials:
+            should_not = False
+            gate = None
+
+            if len(polynomial.monomials) == 0 or polynomial.monomials == {0}:
+                gate = f"const_0"
+                add_gate(gate, self.input_labels[0], self.input_labels[0], '0000')
+            for m in polynomial.monomials:
+                if m == 0:
+                    should_not = True
+                else:
+                    add_monom(m)
+                    if gate is None:
+                        gate = monom_to_gate(m)
+                    else:
+                        gate = add_xor(gate, m)
+            if should_not:
+                gate = add_not(gate)
+            outputs.append(gate)
+            if add_outputs:
+                self.outputs.append(gate)
+                self.outputs_negations.append(False)
+        return outputs
+
+    def add_zhegalkin_trees(self, trees: List[ZhegalkinTree], add_outputs: bool = False) -> List:
+
+        def add_subtree(node: Union[ZhegalkinTree.Node, ZhegalkinTree, ZhegalkinPolynomial]) -> Any:
+            if isinstance(node, ZhegalkinPolynomial):
+                return self.add_zhegalkin_polynomials([node])[0]
+            elif isinstance(node, ZhegalkinTree):
+                return add_subtree(node.root)
+            else:
+                assert isinstance(node, ZhegalkinTree.Node)
+                left_gate = add_subtree(node.left)
+                right_gate = add_subtree(node.right)
+                root_label = f"_tree_op_{self._new_node_counter}"
+                self._new_node_counter += 1
+                self.add_gate(left_gate, right_gate, node.op, gate_label=root_label)
+                return root_label
+
+        roots = []
+        for t in trees:
+            root = add_subtree(t)
+            roots.append(root)
+        if add_outputs:
+            self.outputs.extend(roots)
+            self.outputs_negations.extend([False] * len(roots))
+        return roots
+
     def add_gate(self, first_predecessor, second_predecessor, operation, gate_label=None):
         if not gate_label:
             gate_label = f'z{len(self.gates)}'
@@ -447,6 +546,8 @@ class Circuit:
                     for i in range(len(self.outputs)):
                         if self.outputs[i] == gate:
                             self.outputs[i] = x
+                            assert 0 <= i < len(
+                                self.outputs_negations), f"{type(i)}: {i} \\notin [0, {len(self.outputs_negations)})"
                             self.outputs_negations[i] = not self.outputs_negations[i]
 
                     for successor in self.gates:
