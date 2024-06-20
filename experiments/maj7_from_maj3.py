@@ -4,7 +4,7 @@ from pysat.formula import CNF, IDPool
 from pysat.solvers import Solver
 from tqdm import tqdm
 
-n, nof_gates = 3, 1
+n, nof_gates = 4, 5
 
 input_assignments = list(product((0, 1), repeat=n))
 inputs_gates = list(range(n))
@@ -74,13 +74,12 @@ for gate, assignment in tqdm(list(product(all_gates, input_assignments))):
                         (var_gate_value(gate=p0, input_assignment=assignment), v0),
                         (var_gate_value(gate=p1, input_assignment=assignment), v1),
                         (var_gate_value(gate=p2, input_assignment=assignment), v2),
-                    ], (gate, gate_value)))
+                    ], (var_gate_value(gate, assignment), gate_value)))
 
 
 solver = Solver(bootstrap_with=cnf_formula)
-# if solver.solve():
-#     print(solver.get_model())
-# else:
-#     print('Unsatisfiable')
-a = {}
+if solver.solve():
+    print(solver.get_model())
+else:
+    print('Unsatisfiable')
 
