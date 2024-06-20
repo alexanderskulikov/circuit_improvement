@@ -159,7 +159,7 @@ def improve_circuit_iteratively(circuit, file_name='', basis='xaig', save_circui
         4: (8, 9, 9, 20),
         3: (10, 10, 15, 10),
         2: (20, 3, 15, 20),
-        1: (20, 3, 10, 20),
+        1: (20, 3, 20, 20),
     }
     max_inputs, min_subcircuit_size, max_subcircuit_size, time_limit = predefined_parameters[speed]
 
