@@ -278,7 +278,7 @@ class CircuitFinder:
             if first_predecessor is not None:
                 assert first_predecessor in self.gates
                 assert not second_predecessor
-                for a, b in combinations(gate, 2):
+                for a, b in combinations(range(gate), 2):
                     if a != first_predecessor and b != first_predecessor:
                         self.clauses += [[-self.predecessors_variable(gate, a, b)]]
 
