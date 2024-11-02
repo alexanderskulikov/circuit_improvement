@@ -10,7 +10,7 @@ ckt.outputs = [a1, d4]
 
 print(len(ckt.gates))
 
-ckt = improve_circuit_iteratively(ckt, max_subcircuit_size=5)
+ckt = improve_circuit_iteratively(ckt, speed=15)
 print()
 print(len(ckt.gates))
 print(ckt)
