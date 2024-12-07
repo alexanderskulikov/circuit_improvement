@@ -1,7 +1,7 @@
 # finding circuits for SUM with a special structure (see Figure 5 of the paper)
 
 from math import ceil, log2
-from circuit_search import CircuitFinder
+from core.circuit_search import CircuitFinder
 
 
 def sum_n(x):
