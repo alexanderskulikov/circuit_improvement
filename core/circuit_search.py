@@ -222,6 +222,9 @@ class CircuitFinder:
         else:
             solver.solve()
 
+        if verbose:
+            print(f'Done solving, current time: {datetime.now()}')
+
         model = solver.get_model()
         solver.delete()
 
