@@ -250,11 +250,11 @@ def run(fun, size, modd):
     # c.save_to_file(f'mod3/mod3_{len(c.input_labels)}_{modd}_size{len(c.gates)}')
 
 
-def check_various_maj_circuits():
+def check_various_mod3_circuits():
     for i in range(3, 9):
         for j in range(0, 3):
             check_mod3_circuit_and_size(i, j)
 
 
 if __name__ == '__main__':
-    check_various_maj_circuits()
+    check_various_mod3_circuits()
