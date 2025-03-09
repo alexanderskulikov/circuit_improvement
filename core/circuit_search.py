@@ -194,7 +194,12 @@ class CircuitFinder:
 
     def solve_cnf_formula(self, solver_name='glucose421', verbose=1, time_limit=None):
         if verbose:
-            print(f'Solving a CNF formula, solver: {solver_name}, time_limit: {time_limit}, current time: {datetime.now()}')
+            print(f'Solving a CNF formula, '
+                  f'number of gates: {self.number_of_gates}, '
+                  f'solver: {solver_name}, '
+                  f'time_limit: {time_limit}, '
+                  f'current time: {datetime.now()}'
+            )
 
         # corner case: looking for a circuit of size 0
         if self.number_of_gates == 0:
