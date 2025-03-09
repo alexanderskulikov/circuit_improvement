@@ -143,6 +143,7 @@ def improve_circuit_iteratively(circuit, file_name='', basis='xaig', save_circui
     assert basis in ('xaig', 'aig')
 
     predefined_parameters = {
+        18: (3, 3, 3, 1),
         17: (5, 3, 3, 1),
         16: (5, 4, 4, 1),
         15: (6, 3, 5, 1),   # previous name: fast
