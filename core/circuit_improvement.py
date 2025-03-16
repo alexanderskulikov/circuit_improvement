@@ -8,8 +8,8 @@ from tqdm import tqdm
 
 
 def improve_circuit(circuit, max_inputs=7, subcircuit_size=7, basis='xaig', time_limit=None):
-    print(f'  Enumerating subcircuits of size {subcircuit_size} with at most {max_inputs} inputs, '
-          f'solver time limit: {time_limit}, basis: {basis}, current time: {datetime.now()}')
+    print(f' subcircuit size={subcircuit_size}, inputs<={max_inputs}, '
+          f'solver limit={time_limit}sec, basis={basis}, time={datetime.now().strftime("%H:%M:%S")}')
     circuit_graph, circuit_truth_tables = circuit.construct_graph(), circuit.get_truth_tables()
 
     gate_subsets = set()
