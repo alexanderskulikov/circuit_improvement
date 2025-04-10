@@ -9,7 +9,7 @@ from tqdm import tqdm
 
 def improve_circuit(circuit, max_inputs=7, subcircuit_size=7, basis='xaig', time_limit=None):
     print(f' subcircuit size={subcircuit_size}, inputs<={max_inputs}, '
-          f'solver limit={time_limit}sec, basis={basis}, time={datetime.now().strftime("%H:%M:%S")}')
+          f'solver limit={time_limit}sec, basis={basis}, time={datetime.now()}')
     circuit_graph, circuit_truth_tables = circuit.construct_graph(), circuit.get_truth_tables()
 
     gate_subsets = set()
@@ -140,6 +140,8 @@ def improve_circuit(circuit, max_inputs=7, subcircuit_size=7, basis='xaig', time
 
 
 def improve_circuit_iteratively(circuit, file_name='', basis='xaig', save_circuits=True, speed=10):
+    print(f'-----------------\n Start iterative improvement of {file_name}, speed={speed}, time={datetime.now()}')
+
     assert basis in ('xaig', 'aig')
 
     predefined_parameters = {
@@ -190,4 +192,5 @@ def improve_circuit_iteratively(circuit, file_name='', basis='xaig', save_circui
 
                 break
 
+    print(f'  Done! time={datetime.now()}')
     return circuit

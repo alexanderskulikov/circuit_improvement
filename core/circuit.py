@@ -636,7 +636,7 @@ class Circuit:
             graph = self.construct_graph()
 
             for gate in graph.nodes:
-                if gate not in self.outputs and graph.out_degree(gate) == 0:
+                if gate not in self.outputs and gate not in self.input_labels and graph.out_degree(gate) == 0:
                     self.gates.pop(gate)
                     dangling_gate_removed = True
 
