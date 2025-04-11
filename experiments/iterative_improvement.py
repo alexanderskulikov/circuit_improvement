@@ -9,6 +9,6 @@ for file_name in sorted(os.listdir('circuits')):
     circuit.load_from_file(file_name=file_name, extension='bench')
     circuit.normalize(basis='aig')
 
-    print(f'\n\n--> Trying to improve {file_name} of size {circuit.get_nof_true_binary_gates()}')
+    print(f'\n\nTrying to improve {file_name} of size {circuit.get_nof_true_binary_gates()}')
     improve_circuit_iteratively(circuit, file_name=file_name, basis='aig', save_circuits=True, speed=8)
 

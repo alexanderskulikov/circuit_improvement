@@ -7,10 +7,11 @@ import networkx as nx
 from tqdm import tqdm
 
 
-def improve_circuit(circuit, max_inputs=7, subcircuit_size=7, basis='xaig', time_limit=None):
-    print(f' subcircuit size={subcircuit_size}, inputs<={max_inputs}, '
+def improve_circuit(circuit, max_inputs=7, subcircuit_size=7, basis='xaig', time_limit=None, verify_new_circuit=False):
+    print(f'    subcircuit size={subcircuit_size}, inputs<={max_inputs}, '
           f'solver limit={time_limit}sec, basis={basis}, time={datetime.now()}')
     circuit_graph, circuit_truth_tables = circuit.construct_graph(), circuit.get_truth_tables()
+    better_circuit = None
 
     gate_subsets = set()
 
@@ -53,9 +54,17 @@ def improve_circuit(circuit, max_inputs=7, subcircuit_size=7, basis='xaig', time
 
         return list(subcircuit_inputs), list(subcircuit_outputs)
 
-    for gate_subset in tqdm(sorted(gate_subsets)):
+    # main loop
+    stats_too_many_inputs, stats_trivially_optimal, stats_optimal, stats_time_limit = 0, 0, 0, 0
+
+    for gate_subset in tqdm(sorted(gate_subsets), leave=False):
         subcircuit_inputs, subcircuit_outputs = compute_subcircuit_inputs_and_outputs(gate_subset)
-        if len(subcircuit_inputs) > max_inputs or len(subcircuit_outputs) == len(gate_subset):
+
+        if len(subcircuit_inputs) > max_inputs:
+            stats_too_many_inputs += 1
+            continue
+        if len(subcircuit_outputs) == len(gate_subset):
+            stats_trivially_optimal += 1
             continue
 
         output_truth_tables = dict()
@@ -98,7 +107,8 @@ def improve_circuit(circuit, max_inputs=7, subcircuit_size=7, basis='xaig', time
                 better_circuit = deepcopy(circuit)
                 better_circuit.merge_gates(first_gate, second_gate)
 
-                verify_better_circuit(circuit, better_circuit)
+                if verify_new_circuit:
+                    verify_better_circuit(circuit, better_circuit)
                 return better_circuit
 
         better_subcircuit = find_circuit(
@@ -110,6 +120,11 @@ def improve_circuit(circuit, max_inputs=7, subcircuit_size=7, basis='xaig', time
             basis=basis,
             time_limit=time_limit
         )
+
+        if better_subcircuit is None:
+            stats_time_limit += 1
+        if better_subcircuit is False:
+            stats_optimal += 1
 
         # the second check is a dirty hack
         if better_subcircuit and len(better_subcircuit.gates):
@@ -135,12 +150,20 @@ def improve_circuit(circuit, max_inputs=7, subcircuit_size=7, basis='xaig', time
 
             better_circuit_graph = better_circuit.construct_graph()
             if nx.is_directed_acyclic_graph(better_circuit_graph):
-                verify_better_circuit(circuit, better_circuit)
-                return better_circuit
+                if verify_new_circuit:
+                    verify_better_circuit(circuit, better_circuit)
+                break
+
+    print(f'      stats: subcircuits={len(gate_subsets)}; '
+          f'out of them: too many inputs={stats_too_many_inputs}, '
+          f'trivially optimal={stats_trivially_optimal}, '
+          f'time limit={stats_time_limit}, '
+          f'optimal={stats_optimal}')
+    return better_circuit
 
 
 def improve_circuit_iteratively(circuit, file_name='', basis='xaig', save_circuits=True, speed=10):
-    print(f'-----------------\n Start iterative improvement of {file_name}, speed={speed}, time={datetime.now()}')
+    print(f'  Iterative improvement of {file_name}, speed={speed}, time={datetime.now()}')
 
     assert basis in ('xaig', 'aig')
 
@@ -155,7 +178,7 @@ def improve_circuit_iteratively(circuit, file_name='', basis='xaig', save_circui
         11: (12, 6, 6, 10),
         10: (7, 3, 7, 5),   # previous name: medium
         9: (7, 7, 7, 10),
-        8: (7, 7, 7, 20),
+        8: (7, 3, 7, 20),
         7: (8, 8, 8, 10),
         6: (16, 8, 8, 20),
         5: (8, 9, 9, 10),   # previous name: slow

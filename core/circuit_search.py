@@ -192,6 +192,7 @@ class CircuitFinder:
             for v in self.variables:
                 file.write(f'c {v} {self.variables[v]}\n')
 
+    # returns: a circuit if found; False if there is no circuit; None if a SAT solver is interrupted by the time limit
     def solve_cnf_formula(self, solver_name='glucose421', verbose=1, time_limit=None):
         if verbose:
             print(f'Solving a CNF formula, '
@@ -231,10 +232,13 @@ class CircuitFinder:
             print(f'Done solving, current time: {datetime.now()}')
 
         model = solver.get_model()
+        interrupted = solver.get_status() is None
         solver.delete()
 
+        if interrupted:
+            return None
         if not model:
-            return model
+            return False
 
         gate_descriptions = {}
         for gate in self.internal_gates:
