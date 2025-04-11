@@ -11,7 +11,6 @@ def improve_circuit(circuit, max_inputs=7, subcircuit_size=7, basis='xaig', time
     print(f'    subcircuit size={subcircuit_size}, inputs<={max_inputs}, '
           f'solver limit={time_limit}sec, basis={basis}, time={datetime.now()}')
     circuit_graph, circuit_truth_tables = circuit.construct_graph(), circuit.get_truth_tables()
-    better_circuit = None
 
     gate_subsets = set()
 
@@ -54,9 +53,16 @@ def improve_circuit(circuit, max_inputs=7, subcircuit_size=7, basis='xaig', time
 
         return list(subcircuit_inputs), list(subcircuit_outputs)
 
-    # main loop
     stats_too_many_inputs, stats_trivially_optimal, stats_optimal, stats_time_limit = 0, 0, 0, 0
 
+    def print_stats():
+        print(f'      stats: subcircuits={len(gate_subsets)}; '
+              f'out of them: too many inputs={stats_too_many_inputs}, '
+              f'trivially optimal={stats_trivially_optimal}, '
+              f'time limit={stats_time_limit}, '
+              f'optimal={stats_optimal}')
+
+    # main loop
     for gate_subset in tqdm(sorted(gate_subsets), leave=False):
         subcircuit_inputs, subcircuit_outputs = compute_subcircuit_inputs_and_outputs(gate_subset)
 
@@ -152,14 +158,11 @@ def improve_circuit(circuit, max_inputs=7, subcircuit_size=7, basis='xaig', time
             if nx.is_directed_acyclic_graph(better_circuit_graph):
                 if verify_new_circuit:
                     verify_better_circuit(circuit, better_circuit)
-                break
+                print_stats()
+                return better_circuit
 
-    print(f'      stats: subcircuits={len(gate_subsets)}; '
-          f'out of them: too many inputs={stats_too_many_inputs}, '
-          f'trivially optimal={stats_trivially_optimal}, '
-          f'time limit={stats_time_limit}, '
-          f'optimal={stats_optimal}')
-    return better_circuit
+    print_stats()
+    return None
 
 
 def improve_circuit_iteratively(circuit, file_name='', basis='xaig', save_circuits=True, speed=10):
