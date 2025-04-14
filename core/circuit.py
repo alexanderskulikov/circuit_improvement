@@ -364,7 +364,7 @@ class Circuit:
 
         a.layout(prog='dot')
 
-        file_name = project_directory + '/circuits/.images/' + file_name + '.png'
+        file_name = project_directory + '/circuits/' + file_name + '.png'
         a.draw(file_name)
         print(f'Circuit image: {file_name}')
 
