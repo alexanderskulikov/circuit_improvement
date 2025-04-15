@@ -187,7 +187,7 @@ def improve_circuit_iteratively(circuit, file_name='', basis='xaig', save_circui
         8: (7, 3, 7, 20),
         7: (8, 8, 8, 10),
         6: (16, 8, 8, 20),
-        5: (8, 9, 9, 10),   # previous name: slow
+        5: (8, 3, 8, 10),   # previous name: slow
         4: (8, 9, 9, 20),
         3: (10, 10, 15, 10),
         2: (20, 3, 15, 20),
