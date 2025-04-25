@@ -160,8 +160,8 @@ def improve_circuit(circuit, max_inputs=7, subcircuit_size=7, basis='xaig', time
                     verify_better_circuit(circuit, better_circuit)
                 print_stats()
                 print('    Better subcircuit found for the following truth tables:', final_truth_tables)
-                circuit.draw(f'{datetime.now()}-size{circuit.get_nof_true_binary_gates()}', highlight_gates=gate_subset)
-                better_circuit.draw(f'{datetime.now()}-size{better_circuit.get_nof_true_binary_gates()}', highlight_gates=better_subcircuit.gates)
+                # circuit.draw(f'{datetime.now()}-size{circuit.get_nof_true_binary_gates()}', highlight_gates=gate_subset)
+                # better_circuit.draw(f'{datetime.now()}-size{better_circuit.get_nof_true_binary_gates()}', highlight_gates=better_subcircuit.gates)
                 return better_circuit
 
     print_stats()
