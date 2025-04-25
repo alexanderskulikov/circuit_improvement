@@ -120,11 +120,68 @@ def experiments():
     better_circuit.save_to_file(f'{basis}_sort{"0" if n < 10 else ""}{n}_size{better_circuit.get_nof_true_binary_gates()}', extension='bench')
 
 
+def synthesize_sort15_aig():
+    circuit = Circuit(input_labels=[f'x{i}' for i in range(1, 16)])
+    b = add_sum(circuit, circuit.input_labels, 'aig')  # size: 77
+
+    l0 = circuit.add_gate(b[0], b[1], '1000')
+    l1 = circuit.add_gate(b[0], b[1], '0100')
+    l2 = circuit.add_gate(b[0], b[1], '0010')
+    l3 = circuit.add_gate(b[0], b[1], '0001')
+
+    r0 = circuit.add_gate(b[2], b[3], '1000')
+    r1 = circuit.add_gate(b[2], b[3], '0100')
+    r2 = circuit.add_gate(b[2], b[3], '0010')
+    r3 = circuit.add_gate(b[2], b[3], '0001')
+
+    e1 = circuit.add_gate(l1, r0, '0001')
+    e2 = circuit.add_gate(l2, r0, '0001')
+    e3 = circuit.add_gate(l3, r0, '0001')
+    e4 = circuit.add_gate(l0, r1, '0001')
+    e5 = circuit.add_gate(l1, r1, '0001')
+    e6 = circuit.add_gate(l2, r1, '0001')
+    e7 = circuit.add_gate(l3, r1, '0001')
+    e8 = circuit.add_gate(l0, r2, '0001')
+    e9 = circuit.add_gate(l1, r2, '0001')
+    e10 = circuit.add_gate(l2, r2, '0001')
+    e11 = circuit.add_gate(l3, r2, '0001')
+    e12 = circuit.add_gate(l0, r3, '0001')
+    e13 = circuit.add_gate(l1, r3, '0001')
+    e14 = circuit.add_gate(l2, r3, '0001')
+    e15 = circuit.add_gate(l3, r3, '0001')
+
+    ge15 = e15
+    ge14 = circuit.add_gate(ge15, e14, '0111')
+    ge13 = circuit.add_gate(ge14, e13, '0111')
+    ge12 = circuit.add_gate(ge13, e12, '0111')
+    ge11 = circuit.add_gate(ge12, e11, '0111')
+    ge10 = circuit.add_gate(ge11, e10, '0111')
+    ge9 = circuit.add_gate(ge10, e9, '0111')
+    ge8 = circuit.add_gate(ge9, e8, '0111')
+    ge7 = circuit.add_gate(ge8, e7, '0111')
+    ge6 = circuit.add_gate(ge7, e6, '0111')
+    ge5 = circuit.add_gate(ge6, e5, '0111')
+    ge4 = circuit.add_gate(ge5, e4, '0111')
+    ge3 = circuit.add_gate(ge4, e3, '0111')
+    ge2 = circuit.add_gate(ge3, e2, '0111')
+    ge1 = circuit.add_gate(ge2, e1, '0111')
+
+    circuit.outputs = [ge15, ge14, ge13, ge12, ge11, ge10, ge9, ge8, ge7, ge6, ge5, ge4, ge3, ge2, ge1]
+    return circuit
+
+
+
+
 if __name__ == '__main__':
     # for basis, n in product(('aig', 'xaig'), range(5, 17)):
     #     synthesize_sorting_circuit(n, basis)
 
-    experiments()
+    # experiments()
+    ckt = synthesize_sort15_aig()
+    # verify_sorting_circuit(ckt)
+    print(ckt.get_nof_true_binary_gates())
+    improve_circuit_iteratively(ckt, speed=8, file_name=f'sort15', save_circuits=False, basis='aig')
+
 
 
 
