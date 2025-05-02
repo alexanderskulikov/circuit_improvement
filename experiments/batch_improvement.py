@@ -32,14 +32,14 @@ def print_home(s):
 
 def process_circuit(file_number, total_files, file_name, basis, speed, forward_output=False):
     ckt = Circuit()
-    ckt.load_from_file(file_name[:-6], extension='bench')
+    ckt.load_from_file(file_name)
     ckt.normalize(basis)
-    text = f'[{file_number}/{total_files}] Processing {file_name[:-6]} of size {ckt.get_nof_true_binary_gates()} ({datetime.now()})'
+    text = f'[{file_number}/{total_files}] Processing {file_name} of size {ckt.get_nof_true_binary_gates()} ({datetime.now()})'
     print_home(text)
     if forward_output:
         set_output(file_number)
         print(text)
-    improve_circuit_iteratively(ckt, file_name[:-6], basis=basis, speed=speed)
+    improve_circuit_iteratively(ckt, file_name, basis=basis, speed=speed)
     print_home(f"Done [{file_number}] {file_name}")
 
 
