@@ -206,7 +206,7 @@ def improve_circuit(circuit, inputs_size=7, max_subcircuit_size=7, basis='xaig',
                 if verify_new_circuit:
                     verify_better_circuit(circuit, better_circuit)
                 print_stats()
-                print(f'    Better subcircuit with {len(gate_subset)} gates and {len(subcircuit_inputs)} inputs found for the following truth tables:', final_truth_tables)
+                print(f'      Better subcircuit with {len(gate_subset)} gates and {len(subcircuit_inputs)} inputs found for the following truth tables:', final_truth_tables)
                 # circuit.draw(f'{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}-size{circuit.get_nof_true_binary_gates()}_init', highlight_gates=gate_subset)
                 # better_circuit.draw(f'{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}-size{better_circuit.get_nof_true_binary_gates()}_new', highlight_gates=better_subcircuit.gates)
                 return better_circuit
@@ -275,12 +275,12 @@ def improve_circuit_iteratively(circuit, file_name='', basis='xaig', save_circui
         if better_circuit:
             # assert better_circuit.get_nof_true_binary_gates() < circuit.get_nof_true_binary_gates()
             better_circuit.normalize(basis=basis)
-            print(f'    \033[92m{file_name} improved to {better_circuit.get_nof_true_binary_gates()}!\033[0m')
+            print(f'      \033[92m{file_name} improved to {better_circuit.get_nof_true_binary_gates()}!\033[0m')
             was_improved = True
             circuit = better_circuit
 
             if save_circuits:
-                circuit.save_to_file(f'_{file_name}-{basis}-size{str(better_circuit.get_nof_true_binary_gates())}', extension='bench')
+                circuit.save_to_file(path=f'_{file_name}-{basis}-size{str(better_circuit.get_nof_true_binary_gates())}')
 
     print(f'  Done! time={datetime.now()}')
     return circuit
@@ -288,12 +288,12 @@ def improve_circuit_iteratively(circuit, file_name='', basis='xaig', save_circui
 
 # currently, the input circuit is expected to be located in the experiments/circuits folder;
 # the resulting circuit is saved to the same folder
-def improve_single_circuit(input_file_name: str, output_file_name: str, speed: int = 15, global_time_limit: int = 60):
-    assert input_file_name.endswith('.bench') and output_file_name.endswith('.bench')
+def improve_single_circuit(input_path: str, output_path: str, speed: int = 15, global_time_limit: int = 60):
+    assert input_path.endswith('.bench') and output_path.endswith('.bench')
     circuit = Circuit()
-    circuit.load_from_file(file_name=input_file_name[:-6], extension='bench')
-    circuit = improve_circuit_iteratively(circuit=circuit, basis='aig', file_name=input_file_name, save_circuits=False, speed=speed, global_time_limit=global_time_limit)
-    circuit.save_to_file(file_name=output_file_name[:-6], extension='bench')
+    circuit.load_from_file(path=input_path)
+    circuit = improve_circuit_iteratively(circuit=circuit, basis='aig', file_name=input_path, save_circuits=False, speed=speed, global_time_limit=global_time_limit)
+    circuit.save_to_file(path=output_path)
 
 
 # if __name__ == "__main__":

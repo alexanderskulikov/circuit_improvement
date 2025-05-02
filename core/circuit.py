@@ -1,19 +1,11 @@
-import itertools
 from itertools import product
 from typing import List, Any, Union
 
 import networkx as nx
-import os
 import random
 from string import ascii_lowercase
 from .zhegalkin_polynomial import ZhegalkinPolynomial, ZhegalkinTree
 
-project_directory = os.path.dirname(os.path.abspath("path"))
-
-
-def ch(string):
-    string = str(string)
-    return "ch" + string if string.isnumeric() else string
 
 
 class Circuit:
@@ -84,17 +76,6 @@ class Circuit:
 
         return s
 
-    @staticmethod
-    def find_file(filename):
-        fname = []
-        for root, d_names, f_names in os.walk(project_directory):
-            for f in f_names:
-                if f == filename:
-                    fname.append(os.path.join(root, f))
-
-        assert len(fname) == 1, f'Number of files with {filename}: {len(fname)}: {fname}'
-        return fname[0]
-
     def __load_from_string_ckt(self, string):
         lines = string.splitlines()
         number_of_inputs, number_of_gates, number_of_outputs = \
@@ -112,6 +93,9 @@ class Circuit:
         self.outputs_negations = [False] * number_of_outputs
 
     def __load_from_string_bench(self, string):
+        def ch(ss: str):
+            return "ch" + ss if ss.isnumeric() else ss
+
         lines = string.splitlines()
 
         self.input_labels = []
@@ -147,13 +131,14 @@ class Circuit:
                         self.gates[neww] = (prev, ch(nls[i]), self.gate_bench_types[opername])
                         prev = neww
 
-    def load_from_file(self, file_name, extension='ckt'):
-        with open(Circuit.find_file(file_name + '.' + extension)) as circuit_file:
-            if extension == 'ckt':
+    def load_from_file(self, path: str):
+        with open(path) as circuit_file:
+            if path.endswith('.ckt'):
                 self.__load_from_string_ckt(circuit_file.read())
-
-            if extension == 'bench':
+            elif path.endswith('.bench'):
                 self.__load_from_string_bench(circuit_file.read())
+            else:
+                assert 'Unrecognized circuit format'
 
     def __save_to_ckt(self):
         file_data = f'{len(self.input_labels)} {len(self.gates)} {len(self.outputs)}\n'
@@ -237,18 +222,16 @@ class Circuit:
 
         return file_data
 
-    def save_to_file(self, file_name, extension='ckt'):
-        file_data = ''
-        if extension == 'ckt':
-            file_data = self.__save_to_ckt()
-
-        if extension == 'bench':
-            file_data = self.__save_to_bench()
-
-        path = project_directory + '/circuits/' + file_name + '.' + extension
+    def save_to_file(self, path: str):
         with open(path, 'w') as circuit_file:
-            circuit_file.write(file_data)
-        print(f'Circuit file: {path}')
+            if path.endswith('.ckt'):
+                circuit_file.write(self.__save_to_ckt())
+            elif path.endswith('.bench'):
+                circuit_file.write(self.__save_to_bench())
+            else:
+                assert 'Unrecognized circuit format'
+
+        print(f'Circuit saved to: {path}')
 
     def construct_graph(self, detailed_labels=True):
         circuit_graph = nx.DiGraph()
@@ -273,46 +256,6 @@ class Circuit:
             bit_operation = list(self.gate_types.keys())[list(self.gate_types.values()).index(operation)]
             self.gates[gate] = (
                 (graph.nodes[gate]['label']).split()[1], (graph.nodes[gate]['label']).split()[3], bit_operation)
-
-    # TODO: check this method
-    def replace_subgraph(self, improved_circuit, subcircuit, subcircuit_outputs):
-        circuit_graph = self.construct_graph()
-        replaced_graph = self.construct_graph()
-        subcircuit_inputs = improved_circuit.input_labels
-        improved_circuit_graph = improved_circuit.construct_graph()
-
-        def make_label(label_now, gate_before, gate_after):
-            gate_before = str(gate_before)
-            gate_after = str(gate_after)
-            ss = label_now.split(' ')
-            if ss[1] == gate_before:
-                ss[1] = gate_after
-            if ss[3] == gate_before:
-                ss[3] = gate_after
-
-            return ss[0] + ' ' + ss[1] + ' ' + ss[2] + ' ' + ss[3]
-
-        for gate in subcircuit:
-            if gate not in subcircuit_inputs:
-                replaced_graph.remove_node(gate)
-        for gate in improved_circuit.gates:
-            assert gate not in subcircuit_inputs
-            labels = []
-            for p in improved_circuit_graph.predecessors(gate):
-                labels.append(str(p))
-            replaced_graph.add_node(gate,
-                                    label=f'{gate}: {labels[0]} {improved_circuit.gate_types[improved_circuit.gates[gate][2]]} {labels[1]}')
-            for p in improved_circuit_graph.predecessors(gate):
-                replaced_graph.add_edge(p, gate)
-
-        for i in range(len(subcircuit_outputs)):
-            for s in circuit_graph.successors(subcircuit_outputs[i]):
-                if s in replaced_graph.nodes:
-                    replaced_graph.add_edge(improved_circuit.outputs[i], s)
-                    replaced_graph.nodes[s]['label'] = make_label(replaced_graph.nodes[s]['label'],
-                                                                  subcircuit_outputs[i],
-                                                                  improved_circuit.outputs[i])
-        return replaced_graph
 
     def draw(self, file_name='circuit', detailed_labels=False, experimental=False, highlight_gates=None):
         highlight_gates = highlight_gates or []
@@ -363,10 +306,8 @@ class Circuit:
                     a.get_node(g).attr['fillcolor'] = 'coral'
 
         a.layout(prog='dot')
-
-        file_name = project_directory + '/circuits/' + file_name + '.png'
         a.draw(file_name)
-        print(f'Circuit image: {file_name}')
+        print(f'Circuit image saved to: {file_name}')
 
     def get_truth_tables(self):
         truth_tables = {}
