@@ -8,5 +8,5 @@ for file_name in sorted(os.listdir('circuits')):
     circuit = Circuit()
     circuit.load_from_file(file_name=file_name, extension='bench')
     circuit.normalize(basis='aig')
-    improve_circuit_iteratively(circuit, file_name=file_name, basis='aig', save_circuits=True, speed=8)
+    improve_circuit_iteratively(circuit, file_name=file_name, basis='aig', save_circuits=True, speed=11)
 

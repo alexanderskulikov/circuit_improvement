@@ -10,10 +10,14 @@ from tqdm import tqdm
 
 hist_subcurcuits = set()
 circuit_graph, circuit_truth_tables = None, None
-def improve_circuit(circuit, inputs_size=7, max_subcircuit_size=7, basis='xaig', time_limit=None, verify_new_circuit=False):
+
+
+def improve_circuit(circuit, inputs_size=7, max_subcircuit_size=7, basis='xaig', solver_time_limit=None,
+                    verify_new_circuit=False, global_time_limit=60):
+    start_time = datetime.now()
     global circuit_graph, circuit_truth_tables
-    print(f'    subcircuit size<={max_subcircuit_size}, inputs<={inputs_size}, '
-          f'solver limit={time_limit}sec, time={datetime.now()}')
+    print(f'    size={circuit.get_nof_true_binary_gates()}, subcircuit size<={max_subcircuit_size}, inputs<={inputs_size}, '
+          f'solver limit={solver_time_limit}sec, time={datetime.now()}, global_time_limit={global_time_limit}')
     # circuit_graph, circuit_truth_tables = circuit.construct_graph(), circuit.get_truth_tables()
 
     gate_subsets = set()
@@ -90,6 +94,11 @@ def improve_circuit(circuit, inputs_size=7, max_subcircuit_size=7, basis='xaig',
         # if len(subcircuit_inputs) > last_inputs_size:
         #     print("    ALL SUBCIRCUITS WITN CNT INPUTS", last_inputs_size, "GONE")
         #     last_inputs_size = len(subcircuit_inputs)
+
+        if (datetime.now() - start_time).total_seconds() > global_time_limit:
+            print_stats()
+            return None
+
         if gate_subset in hist_subcurcuits:
             stats_trivially_optimal += 1
             continue
@@ -158,7 +167,7 @@ def improve_circuit(circuit, inputs_size=7, max_subcircuit_size=7, basis='xaig',
             input_labels=subcircuit_inputs,
             input_truth_tables=None,
             basis=basis,
-            time_limit=time_limit
+            time_limit=solver_time_limit
         )
 
         if better_subcircuit is None:
@@ -206,8 +215,14 @@ def improve_circuit(circuit, inputs_size=7, max_subcircuit_size=7, basis='xaig',
     return None
 
 
-def improve_circuit_iteratively(circuit, file_name='', basis='xaig', save_circuits=True, speed=10):
-    print(f'Iterative improvement of {file_name}, size={circuit.get_nof_true_binary_gates()}, basis={basis}, speed={speed}, time={datetime.now()}')
+def improve_circuit_iteratively(circuit, file_name='', basis='xaig', save_circuits=True, speed=10, global_time_limit=60):
+    print(f'Iterative improvement of {file_name}, '
+          f'size={circuit.get_nof_true_binary_gates()}, '
+          f'basis={basis}, speed={speed}, '
+          f'time={datetime.now()}, '
+          f'global time limit={global_time_limit}')
+
+    start_time = datetime.now()
 
     assert basis in ('xaig', 'aig')
 
@@ -240,6 +255,11 @@ def improve_circuit_iteratively(circuit, file_name='', basis='xaig', save_circui
     global circuit_graph, circuit_truth_tables
     was_improved = True
     while was_improved:
+        time_remaining = int(global_time_limit - (datetime.now() - start_time).total_seconds())
+        if time_remaining < 0:
+            print(f'...shutting down iterative improvement since {global_time_limit} seconds have passed')
+            break
+
         was_improved = False
         circuit_graph, circuit_truth_tables = circuit.construct_graph(), circuit.get_truth_tables()
 
@@ -248,7 +268,8 @@ def improve_circuit_iteratively(circuit, file_name='', basis='xaig', save_circui
             inputs_size=max_inputs,
             max_subcircuit_size=max_subcircuit_size,
             basis=basis,
-            time_limit=time_limit
+            solver_time_limit=time_limit,
+            global_time_limit=time_remaining
         )
 
         if better_circuit:
@@ -263,6 +284,16 @@ def improve_circuit_iteratively(circuit, file_name='', basis='xaig', save_circui
 
     print(f'  Done! time={datetime.now()}')
     return circuit
+
+
+# currently, the input circuit is expected to be located in the experiments/circuits folder;
+# the resulting circuit is saved to the same folder
+def improve_single_circuit(input_file_name: str, output_file_name: str, speed: int = 15, global_time_limit: int = 60):
+    assert input_file_name.endswith('.bench') and output_file_name.endswith('.bench')
+    circuit = Circuit()
+    circuit.load_from_file(file_name=input_file_name[:-6], extension='bench')
+    circuit = improve_circuit_iteratively(circuit=circuit, basis='aig', file_name=input_file_name, save_circuits=False, speed=speed, global_time_limit=global_time_limit)
+    circuit.save_to_file(file_name=output_file_name[:-6], extension='bench')
 
 
 # if __name__ == "__main__":
