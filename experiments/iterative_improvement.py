@@ -9,5 +9,5 @@ for file_name in sorted(listdir(folder)):
     circuit = Circuit()
     circuit.load_from_file(path=folder + '/' + file_name)
     circuit.normalize(basis='aig')
-    improve_circuit_iteratively(circuit, file_name=file_name, basis='aig', save_circuits=True, speed=8, global_time_limit=60 * 60 * 24 * 2)
+    improve_circuit_iteratively(circuit, file_name=file_name, basis='aig', save_circuits=True, speed='easy', global_time_limit=60 * 60 * 24 * 2)
 

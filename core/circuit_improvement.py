@@ -18,7 +18,7 @@ circuit_graph, circuit_truth_tables = None, None
 def improve_circuit(circuit, max_gates_for_inputs_numbers_dict, inputs_size=7, max_subcircuit_size=7, basis='xaig', time_limit=None, verify_new_circuit=False, global_time_limit=60):
     global circuit_graph, circuit_truth_tables, hist_subcurcuits
     print(f'    subcircuit size<={max_subcircuit_size}, inputs<={inputs_size}, '
-          f'solver limit={time_limit}sec, time={datetime.now()}')
+          f'solver limit={time_limit}sec, time={datetime.now()}, global time limit={global_time_limit}sec')
     start_time = datetime.now()
     gate_subsets = set()
     # topsort_array = list(nx.topological_sort(circuit_graph))[::-1]
@@ -251,7 +251,7 @@ def improve_circuit(circuit, max_gates_for_inputs_numbers_dict, inputs_size=7, m
 
 
 def improve_circuit_iteratively(circuit, file_name='', basis='xaig', save_circuits=True, speed='easy', global_time_limit=60):
-    print(f'Iterative improvement of {file_name}, size={circuit.get_nof_true_binary_gates()}, number_of_inputs={len(circuit.input_labels)}, basis={basis}, speed={speed}, time={datetime.now()}')
+    print(f'Iterative improvement of {file_name}, size={circuit.get_nof_true_binary_gates()}, nof inputs={len(circuit.input_labels)}, basis={basis}, speed={speed}, time={datetime.now().strftime("%Y-%m-%d %H:%M:%S")}, global time limit={global_time_limit} seconds')
 
     assert basis in ('xaig', 'aig')
     assert speed in ('easy', 'medium', 'hard')
@@ -325,11 +325,11 @@ def improve_circuit_iteratively(circuit, file_name='', basis='xaig', save_circui
             circuit = better_circuit
 
             if save_circuits:
-                circuit.save_to_file(f'_{file_name}-{basis}-size{str(better_circuit.get_nof_true_binary_gates())}', extension='bench')
-
+                circuit.save_to_file(f'_{file_name.replace(".bench", "")}-{basis}-size{str(better_circuit.get_nof_true_binary_gates())}.bench')
 
     print(f'  Done! time={datetime.now()}')
     return circuit
+
 
 def improve_single_circuit(input_path: str, output_path: str, speed: str = 'easy', global_time_limit: int = 60):
     assert input_path.endswith('.bench') and output_path.endswith('.bench')
