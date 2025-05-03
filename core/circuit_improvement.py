@@ -280,7 +280,7 @@ def improve_circuit_iteratively(circuit, file_name='', basis='xaig', save_circui
             circuit = better_circuit
 
             if save_circuits:
-                circuit.save_to_file(path=f'_{file_name}-{basis}-size{str(better_circuit.get_nof_true_binary_gates())}')
+                circuit.save_to_file(path=f'_{file_name.replace(".bench", "")}-{basis}-size{str(better_circuit.get_nof_true_binary_gates())}.bench')
 
     print(f'  Done! time={datetime.now()}')
     return circuit
