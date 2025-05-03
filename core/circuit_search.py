@@ -214,11 +214,22 @@ class CircuitFinder:
                         clause.append((-1 if int(op[i]) == 1 else 1) * self.gate_type_variable(gate, i // 2, i % 2))
                     precalc_inv_clauses[params].append(clause)
 
-            for gate in range(self.internal_gates[-1] + 1):
+            # for gate in range(self.internal_gates[-1] + 1):
+            #     lit = []
+            #     if gate >= self.internal_gates[0]:
+            #         for h in range(len(self.outputs)):
+            #            lit.append(self.output_gate_variable(h, gate))
+            #     for j in range(gate + 1, self.internal_gates[-1] + 1):
+            #         for k in range(max(j + 1, self.internal_gates[0]), self.internal_gates[-1] + 1):
+            #             lit.append(self.predecessors_variable(k, gate, j))
+            #     for j in range(gate):
+            #         for k in range(max(gate + 1, self.internal_gates[0]), self.internal_gates[-1] + 1):
+            #             lit.append(self.predecessors_variable(k, j, gate))
+            #     precalc_inv_clauses[params].append(lit)
+            #
+
+            for gate in range(self.internal_gates[0]):
                 lit = []
-                if gate >= self.internal_gates[0]:
-                    for h in range(len(self.outputs)):
-                       lit.append(self.output_gate_variable(h, gate))
                 for j in range(gate + 1, self.internal_gates[-1] + 1):
                     for k in range(max(j + 1, self.internal_gates[0]), self.internal_gates[-1] + 1):
                         lit.append(self.predecessors_variable(k, gate, j))
@@ -226,7 +237,7 @@ class CircuitFinder:
                     for k in range(max(gate + 1, self.internal_gates[0]), self.internal_gates[-1] + 1):
                         lit.append(self.predecessors_variable(k, j, gate))
                 precalc_inv_clauses[params].append(lit)
-            #
+
             for gate, gate_ in combinations(self.internal_gates, 2):
                 for j, k in combinations(range(gate), 2):
                     precalc_inv_clauses[params].append([-self.predecessors_variable(gate, j, k), -self.predecessors_variable(gate_, j, gate)])
@@ -299,6 +310,7 @@ class CircuitFinder:
         #                         if j_ == p or k_ == p:
         #                             claus.append(self.predecessors_variable(i_, j_, k_))
         #                 self.clauses.append(claus)
+        #         break
 
 
         # truth values for inputs
