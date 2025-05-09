@@ -1,3 +1,4 @@
+import os
 from itertools import product
 from typing import List, Any, Union
 
@@ -37,7 +38,7 @@ class Circuit:
         'OR': '0111',
         'AND': '0001',
         'NOT': '1100',
-        # 'BUFF': '0011',
+        'BUFF': '0011',
         'NAND': '1110',
         'NOR': '1000',
         'NXOR': '1001',
@@ -162,11 +163,20 @@ class Circuit:
 
         neg_prefix, neg_counter = 'tmpneg', 1
 
-        for gate in list(nx.topological_sort(self.construct_graph())):
+        for gat in list(nx.topological_sort(self.construct_graph())):
+            gate = gat[::1]
             if gate in self.input_labels:
                 continue
 
             first, second, gate_type = self.gates[gate]
+
+            if neg_prefix in gate and gate_type not in ['0010', '0100', '1011', '1101']:
+                for i in range(len(self.outputs)):
+                    if self.outputs[i] == gate:
+                        self.outputs[i] = f'{neg_prefix}{neg_counter}'
+                gate = f'{neg_prefix}{neg_counter}'
+                neg_counter += 1
+
             if gate_type == '0110':
                 file_data += f'\n{gate}=XOR({first}, {second})'
             elif gate_type == '1001':
