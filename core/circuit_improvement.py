@@ -5,7 +5,6 @@ from functions.sum import *
 from itertools import combinations
 import networkx as nx
 import time
-from core.run_circuit import add_buff_inputs
 from queue import Queue
 
 hist_subcurcuits = set()
