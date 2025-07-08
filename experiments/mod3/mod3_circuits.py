@@ -2,12 +2,12 @@
 # from itertools import product
 from core.circuit_search import CircuitFinder
 
-n, r, size = 4, 0, 7
+# n, r, size = 4, 0, 7
 # n, r, size = 4, 1, 7
 # n, r, size = 4, 2, 6
 # n, r, size = 5, 1, 9  # no
 # n, r, size = 5, 0, 10  # yes 408 seconds
-# n, r, size = 5, 2, 10  # yes quick
+n, r, size = 5, 2, 10  # yes quick
 
 
 def mod3(x):
