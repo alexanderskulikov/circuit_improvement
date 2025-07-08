@@ -1,3 +1,5 @@
+# every optimal circuit contains exactly 2n-4 xors; this turned out to be false
+
 from core.circuit import Circuit
 from itertools import combinations, product, permutations
 from core.functions2 import BooleanFunction
