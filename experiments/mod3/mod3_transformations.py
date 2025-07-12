@@ -16,15 +16,15 @@ def check_mod3_circuit(circuit, modd):
 
 
 ckt = Circuit()
-ckt.load_from_file('mod3_4_2_transformed')
+ckt.load_from_file('circuits/mod3_5_2_topxor_with_gadget.ckt')
 print(ckt.get_nof_true_binary_gates())
-ckt.draw(file_name='mod3_4_2_transformed', detailed_labels=True)
+# ckt.draw(file_name='circuits/mod3_5_2_topxor_with_gadget.png', detailed_labels=True)
 check_mod3_circuit(ckt, modd=1)
 ckt.normalize(basis='xaig')
 print(ckt.get_nof_true_binary_gates())
-ckt.draw(file_name='mod3_4_2_transformed_simplified', detailed_labels=True)
-check_mod3_circuit(ckt, modd=1)
-
-ckt2 = improve_circuit_iteratively(ckt, speed=12)
-print(ckt2.get_nof_true_binary_gates())
-ckt2.draw(file_name='mod3_4_2_transformed_improved', detailed_labels=True)
+# ckt.draw(file_name='mod3_4_2_transformed_simplified', detailed_labels=True)
+# check_mod3_circuit(ckt, modd=1)
+#
+ckt2 = improve_circuit_iteratively(ckt, speed='medium')
+# print(ckt2.get_nof_true_binary_gates())
+# ckt2.draw(file_name='mod3_4_2_transformed_improved', detailed_labels=True)

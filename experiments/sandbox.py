@@ -2,11 +2,11 @@ from core.circuit_improvement import *
 from functions.mult import *
 from core.circuit_search import *
 
-from functions.sum import add_sum
+def f(x):
+    assert len(x) == 3
+    # return (x[0] + x[1]) % 2, (1 + x[0] * x[1]) % 2, (x[0] + x[1] + x[0] * x[1] + 1 + x[2]) % 2
+    return [(x[0] + x[1] + x[0] * x[1] + 1 + x[2]) % 2,]
 
-for k in range(3, 8):
-    n = 2 ** k - 1
-    ckt = Circuit(input_labels=[f'x{i}' for i in range(n)])
-    outs = add_sum(ckt, ckt.input_labels, basis='aig')
-    ckt.outputs = outs
-    ckt.save_to_file(f'sum{n}_size{ckt.get_nof_true_binary_gates()}_aig.bench')
+finder = CircuitFinder(dimension=3, function=f, number_of_gates=2)
+ckt = finder.solve_cnf_formula()
+print(ckt)
