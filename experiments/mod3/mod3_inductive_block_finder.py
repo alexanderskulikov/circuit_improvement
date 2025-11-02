@@ -296,11 +296,11 @@ if __name__ == '__main__':
         return [1, 0] if sum(x) % 3 == 0 else [0, 1]
 
     finder = MOD3InductiveBlockCircuitFinder(
-        dimension=5,
-        number_of_gates=9,
+        dimension=6,
+        number_of_gates=13,
         function=mod3,
     )
-    # finder.save_cnf_formula_to_file('mod3_inductive.cnf')
+    finder.save_cnf_formula_to_file('mod3_inductive.cnf')
     circuit = finder.solve_cnf_formula(verbose=True)
     print(circuit)
     if circuit:
