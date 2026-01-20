@@ -1,5 +1,5 @@
-# find a block that takes n input bits and outputs two bits whose sum is equal to the
-# sum of input bits modulo 3
+# find a block that takes n input bits and outputs two bits
+# whose sum is equal to the sum of input bits modulo 3
 
 from core.circuit import Circuit
 from itertools import combinations, product, permutations
@@ -189,7 +189,7 @@ class MOD3InductiveBlockCircuitFinder:
             self.clauses += [[self.gate_type_variable(gate, 0, 0), -self.gate_type_variable(gate, 0, 1), self.gate_type_variable(gate, 1, 0), -self.gate_type_variable(gate, 1, 1)]]
             self.clauses += [[-self.gate_type_variable(gate, 0, 0), self.gate_type_variable(gate, 0, 1), -self.gate_type_variable(gate, 1, 0), self.gate_type_variable(gate, 1, 1)]]
 
-        ## !!! EXPERIMENTAL: HAMILTONIAN
+        # !!! EXPERIMENTAL: HAMILTONIAN
         for gate in self.internal_gates[2:]:
             self.clauses += [[self.predecessors_variable(gate, i, gate - 1) for i in range(gate - 1)]]
 
@@ -289,20 +289,23 @@ class MOD3InductiveBlockCircuitFinder:
         pass
 
 
-
-
 if __name__ == '__main__':
     def mod3(x):
         return [1, 0] if sum(x) % 3 == 0 else [0, 1]
 
+    # 3: 5 (and hamiltonian) -> 5n upper bound
+    # 4: 8 (and hamiltonian) -> 4n upper bound
+    # 5: 11 (and hamiltonian) -> 3.66n upper bound
+    n, size = 6, 15
+
     finder = MOD3InductiveBlockCircuitFinder(
-        dimension=6,
-        number_of_gates=13,
+        dimension=n,
+        number_of_gates=size,
         function=mod3,
     )
-    finder.save_cnf_formula_to_file('mod3_inductive.cnf')
+    # finder.save_cnf_formula_to_file(f'mod3_inductive_n{n}_size_{size}.cnf')
     circuit = finder.solve_cnf_formula(verbose=True)
     print(circuit)
     if circuit:
-        circuit.save_to_file('mod3_inductive.ckt')
+        circuit.save_to_file(f'mod3_inductive_n{n}_size_{size}.ckt')
 
