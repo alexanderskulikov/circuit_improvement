@@ -148,30 +148,18 @@ class MOD3InductiveBlockCircuitFinder:
                         ]]
 
         for t, x in enumerate(product(range(2), repeat=self.dimension)):
-            if sum(x) % 3 == 0:
-                for h, gate in product(self.outputs, self.internal_gates):
-                    self.clauses += [[-self.output_gate_variable(h, gate), -self.gate_value_variable(gate, t)]]
-            elif sum(x) % 3 == 2:
-                for h, gate in product(self.outputs, self.internal_gates):
-                    self.clauses += [[-self.output_gate_variable(h, gate), self.gate_value_variable(gate, t)]]
-            else:
-                assert sum(x) % 3 == 1
-                for h1, h2 in permutations(self.outputs, 2):
-                    for gate1, gate2 in product(self.internal_gates, repeat=2):
-                        self.clauses += [[
-                            -self.output_gate_variable(h1, gate1),
-                            -self.output_gate_variable(h2, gate2),
-                            self.gate_value_variable(gate1, t),
-                            self.gate_value_variable(gate2, t)
-                        ]]
-                        self.clauses += [[
-                            -self.output_gate_variable(h1, gate1),
-                            -self.output_gate_variable(h2, gate2),
-                            -self.gate_value_variable(gate1, t),
-                            -self.gate_value_variable(gate2, t)
-                        ]]
-
-
+            for h1, h2, h3 in permutations(self.outputs, 3):
+                for gate1, gate2, gate3 in product(self.internal_gates, repeat=3):
+                    for b in product(range(2), repeat=3):
+                        if (sum(x) - sum(b)) % 3 != 0:  # then, the output for x cannot be b
+                            self.clauses += [[
+                                -self.output_gate_variable(h1, gate1),
+                                -self.output_gate_variable(h2, gate2),
+                                -self.output_gate_variable(h3, gate3),
+                                (-1 if b[0] else 1) * self.gate_value_variable(gate1, t),
+                                (-1 if b[1] else 1) * self.gate_value_variable(gate2, t),
+                                (-1 if b[2] else 1) * self.gate_value_variable(gate3, t)
+                            ]]
 
         # each gate computes a non-degenerate function (0, 1, x, -x, y, -y)
         for gate in self.internal_gates:
@@ -288,14 +276,13 @@ if __name__ == '__main__':
     def mod3(x):
         return [1, 0, 0] if sum(x) % 3 == 0 else [0, 1, 1]
 
-    n, size = 4, 5
+    n, size = 5, 6
 
     finder = MOD3InductiveBlockCircuitFinder(
         dimension=n,
         number_of_gates=size,
         function=mod3,
     )
-    # finder.save_cnf_formula_to_file(f'mod3_inductive_n{n}_size_{size}.cnf')
     circuit = finder.solve_cnf_formula(verbose=True)
     print(circuit)
     if circuit:
