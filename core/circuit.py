@@ -5,7 +5,7 @@ from typing import List, Any, Union
 import networkx as nx
 import random
 from string import ascii_lowercase
-from zhegalkin_polynomial import ZhegalkinPolynomial, ZhegalkinTree
+from core.zhegalkin_polynomial import ZhegalkinPolynomial, ZhegalkinTree
 
 
 

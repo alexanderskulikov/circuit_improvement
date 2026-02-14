@@ -340,6 +340,7 @@ def improve_circuit_iteratively(circuit, file_name='', basis='xaig', save_circui
     print(f'  Done! time={datetime.now()}, start time={start_time}, processing time={datetime.now() - start_time}')
     return circuit
 
+
 def improve_single_circuit(input_path: str, output_path: str, speed: str = 'easy', global_time_limit: int = 60):
     assert input_path.endswith('.bench') and output_path.endswith('.bench')
     circuit = Circuit()
