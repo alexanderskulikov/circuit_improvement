@@ -1,12 +1,20 @@
-from core.circuit_improvement import *
-from functions.mult import *
-from core.circuit_search import *
+from networkx.algorithms.approximation import treewidth_min_degree, treewidth_min_fill_in
+from core.circuit import *
+from os import listdir
 
-def f(x):
-    assert len(x) == 3
-    # return (x[0] + x[1]) % 2, (1 + x[0] * x[1]) % 2, (x[0] + x[1] + x[0] * x[1] + 1 + x[2]) % 2
-    return [(x[0] + x[1] + x[0] * x[1] + 1 + x[2]) % 2,]
+folder = 'circuits'
+for file_name in sorted(listdir(folder)):
+    if file_name.startswith('.'):
+        continue
+    circuit = Circuit()
+    circuit.load_from_file(path=folder + '/' + file_name)
+    circuit.normalize(basis='aig')
+    directed_graph = circuit.construct_graph()
+    undirected_graph = directed_graph.to_undirected()
 
-finder = CircuitFinder(dimension=3, function=f, number_of_gates=2)
-ckt = finder.solve_cnf_formula()
-print(ckt)
+    for x in circuit.input_labels:
+        undirected_graph.remove_node(x)
+
+    tw = min(treewidth_min_degree(undirected_graph)[0], treewidth_min_fill_in(undirected_graph)[0])
+    print(f'The treewidth of {file_name} is at most {tw}')
+
