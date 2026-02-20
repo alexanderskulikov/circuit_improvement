@@ -489,7 +489,7 @@ class Circuit:
         return nof_gates
 
     def get_depth(self):
-        return len(nx.dag_longest_path(self.construct_graph())) - 1
+        return nx.dag_longest_path_length(self.construct_graph())
 
     # propagate NOT gates into successors
     def contract_unary_gates(self):
