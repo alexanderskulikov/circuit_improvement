@@ -7,11 +7,20 @@ import networkx as nx
 import time
 from queue import Queue
 
+
 hist_subcurcuits = set()
 circuit_graph, circuit_truth_tables = None, None
 stats_all, stats_optimal, stats_time_limit = 0, 0, 0
 
-def improve_circuit(circuit, max_gates_for_inputs_numbers_dict, inputs_size=7, max_subcircuit_size=7, basis='xaig', time_limit=None, verify_new_circuit=False, global_time_limit=60):
+
+def improve_circuit(circuit,
+                    max_gates_for_inputs_numbers_dict,
+                    inputs_size=7, max_subcircuit_size=7,
+                    basis='xaig',
+                    time_limit=None,
+                    verify_new_circuit=False,
+                    global_time_limit=60,
+                    keep_depth=False):
     global circuit_graph, circuit_truth_tables, hist_subcurcuits
     global stats_optimal, stats_time_limit, stats_all
     print(f'    subcircuit size<={max_subcircuit_size}, inputs<={inputs_size}, '
@@ -39,8 +48,8 @@ def improve_circuit(circuit, max_gates_for_inputs_numbers_dict, inputs_size=7, m
             print(f'    Better circuit found with merged gates {first_gate} and {second_gate}')
             return better_circuit
 
-
     stats_all, stats_optimal, stats_time_limit = 0, 0, 0
+
     def print_stats():
         print(f'    cnt subcircuits={stats_all}, '
             f'time limit={stats_time_limit}, '
@@ -181,7 +190,7 @@ def improve_circuit(circuit, max_gates_for_inputs_numbers_dict, inputs_size=7, m
 
             better_circuit_graph = better_circuit.construct_graph()
 
-            if nx.is_directed_acyclic_graph(better_circuit_graph):
+            if nx.is_directed_acyclic_graph(better_circuit_graph) and (not keep_depth or better_circuit.get_depth() <= circuit.get_depth()):
                 if verify_new_circuit:
                     verify_better_circuit(circuit, better_circuit)
                 print_stats()
@@ -287,7 +296,7 @@ def improve_circuit(circuit, max_gates_for_inputs_numbers_dict, inputs_size=7, m
     return create_all_sub_circuits()
 
 
-def improve_circuit_iteratively(circuit, file_name='', basis='xaig', save_circuits=True, speed='easy', global_time_limit=60):
+def improve_circuit_iteratively(circuit, file_name='', basis='xaig', save_circuits=True, speed='easy', global_time_limit=60, keep_depth=False):
     print(f'Iterative improvement of {file_name}, size={circuit.get_nof_true_binary_gates()}, number_of_inputs={len(circuit.input_labels)}, basis={basis}, speed={speed}, time={datetime.now()}')
 
     assert basis in ('xaig', 'aig')
@@ -323,7 +332,8 @@ def improve_circuit_iteratively(circuit, file_name='', basis='xaig', save_circui
             max_subcircuit_size=max_subcircuit_size,
             basis=basis,
             time_limit=time_limit,
-            global_time_limit=time_remaining
+            global_time_limit=time_remaining,
+            keep_depth=keep_depth
         )
 
         if better_circuit:
