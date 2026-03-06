@@ -297,7 +297,14 @@ def improve_circuit(circuit,
 
 
 def improve_circuit_iteratively(circuit, file_name='', basis='xaig', save_circuits=True, speed='easy', global_time_limit=60, keep_depth=False):
-    print(f'Iterative improvement of {file_name}, size={circuit.get_nof_true_binary_gates()}, number_of_inputs={len(circuit.input_labels)}, basis={basis}, speed={speed}, time={datetime.now()}')
+    print(f'Iterative improvement of {file_name}: ' 
+          f'size={circuit.get_nof_true_binary_gates()},'
+          f'depth={circuit.get_depth()}, '
+          f'inputs={len(circuit.input_labels)}, '
+          f'basis={basis}, '
+          f'speed={speed}, '
+          f'keep_depth={keep_depth}, '
+          f'time={datetime.now()}')
 
     assert basis in ('xaig', 'aig')
     assert speed in ('easy', 'medium', 'hard')
@@ -344,8 +351,7 @@ def improve_circuit_iteratively(circuit, file_name='', basis='xaig', save_circui
             circuit = better_circuit
 
             if save_circuits:
-                circuit.save_to_file(f'circuits/_{file_name}-{basis}-size{str(better_circuit.get_nof_true_binary_gates())}.bench')
-
+                circuit.save_to_file(f'circuits/improved/{file_name}_{circuit.get_depth()}_{circuit.get_nof_true_binary_gates()}.bench')
 
     print(f'  Done! time={datetime.now()}, start time={start_time}, processing time={datetime.now() - start_time}')
     return circuit
