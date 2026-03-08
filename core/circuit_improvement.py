@@ -298,7 +298,7 @@ def improve_circuit(circuit,
 
 def improve_circuit_iteratively(circuit, file_name='', basis='xaig', save_circuits=True, speed='easy', global_time_limit=60, keep_depth=False):
     print(f'Iterative improvement of {file_name}: ' 
-          f'size={circuit.get_nof_true_binary_gates()},'
+          f'size={circuit.get_nof_true_binary_gates()}, '
           f'depth={circuit.get_depth()}, '
           f'inputs={len(circuit.input_labels)}, '
           f'basis={basis}, '
