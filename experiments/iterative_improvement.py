@@ -11,7 +11,7 @@ for file_name in sorted(os.listdir(folder)):
     fields = file_name.split('_')
     depth, size = int(fields[1]), int(fields[2])
 
-    if size > 300:
+    if size > 1000:
         continue
 
     try:
@@ -26,9 +26,10 @@ for file_name in sorted(os.listdir(folder)):
             basis='aig',
             save_circuits=True,
             speed='easy',
+            global_time_limit= 10 * 60,
             # global_time_limit=60 * 60 * 24 * 2,
             keep_depth=False
         )
     except Exception as err:
-        print(f"Unexpected {err=}, {type(err)=}")
+        print(f'    \033[91mUnexpected {err=}, {type(err)=}\033[0m')
 
