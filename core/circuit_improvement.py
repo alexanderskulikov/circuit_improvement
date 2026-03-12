@@ -303,7 +303,8 @@ def improve_circuit_iteratively(circuit, file_name='', basis='xaig', save_circui
           f'inputs={len(circuit.input_labels)}, '
           f'basis={basis}, '
           f'speed={speed}, '
-          f'keep_depth={keep_depth}, '
+          f'keep depth={keep_depth}, '
+          f'global time limit={global_time_limit}, '
           f'time={datetime.now()}')
 
     assert basis in ('xaig', 'aig')
@@ -326,7 +327,7 @@ def improve_circuit_iteratively(circuit, file_name='', basis='xaig', save_circui
     while was_improved:
         time_remaining = int(global_time_limit - (datetime.now() - start_time).total_seconds())
         if time_remaining < 0:
-            print(f'...shutting down iterative improvement since {global_time_limit} seconds have passed')
+            print(f'    ...shutting down iterative improvement since {global_time_limit} seconds have passed')
             break
 
         was_improved = False

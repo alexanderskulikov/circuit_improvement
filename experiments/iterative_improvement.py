@@ -1,21 +1,23 @@
 from core.circuit_improvement import improve_circuit_iteratively
 from core.circuit import *
 import os
-# from os import listdir,
+import re
+
 
 folder = 'circuits'
 for file_name in sorted(os.listdir(folder)):
-    if file_name.startswith('.') or file_name == 'improved' and not os.path.isdir(file_name):
+    print('Processing', file_name)
+    if file_name.startswith('.') or file_name == 'improved':
+        print('    skip')
         continue
 
-    fields = file_name.split('_')
+    fields = re.split(r'[_, .]+', file_name)
     depth, size = int(fields[1]), int(fields[2])
 
     if size > 1000:
         continue
 
     try:
-        print('Processing', file_name)
         circuit = Circuit()
         circuit.load_from_file(path=folder + '/' + file_name)
         circuit.normalize(basis='aig')
@@ -26,7 +28,7 @@ for file_name in sorted(os.listdir(folder)):
             basis='aig',
             save_circuits=True,
             speed='easy',
-            global_time_limit= 10 * 60,
+            global_time_limit= 60 * 12,
             # global_time_limit=60 * 60 * 24 * 2,
             keep_depth=False
         )
