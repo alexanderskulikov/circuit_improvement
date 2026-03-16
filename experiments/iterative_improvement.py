@@ -6,15 +6,15 @@ import re
 
 folder = 'circuits'
 for file_name in sorted(os.listdir(folder)):
-    print('Processing', file_name)
-    if file_name.startswith('.') or file_name == 'improved':
-        print('    skip')
+    if not file_name.endswith('.bench'):
         continue
+
+    print('Processing', file_name)
 
     fields = re.split(r'[_, .]+', file_name)
     depth, size = int(fields[1]), int(fields[2])
 
-    if size > 1000:
+    if size > 2000:
         continue
 
     try:
@@ -28,7 +28,7 @@ for file_name in sorted(os.listdir(folder)):
             basis='aig',
             save_circuits=True,
             speed='easy',
-            global_time_limit= 60 * 12,
+            global_time_limit= 60 * 60 * 17,
             # global_time_limit=60 * 60 * 24 * 2,
             keep_depth=False
         )
