@@ -296,7 +296,15 @@ def improve_circuit(circuit,
     return create_all_sub_circuits()
 
 
-def improve_circuit_iteratively(circuit, file_name='', basis='xaig', save_circuits=True, speed='easy', global_time_limit=60, keep_depth=False):
+def improve_circuit_iteratively(
+        circuit,
+        file_name='',
+        output_folder='',
+        basis='xaig',
+        save_circuits=True,
+        speed='easy',
+        global_time_limit=60,
+        keep_depth=False):
     print(f'Iterative improvement of {file_name}: ' 
           f'size={circuit.get_nof_true_binary_gates()}, '
           f'depth={circuit.get_depth()}, '
@@ -352,7 +360,7 @@ def improve_circuit_iteratively(circuit, file_name='', basis='xaig', save_circui
             circuit = better_circuit
 
             if save_circuits:
-                circuit.save_to_file(f'circuits/improved/{file_name}_{circuit.get_depth()}_{circuit.get_nof_true_binary_gates()}.bench')
+                circuit.save_to_file(f'{output_folder}/{file_name}_{circuit.get_depth()}_{circuit.get_nof_true_binary_gates()}.bench')
 
     print(f'  Done! time={datetime.now()}, start time={start_time}, processing time={datetime.now() - start_time}')
     return circuit
