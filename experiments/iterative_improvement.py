@@ -4,7 +4,7 @@ import os
 import re
 
 processed_benches_file_name = 'processed-bench-names.txt'
-input_folder, output_folder, max_size = '/Users/Alexander.Kulikov/Desktop/pareto', '/Users/Alexander.Kulikov/Desktop/pareto-improved', 500
+input_folder, output_folder, max_size = 'circuits', 'circuits/improved', 4000
 
 
 if not os.path.exists(processed_benches_file_name):
@@ -42,7 +42,7 @@ for file_name in sorted(os.listdir(input_folder)):
             basis='aig',
             save_circuits=True,
             speed='easy',
-            global_time_limit=60,
+            global_time_limit=60 * 60 * 40,
             keep_depth=False,
             output_folder=output_folder
         )
