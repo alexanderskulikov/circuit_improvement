@@ -164,3 +164,4 @@ paper/main_lipics.pdf
 tmp.cnf
 
 experiments/circuits/*
+experiments/processed-bench-names.txt
