@@ -273,14 +273,14 @@ def improve_circuit(circuit,
         for gate in topsort_array:
             time_remaining = int(global_time_limit - (datetime.now() - start_time).total_seconds())
             if time_remaining < 0:
-                print(f'...shutting down iterative improvement since {global_time_limit} seconds have passed')
+                print(f'    ...shutting down iterative improvement since {global_time_limit} seconds have passed')
                 break
 
             if gate not in circuit.input_labels:
                 res = extend_gate_set(gate)
                 if res is None:
-                    print(f'...shutting down iterative improvement since {global_time_limit} seconds have passed')
-                    return None # GLOBAL TL
+                    print(f'    ...shutting down iterative improvement since {global_time_limit} seconds have passed')
+                    return None  # GLOBAL TL
                 if res is not False:
                     print_stats()
                     return res
