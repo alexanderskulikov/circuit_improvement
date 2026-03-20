@@ -4,10 +4,9 @@ import os
 import re
 
 processed_benches_file_name = 'processed-bench-names.txt'
-# input_folder, output_folder, max_size = 'circuits', 'circuits/improved', 4000
 input_folder, output_folder, max_size = '/Users/Alexander.Kulikov/Desktop/pareto', '/Users/Alexander.Kulikov/Desktop/pareto-improved', 2000
 # total_time = 60 * 60 * 24 * 3  # 3 days
-total_time = 60 * 60  # one hour
+total_time = 60 * 60 * 9  # nine hours
 
 
 if not os.path.exists(processed_benches_file_name):
@@ -41,8 +40,9 @@ single_benchmark_timelimit = total_time / max(1, len(files_to_be_processed))
 
 print('Start improving Pareto front')
 print(f'  Skipping {nof_too_big} benches as they are too large and skipping {nof_processed_already} benches as they have been processed already')
+print(f'  Processing {len(files_to_be_processed)} benches')
 print(f'  The total time given is {total_time} sec (or {total_time / 3600:.2f} hours, or {total_time / 3600 / 24:.2f} days),'
-      f'  so each benchmark will be given {single_benchmark_timelimit:.2f} sec (or {single_benchmark_timelimit / 3600:.2f} hours)\n')
+      f' so each benchmark will be given {single_benchmark_timelimit:.2f} sec (or {single_benchmark_timelimit / 3600:.2f} hours)\n')
 
 
 for file_name in files_to_be_processed:
