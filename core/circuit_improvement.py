@@ -312,7 +312,7 @@ def improve_circuit_iteratively(
           f'basis={basis}, '
           f'speed={speed}, '
           f'keep depth={keep_depth}, '
-          f'global time limit={global_time_limit}, '
+          f'global time limit={global_time_limit:.1f}, '
           f'time={datetime.now()}')
 
     assert basis in ('xaig', 'aig')

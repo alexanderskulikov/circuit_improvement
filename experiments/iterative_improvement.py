@@ -41,8 +41,8 @@ single_benchmark_timelimit = total_time / max(1, len(files_to_be_processed))
 print('Start improving Pareto front')
 print(f'  Skipping {nof_too_big} benches as they are too large and skipping {nof_processed_already} benches as they have been processed already')
 print(f'  Processing {len(files_to_be_processed)} benches')
-print(f'  The total time given is {total_time} sec (or {total_time / 3600:.2f} hours, or {total_time / 3600 / 24:.2f} days),'
-      f' so each benchmark will be given {single_benchmark_timelimit:.2f} sec (or {single_benchmark_timelimit / 3600:.2f} hours)\n')
+print(f'  The total time given is {total_time} sec (or {total_time / 3600:.1f} hours, or {total_time / 3600 / 24:.1f} days),'
+      f' so each benchmark will be given {single_benchmark_timelimit:.1f} sec (or {single_benchmark_timelimit / 3600:.1f} hours)\n')
 
 
 for file_name in files_to_be_processed:
