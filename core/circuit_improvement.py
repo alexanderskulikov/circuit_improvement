@@ -18,13 +18,13 @@ def improve_circuit(circuit,
                     inputs_size=7, max_subcircuit_size=7,
                     basis='xaig',
                     time_limit=None,
-                    verify_new_circuit=False,
+                    verify_new_circuit=False,  # set it when debugging
                     global_time_limit=60,
                     keep_depth=False):
     global circuit_graph, circuit_truth_tables, hist_subcurcuits
     global stats_optimal, stats_time_limit, stats_all
     print(f'    subcircuit size<={max_subcircuit_size}, inputs<={inputs_size}, '
-          f'solver limit={time_limit}sec, time={datetime.now()}')
+          f'solver limit={time_limit}sec, time={datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
     start_time = datetime.now()
 
     def verify_better_circuit(original_circuit, smaller_circuit):
@@ -35,12 +35,13 @@ def improve_circuit(circuit,
         smaller_circuit_truth_tables = smaller_circuit.get_truth_tables()
 
         for i in range(len(original_circuit.outputs)):
-            assert original_circuit_truth_tables[original_circuit.outputs[i]] == smaller_circuit_truth_tables[
-                smaller_circuit.outputs[i]]
+            assert original_circuit_truth_tables[original_circuit.outputs[i]] == smaller_circuit_truth_tables[smaller_circuit.outputs[i]]
+        print('[debug] verified successfully')
 
     # corner case: there are two equal outputs
     for first_gate, second_gate in combinations(list(nx.topological_sort(circuit_graph)), 2):
         if first_gate not in circuit.input_labels and second_gate not in circuit.input_labels and circuit_truth_tables[first_gate] == circuit_truth_tables[second_gate]:
+            print('[debug]', circuit_truth_tables)
             better_circuit = deepcopy(circuit)
             better_circuit.merge_gates(first_gate, second_gate)
             if verify_new_circuit:
@@ -51,9 +52,7 @@ def improve_circuit(circuit,
     stats_all, stats_optimal, stats_time_limit = 0, 0, 0
 
     def print_stats():
-        print(f'    cnt subcircuits={stats_all}, '
-            f'time limit={stats_time_limit}, '
-              f'optimal={stats_optimal}')
+        print(f'    went through {stats_all} subcircuits: out of them, {stats_optimal} are optimal and for {stats_time_limit}, SAT solver hit a time limit')
 
     topsort_array = list(nx.topological_sort(circuit_graph))
     number_of_vertex = len(topsort_array)
@@ -76,7 +75,6 @@ def improve_circuit(circuit,
                         break
 
         return list(subcircuit_outputs)
-
 
     def processing_of_one_subcircuit(gate_subset_inds, subcircuit_inputs_inds):
         gate_subset = []
@@ -159,13 +157,14 @@ def improve_circuit(circuit,
         if better_subcircuit is None:
             del gate_subset, subcircuit_inputs, subcircuit_outputs, final_truth_tables
             return None
+
         if better_subcircuit is False:
             hist_subcurcuits.add(frozenset(gate_subset))
             del gate_subset, subcircuit_inputs, subcircuit_outputs, final_truth_tables
             return False
 
-        # the second check is a dirty hack
-        if better_subcircuit and len(better_subcircuit.gates):
+        # the last two checks are a dirty hack
+        if better_subcircuit and len(better_subcircuit.gates) and all([gate not in circuit.input_labels for gate in gate_subset]):
             better_subcircuit.rename_internal_gates()
             better_subcircuit.rename_output_gates(subcircuit_outputs)
 
@@ -195,8 +194,14 @@ def improve_circuit(circuit,
                     verify_better_circuit(circuit, better_circuit)
                 print_stats()
                 print(f'    Better subcircuit with {gate_subset_size} gates and {len(subcircuit_inputs)} inputs found for the following truth tables:', final_truth_tables)
+
+                # print('[debug]', gate_subset)
+                # circuit.draw('debug.png', detailed_labels=True, highlight_gates=gate_subset)
+                # better_circuit.draw('debug_better.png', detailed_labels=True, highlight_gates=gate_subset)
+
                 del gate_subset, subcircuit_inputs, subcircuit_outputs, final_truth_tables
                 return better_circuit
+
         hist_subcurcuits.add(frozenset(gate_subset))
         del gate_subset, subcircuit_inputs, subcircuit_outputs, final_truth_tables
         return False
@@ -313,7 +318,7 @@ def improve_circuit_iteratively(
           f'speed={speed}, '
           f'keep depth={keep_depth}, '
           f'global time limit={global_time_limit:.1f}, '
-          f'time={datetime.now()}')
+          f'time={datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
 
     assert basis in ('xaig', 'aig')
     assert speed in ('easy', 'medium', 'hard')
@@ -325,9 +330,9 @@ def improve_circuit_iteratively(
     hist_subcurcuits = set()
 
     predefined_params = {
-        'easy' : ({0: 7, 1 : 7, 2 : 7, 3 : 7, 4 : 6, 5 : 6, 6 : 6}, 6, 7, 30),
-        'medium' : ({0 : 9, 1 : 9, 2 : 9, 3 : 8, 4 : 8, 5 : 7, 6 : 7, 7 : 7}, 7, 9, 30),
-        'hard' : ({0: 10, 1 : 10, 2 : 10, 3 : 10, 4 : 9, 5 : 8, 6 : 8, 7 : 8, 8 : 8}, 8, 10, 30)
+        'easy': ({0: 7, 1: 7, 2: 7, 3: 7, 4: 6, 5: 6, 6: 6}, 6, 7, 30),
+        'medium': ({0: 9, 1: 9, 2: 9, 3: 8, 4: 8, 5: 7, 6: 7, 7: 7}, 7, 9, 30),
+        'hard': ({0: 10, 1: 10, 2: 10, 3: 10, 4: 9, 5: 8, 6: 8, 7: 8, 8: 8}, 8, 10, 30)
     }
 
     dict_inps_to_number_of_gates, max_inputs, max_subcircuit_size, time_limit = predefined_params[speed]
@@ -362,7 +367,7 @@ def improve_circuit_iteratively(
             if save_circuits:
                 circuit.save_to_file(f'{output_folder}/{file_name}_{circuit.get_depth()}_{circuit.get_nof_true_binary_gates()}.bench')
 
-    print(f'  Done! time={datetime.now()}, start time={start_time}, processing time={datetime.now() - start_time}')
+    print(f'  Done! time={datetime.now().strftime("%Y-%m-%d %H:%M:%S")}, start time={start_time.strftime("%Y-%m-%d %H:%M:%S")}, processing time={datetime.now() - start_time} seconds')
     return circuit
 
 

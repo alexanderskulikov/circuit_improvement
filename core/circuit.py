@@ -282,6 +282,8 @@ class Circuit:
                 a.get_node(gate).attr['shape'] = 'circle'
 
         for gate in highlight_gates:
+            if not a.has_node(gate):
+                continue
             a.get_node(gate).attr['style'] = 'filled'
             a.get_node(gate).attr['fillcolor'] = 'green3'
 
