@@ -12,6 +12,7 @@ from threading import Timer
 
 precalc_inv_clauses = dict()
 
+
 class CircuitFinder:
     def __init__(self, dimension, number_of_gates, input_labels=None,
                  input_truth_tables=None, output_truth_tables=None,

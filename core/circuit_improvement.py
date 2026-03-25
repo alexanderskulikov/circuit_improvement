@@ -35,13 +35,16 @@ def improve_circuit(circuit,
         smaller_circuit_truth_tables = smaller_circuit.get_truth_tables()
 
         for i in range(len(original_circuit.outputs)):
+            # print('[debug]', i)
+            # print('[debug]', original_circuit_truth_tables[original_circuit.outputs[i]])
+            # print('[debug]', smaller_circuit_truth_tables[smaller_circuit.outputs[i]])
             assert original_circuit_truth_tables[original_circuit.outputs[i]] == smaller_circuit_truth_tables[smaller_circuit.outputs[i]]
-        print('[debug] verified successfully')
+        # print('[debug] verified successfully')
 
     # corner case: there are two equal outputs
     for first_gate, second_gate in combinations(list(nx.topological_sort(circuit_graph)), 2):
         if first_gate not in circuit.input_labels and second_gate not in circuit.input_labels and circuit_truth_tables[first_gate] == circuit_truth_tables[second_gate]:
-            print('[debug]', circuit_truth_tables)
+            # print('[debug]', circuit_truth_tables)
             better_circuit = deepcopy(circuit)
             better_circuit.merge_gates(first_gate, second_gate)
             if verify_new_circuit:
@@ -52,7 +55,7 @@ def improve_circuit(circuit,
     stats_all, stats_optimal, stats_time_limit = 0, 0, 0
 
     def print_stats():
-        print(f'    went through {stats_all} subcircuits: out of them, {stats_optimal} are optimal and for {stats_time_limit}, SAT solver hit a time limit')
+        print(f'    went through {stats_all} subcircuits: out of them, {stats_optimal} are optimal and SAT solver hit a time limit for {stats_time_limit} of them')
 
     topsort_array = list(nx.topological_sort(circuit_graph))
     number_of_vertex = len(topsort_array)
@@ -192,7 +195,7 @@ def improve_circuit(circuit,
             if nx.is_directed_acyclic_graph(better_circuit_graph) and (not keep_depth or better_circuit.get_depth() <= circuit.get_depth()):
                 if verify_new_circuit:
                     verify_better_circuit(circuit, better_circuit)
-                print_stats()
+                # print_stats()
                 print(f'    Better subcircuit with {gate_subset_size} gates and {len(subcircuit_inputs)} inputs found for the following truth tables:', final_truth_tables)
 
                 # print('[debug]', gate_subset)

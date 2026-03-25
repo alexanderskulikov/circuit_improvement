@@ -6,11 +6,10 @@ import os
 import re
 
 processed_benches_file_name = 'processed-bench-names.txt'
-input_folder, output_folder = '/Users/Alexander.Kulikov/Desktop/pareto', '/Users/Alexander.Kulikov/Desktop/pareto-improved'
+input_folder = '/Users/Alexander.Kulikov/Desktop/pareto'
+output_folder = '/Users/Alexander.Kulikov/Desktop/pareto-improved'
 max_size = 1000
-
-# total_time = 60 * 60 * 24 * 3  # 3 days
-total_time = 60 * 45  # nine hours
+total_time = 60 * 60 * 24 * 5
 
 
 if not os.path.exists(processed_benches_file_name):
@@ -43,7 +42,7 @@ for file_name in sorted(os.listdir(input_folder)):
 single_benchmark_timelimit = total_time // max(1, len(files_to_be_processed))
 
 print(f'''
-Start improving Pareto front
+Start improving all benches from Pareto front of size <={max_size}
 Processing {len(files_to_be_processed)} benches, giving each one {single_benchmark_timelimit} sec (or {single_benchmark_timelimit / 3600:.1f} hours), and skipping {nof_too_big} large benches and {nof_processed_already} already processed benches
 ETA: {(datetime.now() + timedelta(seconds=total_time)).strftime("%Y-%m-%d %H:%M:%S")}
 ''')
