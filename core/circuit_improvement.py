@@ -4,7 +4,6 @@ from datetime import datetime
 from functions.sum import *
 from itertools import combinations
 import networkx as nx
-import time
 from queue import Queue
 
 
@@ -41,15 +40,15 @@ def improve_circuit(circuit,
             assert original_circuit_truth_tables[original_circuit.outputs[i]] == smaller_circuit_truth_tables[smaller_circuit.outputs[i]]
         # print('[debug] verified successfully')
 
-    # corner case: there are two equal outputs
-    for first_gate, second_gate in combinations(list(nx.topological_sort(circuit_graph)), 2):
+    # corner case: there are two equal gates
+    for first_gate, second_gate in combinations(list(circuit.gates), 2):
         if first_gate not in circuit.input_labels and second_gate not in circuit.input_labels and circuit_truth_tables[first_gate] == circuit_truth_tables[second_gate]:
             # print('[debug]', circuit_truth_tables)
             better_circuit = deepcopy(circuit)
             better_circuit.merge_gates(first_gate, second_gate)
             if verify_new_circuit:
                 verify_better_circuit(circuit, better_circuit)
-            print(f'    Better circuit found with merged gates {first_gate} and {second_gate}')
+            print(f'    Gates {first_gate} and {second_gate} compute the same, merging them', flush=True)
             return better_circuit
 
     stats_all, stats_optimal, stats_time_limit = 0, 0, 0

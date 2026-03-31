@@ -525,25 +525,25 @@ class Circuit:
                     self.gates.pop(gate)
                     new_gate_contracted = True
                     break
-                # elif gate_type == '0011':  # BUFF gates
-                #     assert x == y
-                #
-                #     if gate in self.outputs:
-                #         gate_index = self.outputs.index(gate)
-                #         self.outputs[gate_index] = x
-                #     else:
-                #         for successor in self.gates:
-                #             sx, sy, stype = self.gates[successor]
-                #             if sx == sy and sx == gate:
-                #                 self.gates[successor] = (x, x, stype)
-                #             elif sx == gate:
-                #                 self.gates[successor] = (x, sy, stype)
-                #             elif sy == gate:
-                #                 self.gates[successor] = (sx, x, stype)
-                #
-                #     self.gates.pop(gate)
-                #     new_gate_contracted = True
-                #     break
+                elif gate_type == '0011':  # BUFF gates
+                    assert x == y
+
+                    if gate in self.outputs:
+                        gate_index = self.outputs.index(gate)
+                        self.outputs[gate_index] = x
+                    else:
+                        for successor in self.gates:
+                            sx, sy, stype = self.gates[successor]
+                            if sx == sy and sx == gate:
+                                self.gates[successor] = (x, x, stype)
+                            elif sx == gate:
+                                self.gates[successor] = (x, sy, stype)
+                            elif sy == gate:
+                                self.gates[successor] = (sx, x, stype)
+
+                    self.gates.pop(gate)
+                    new_gate_contracted = True
+                    break
 
     # if a gate g is fed by a and b such that both
     # a and b are fed by с and d, then g is replaced by a function of c and d
@@ -636,11 +636,10 @@ class Circuit:
         self.outputs = output_gate_labels
 
     def merge_gates(self, first_gate, second_gate):
-        assert first_gate in self.gates and second_gate in self.gates
+        assert first_gate in self.gates and second_gate in self.gates and first_gate != second_gate
 
         order = list(nx.topological_sort(self.construct_graph()))
-        (to_be_replaced_gate, by_gate) = (first_gate, second_gate) if order.index(first_gate) > order.index(
-            second_gate) else (second_gate, first_gate)
+        (to_be_replaced_gate, by_gate) = (first_gate, second_gate) if order.index(first_gate) > order.index(second_gate) else (second_gate, first_gate)
 
         self.gates.pop(to_be_replaced_gate)
 
