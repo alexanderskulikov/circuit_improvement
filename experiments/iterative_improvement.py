@@ -6,10 +6,11 @@ import os
 import re
 
 processed_benches_file_name = 'processed-bench-names.txt'
-input_folder = '/Users/Alexander.Kulikov/Desktop/pareto'
+input_folder = '/Users/Alexander.Kulikov/Desktop/pareto-subset'
 output_folder = '/Users/Alexander.Kulikov/Desktop/pareto-improved'
 max_size = 1000
-total_time = 60 * 60 * 24 * 5
+total_time = 60 * 60 * 1
+keep_depth = True
 
 
 if not os.path.exists(processed_benches_file_name):
@@ -65,7 +66,7 @@ for file_name in files_to_be_processed:
             save_circuits=True,
             speed='easy',
             global_time_limit=single_benchmark_timelimit,
-            keep_depth=False,
+            keep_depth=keep_depth,
             output_folder=output_folder
         )
 
